@@ -1,0 +1,1080 @@
+.\"  -*- nroff -*-
+.\"
+.\" Author: Tatu Ylonen <ylo@cs.hut.fi>
+.\" Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
+.\"                    All rights reserved
+.\"
+.\" As far as I am concerned, the code I have written for this software
+.\" can be used freely for any purpose.  Any derived versions of this
+.\" software must be clearly marked as such, and if the derived work is
+.\" incompatible with the protocol description in the RFC file, it must be
+.\" called by a name other than "ssh" or "Secure Shell".
+.\"
+.\" Copyright (c) 1999,2000 Markus Friedl.  All rights reserved.
+.\" Copyright (c) 1999 Aaron Campbell.  All rights reserved.
+.\" Copyright (c) 1999 Theo de Raadt.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" $OpenBSD: sshd_config.5,v 1.96 2008/07/02 02:24:18 djm Exp $
+.\"
+.\" Japanese translation: $Id: sshd_config.5,v 1.2 2008/03/31 14:42:59 yusuke Exp $
+.\" by Yusuke Shinyama <yusuke @ cs . nyu . edu>
+.\"
+.Dd $Mdocdate: June 15 2008 $
+.Dt SSHD_CONFIG 5
+.Os
+.Sh 名前
+.Nm sshd_config
+.Nd OpenSSH SSH デーモン 設定ファイル
+.Sh 書式
+.Nm /etc/ssh/sshd_config
+.Sh 説明
+.Xr sshd 8
+は
+.Pa /etc/ssh/sshd_config
+(あるいはコマンドラインから
+.Fl f
+オプションで指定したファイル) から設定を読み込みます。
+このファイルの各行は
+.Dq キーワード 引数
+の形式になっており、空行あるいは
+.Ql #
+で始まる行はコメントとみなされます。
+空白を含む引数はダブルクォート
+.Pq \&"
+で囲んで表現することもできます。
+.Pp
+使用できるキーワードとその説明は以下の通りです
+(キーワードでは大文字小文字は区別されませんが、引数では区別されることに
+注意してください):
+.Bl -tag -width Ds
+.It Cm AcceptEnv (受け付ける環境変数)
+クライアントから送られた環境変数のうち、どれをそのセッションの
+.Xr environ 7
+にコピーするかを指定します。
+クライアント側をどのように設定するかについては
+.Xr ssh_config 5
+の
+.Cm SendEnv
+項目を参照してください。
+環境変数の受け渡しはプロトコル バージョン 2 でのみサポートされています。
+環境変数は名前で指定します。名前にはワイルドカード文字
+.Ql *
+または
+.Ql \&? 
+を含むことができます。
+複数の環境変数を指定する場合は空白文字で区切るか、
+あるいは複数の
+.Cm AcceptEnv
+項目を指定します。
+警告: いくつかの環境変数は、制限つきの環境 (restricted environment) を
+迂回するのに使われることがあります。このため、この設定項目を利用する場合は
+細心の注意を払ってください。デフォルトでは、いかなる環境変数も
+受け渡しできないようになっています。
+.It Cm AddressFamily (アドレスファミリ)
+.Xr sshd 8
+が、どのアドレスファミリを使うべきかを指定します。
+とりうる値は
+.Dq any
+(すべて)、
+.Dq inet
+(IPv4 のみ) あるいは
+.Dq inet6
+(IPv6 のみ) です。
+デフォルトでは、
+.Dq any
+になっています。
+.It Cm AllowAgentForwarding
+.Xr ssh-agent 1
+によるエージェント転送を許可するかどうかを指定します。
+デフォルトは
+.Dq yes 
+です。エージェント転送を禁止しても、ユーザのシェルへの
+アクセスを禁止しない限りセキュリティは向上しないことに注意してください。
+なぜなら、彼らはつねに自分で転送プログラムを起動することができるからです。
+.It Cm AllowGroups (許可するグループ)
+このキーワードにはいくつかのグループ名パターンをスペースで区切って
+指定します。これが指定されると、ユーザの基本グループが
+そのパターンのどれかにマッチするグループであるようなユーザだけが
+ログインを許可されます。
+有効なのはグループの「名前」だけで、
+数字で表されたグループ ID は認識されません。デフォルトでは、
+ログインはすべてのグループに許可されています。
+allow/deny 関連の項目は以下の順に処理されます:
+.Cm DenyUsers 、
+.Cm AllowUsers 、
+.Cm DenyGroups 、
+そして最後に
+.Cm AllowGroups 。
+.Pp
+パターンに関する詳細は
+.Xr ssh_config 5
+の
+.Sx パターン
+の項を参照してください。
+.It Cm AllowTcpForwarding (TCP 転送の許可)
+TCP 転送を許可するかどうか指定します。デフォルトは
+.Dq yes
+です。TCP 転送を禁止しても、ユーザにシェルのアクセスを禁止しない
+かぎりセキュリティの向上にはならないことに注意してください。
+なぜならユーザはいつでも自前の転送プログラムをインストールして
+使うことができるからです。
+.It Cm AllowUsers (許可するユーザ)
+このキーワードにはいくつかのユーザ名パターンをスペースで区切って
+指定します。これが指定されると、そのパターンのどれかにマッチする
+ユーザだけがログインを許可されます。
+有効なのはユーザの「名前」だけで、
+数字で表されたユーザ ID は認識されません。デフォルトでは、
+ログインはすべてのユーザに許可されています。
+もしこのパターンが USER@HOST という形をとっている時は、
+ユーザ名 USER と ホスト名 HOST を別々にチェックでき、
+特定のホストからの特定のユーザのログインを制限することができます。
+allow/deny 関連の項目は以下の順に処理されます:
+.Cm DenyUsers 、
+.Cm AllowUsers 、
+.Cm DenyGroups 、
+そして最後に
+.Cm AllowGroups 。
+.Pp
+パターンに関する詳細は
+.Xr ssh_config 5
+の
+.Sx パターン
+の項を参照してください。
+.It Cm AuthorizedKeysFile (authorized_keys ファイル)
+ユーザ認証の際に使われる公開鍵を格納しているファイル名を
+指定します。
+.Cm AuthorizedKeysFile
+のファイル名中に %T が含まれている場合、その部分は接続の間
+別のものに置換されます。%% は「%」1文字に置換されます。
+%h は認証しようとしているユーザのホームディレクトリに置換され、
+%u はそのユーザのユーザ名に置換されます。この後、
+その絶対パスあるいはユーザのホームディレクトリからの相対パスが
+.Cm AuthorizedKeysFile
+に渡されます。デフォルトでの値は
+.Dq .ssh/authorized_keys
+となっています。
+.It Cm Banner (バナー)
+ここで指定されたファイルの内容は、認証が許可される前に
+リモートユーザに提示されます。
+引数に
+.Dq none
+を指定した場合、バナーは表示されません。
+この設定項目は プロトコル バージョン 2 でのみサポートされています。
+デフォルトでは、バナーは表示されません。
+.It Cm ChallengeResponseAuthentication (チャレンジ・レスポンス認証)
+チャレンジ・レスポンス認証を許可するかどうか指定します。
+.Xr login.conf 5
+に記されているすべての認証形式が使えます。
+デフォルトは
+.Dq yes
+です。
+.It Cm ChrootDirectory (chrootディレクトリ)
+認証の後に、
+.Xr chroot 2
+をおこなうパス名を指定します。
+このパスおよび、そこに到達するすべてのディレクトリは
+root が所有していなければならず、他のどのユーザやグループも
+書き込みできるようになっていてはいけません。
+.Pp
+このパス名には、以下のトークンを含むことができます。
+これらは接続してきたユーザが認証を完了したあと、ランタイムで
+内容が展開されます: %% は '%' 1文字になり、
+%h は認証したユーザのホームディレクトリに展開されます。
+また、%u は認証したユーザの名前に展開されます。
+.Pp
+.Cm ChrootDirectory
+以下の場所には、そのユーザのセッションをサポートするための
+必要なファイルおよびディレクトリが入っている必要があります。
+対話的セッションの場合、これは少なくともひとつのシェル、
+通常は
+.Xr sh 1
+および、以下の基本的な
+.Pa /dev
+ノード、
+.Xr null 4 ,
+.Xr zero 4 ,
+.Xr stdin 4 ,
+.Xr stdout 4 ,
+.Xr stderr 4 ,
+.Xr arandom 4
+および
+.Xr tty 4
+デバイスが含まれます。
+.Dq sftp
+を使ったファイル転送をおこなうセッションでは、
+内蔵の sftp サーバを使うとサポート環境のための設定は
+必要ありません (詳しくは
+.Cm Subsystem
+を参照してください)。
+.Pp
+デフォルトでは、
+.Xr chroot 2
+をおこなわない設定になっています。
+.It Cm Ciphers (SSH2の暗号方式)
+プロトコル バージョン 2 で許可される暗号方式を
+指定します。複数の暗号方式を指定する場合は、
+カンマで区切ってください。
+現在サポートされている暗号方式は以下のとおりです:
+.Dq 3des-cbc ,
+.Dq aes128-cbc ,
+.Dq aes192-cbc ,
+.Dq aes256-cbc ,
+.Dq aes128-ctr ,
+.Dq aes192-ctr ,
+.Dq aes256-ctr ,
+.Dq arcfour128 ,
+.Dq arcfour256 ,
+.Dq arcfour ,
+.Dq blowfish-cbc ,
+そして
+.Dq cast128-cbc 。
+デフォルトは、
+.Bd -literal -offset 3n
+aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,arcfour128,
+arcfour256,arcfour,aes192-cbc,aes256-cbc,aes128-ctr,
+aes192-ctr,aes256-ctr
+.Ed
+です。
+.It Cm ClientAliveCountMax (クライアントの生存チェック最大カウント数)
+.Xr sshd 8
+が無反応のクライアントに対して
+client alive message (下記参照) を送ってみる最大数を指定します。
+client alive message に対する応答が連続してこの回数だけなかった場合、
+sshd は接続を切り、セッションを終了します。
+client alive message は、
+.Cm TCPKeepAlive
+(下記) とはまったく違うことに注意してください。
+client alive message は暗号化された経路を介して送られるので、
+偽造されることはありません。
+.Cm TCPKeepAlive
+によって設定される TCP の keepalive オプションは
+偽造される可能性があります。client alive のメカニズムは
+クライアントあるいはサーバが、いつ接続が切れたのかを
+知りたいときに役立ちます。
+.Pp
+デフォルトの値は 3 です。もし
+.Cm ClientAliveInterval
+(下記) が 15 に設定され、
+.Cm ClientAliveCountMax
+がデフォルトのままである場合、これに反応できない SSH クライアントは
+およそ 45 秒後に接続が切られます。
+この設定項目は プロトコル バージョン 2 でのみサポートされています。
+.It Cm ClientAliveInterval (クライアントの生存チェック間隔)
+.Xr sshd 8
+は一定時間ごとに、
+暗号化された通信路を経由してクライアントに応答を要求するメッセージ
+(client alive message) を送ります。
+その際、何もデータが送られてこなかったらタイムアウトする
+時間を秒数で指定します。デフォルトの値は 0 で、
+これはメッセージを送らないことを意味します。
+この設定項目は プロトコル バージョン 2 でのみサポートされています。
+.It Cm Compression (圧縮)
+圧縮を許可するかどうか、あるいは遅延圧縮 (そのユーザが認証されてから
+初めて圧縮を許可する) をおこなうかどうかを指定します。
+この引数がとりうる値は
+.Dq yes ,
+.Dq delayed 
+または
+.Dq no
+です。デフォルトでは
+.Dq delayed (ユーザが認証されてから圧縮を許可する)
+になっています。
+.It Cm DenyGroups (拒否するグループ)
+このキーワードにはいくつかのグループ名パターンをスペースで区切って指定します。
+ユーザの基本グループがこのパターンのどれかに
+マッチするユーザはログインを禁止されます。
+有効なのはグループの「名前」だけで、
+数字で表されたグループ ID は認識されません。デフォルトでは、
+ログインはすべてのグループに許可されています。
+allow/deny 関連の項目は以下の順に処理されます:
+.Cm DenyUsers 、
+.Cm AllowUsers 、
+.Cm DenyGroups 、
+そして最後に
+.Cm AllowGroups 。
+.Pp
+パターンに関する詳細は
+.Xr ssh_config 5
+の
+.Sx パターン
+の項を参照してください。
+.It Cm DenyUsers (拒否するユーザ)
+このキーワードにはいくつかのユーザ名パターンをスペースで区切って
+指定します。これが指定されると、
+このパターンのどれかにマッチするユーザはログインを禁止されます。
+有効なのはグループの「名前」だけで、数字で表されたグループ ID は
+認識されません。デフォルトでは、ログインはすべてのユーザに許可されています。
+もしこのパターンが USER@HOST という形をとっている時は、
+ユーザ名 USER と ホスト名 HOST を別々にチェックでき、
+特定のホストからの特定のユーザのログインを制限することができます。
+allow/deny 関連の項目は以下の順に処理されます:
+.Cm DenyUsers 、
+.Cm AllowUsers 、
+.Cm DenyGroups 、
+そして最後に
+.Cm AllowGroups 。
+.Pp
+パターンに関する詳細は
+.Xr ssh_config 5
+の
+.Sx パターン
+の項を参照してください。
+.It Cm ForceCommand (強制コマンド実行)
+クライアントが指定したコマンドを無視し、
+.Cm ForceCommand 
+によって指定されたコマンドと、存在する場合は
+.Pa ~/.ssh/rc
+を強制的に実行します。
+このコマンドはそのユーザのログインシェルの -c オプションを使って実行されます。
+この項目はシェル、コマンド実行、あるいはサブシステムの実行に適用されます。
+この設定項目は
+.Cm Match
+ブロックと組み合わせるともっとも有用です。
+クライアントが本来指定したコマンドラインは
+.Ev SSH_ORIGINAL_COMMAND
+環境変数に格納されます。コマンドとして
+.Dq internal-sftp
+を指定すると、強制的に内蔵の sftp サーバを使います。
+これは
+.Cm ChrootDirectory
+が指定されているときに、
+外部のファイルなしで動作できます。
+.It Cm GatewayPorts (ポート中継の許可)
+リモートホストがクライアント側に転送されたポートに接続することを
+許可するかどうか指定します。デフォルトでは、
+.Xr sshd 8
+はリモート転送ポートをループバックアドレスに bind します。
+これは他のリモートホストが、転送されたポートに接続してしまうのを
+防いでいます。
+.Cm GatewayPorts
+は sshd にリモート転送ポートを
+ループバックインターフェイス以外のアドレスに bind させるときに使います。
+これによって他のホストが転送されたポートに接続できるようになります。
+引数の値として、転送されたポートをローカルからのみ利用可能にしたい場合は
+.Dq no 
+、いかなるアドレスからも利用可能にしたい場合は
+.Dq yes
+、あるいはクライアント側に bind すべきアドレスを指定させたい場合は
+.Dq clientspecified
+を指定します。
+デフォルトは
+.Dq no 
+になっています。
+.It Cm GSSAPIAuthentication (GSSAPI 認証)
+GSSAPI ベースのユーザ認証を使用するかどうかを指定します。
+これはデフォルトでは
+.Dq no
+になっています。
+注意: この設定項目はプロトコル バージョン 2 のみに適用されます。
+.It Cm GSSAPICleanupCredentials (GSSAPI 証明書の消去)
+ユーザがログアウトするときに、その証明書 (credential) キャッシュを
+自動的に消去するかどうかを指定します。
+デフォルトでは
+.Dq yes
+です。
+注意: この設定項目はプロトコル バージョン 2 のみに適用されます。
+.It Cm HostbasedAuthentication (ホストベースド認証の許可)
+公開鍵ホスト認証が成功したときに、
+rhosts あるいは /etc/hosts.equiv 認証を許可するかどうか
+指定します (ホストベースド認証)。
+この設定項目は
+.Cm RhostsRSAAuthentication (RhostsRSA 認証の許可)
+に似ており、プロトコル バージョン 2 のみに作用します。
+デフォルトの値は
+.Dq no 
+になっています。
+.It Cm HostbasedUsesNameFromPacketOnly (ホストベースド認証におけるホスト名の使用方法)
+ホストベースド認証 (
+.Cm HostbasedAuthentication
+) を行うときに、
+.Pa ~/.shosts ,
+.Pa ~/.rhosts ,
+および
+.Pa /etc/hosts.equiv
+ファイルにクライアントのホスト名が書かれていた場合、
+サーバがホスト名の逆引きを行うかどうかを指定します。
+この項目に
+.Dq yes
+を指定すると、
+.Xr sshd 8
+はその TCP 接続から名前を引くことはせずに、
+クライアントが提示してきた名前を使用します。
+デフォルトでは
+.Dq no
+になっています。
+.It Cm HostKey (ホスト鍵)
+SSH で使われる、ホスト秘密鍵が格納されているファイルを指定します。
+デフォルトでは、プロトコル バージョン 1 用の鍵が
+.Pa /etc/ssh/ssh_host_key
+であり、プロトコル バージョン 2 用の鍵が
+.Pa /etc/ssh/ssh_host_rsa_key
+および
+.Pa /etc/ssh/ssh_host_dsa_key
+です。
+このファイルがグループあるいは他人からアクセス可能になっていると、
+.Xr sshd 8
+はその使用を拒絶するので注意してください。
+複数のホスト鍵を使うことも可能です。
+.Dq rsa1
+鍵はバージョン 1 に使われ、
+.Dq dsa
+または
+.Dq rsa
+はバージョン 2 の SSH プロトコルに使われます。
+.It Cm IgnoreRhosts (rhosts の無視)
+.Cm RhostsRSAAuthentication
+または
+.Cm HostbasedAuthentication 
+の各認証で、
+.Pa .rhosts
+および
+.Pa .shosts
+ファイルを使わないようにします。
+.Pp
+この状態でも、
+.Pa /etc/hosts.equiv
+および
+.Pa /etc/shosts.equiv
+は依然として有効です。デフォルトでは
+.Dq yes
+になっています。
+.It Cm IgnoreUserKnownHosts (ユーザ用 known_hosts の無視)
+.Cm RhostsRSAAuthentication
+または
+.Cm HostbasedAuthentication
+の各認証で、ユーザの
+.Pa ~/.ssh/known_hosts
+ファイルを使わないようにします。
+デフォルトは
+.Dq no 
+です。
+.It Cm KerberosAuthentication (Kerberos 認証)
+ユーザが
+.Cm PasswordAuthentication
+で入力したパスワードを Kerberos KDC 経由で批准するかどうか指定します。
+このオプションを使うためには、サーバに KDC のアイデンティティを
+批准するための Kerberos servtab が必要です。
+デフォルトでは
+.Dq no
+になっています。
+.It Cm KerberosGetAFSToken (Kerberos AFS トークンを取得する)
+AFS が有効でユーザが Kerberos 5 TGT をもっている場合、
+そのユーザのホームディレクトリにアクセスする前に AFS トークンを取得しようとこころみます。
+デフォルトでは
+.Dq no 
+になっています。
+.It Cm KerberosOrLocalPasswd (Kerberosあるいはローカルパスワード)
+Kerberos 経由のパスワード認証が失敗すると、そのパスワードは
+.Pa /etc/passwd
+などの別のローカルな機構によって確認されます。デフォルトは
+.Dq yes
+です。
+.It Cm KerberosTicketCleanup (Kerberos チケット自動除去)
+ユーザのチケット用キャッシュをログアウト時に自動的に消去するかどうか
+指定します。デフォルトは
+.Dq yes
+です。
+.It Cm KeyRegenerationInterval (鍵の再生成間隔)
+プロトコル バージョン 1 では、サーバ鍵は (一度でも使われると) ここで
+指定された間隔ごとに自動的に再生成されます。このように鍵を再生成する
+目的は、あとでそのマシンに侵入して盗聴したセッションを解読されたり、
+鍵を盗まれたりするのを防ぐためです。この鍵はどこにも格納されません。
+値としてゼロを指定すると、鍵はまったく再生成されなくなります。
+デフォルトでは 3600 (秒) になっています。
+.It Cm ListenAddress (接続受付アドレス)
+.Xr sshd 8
+が接続を受けつける (listen する) ローカルアドレスを指定します。
+ここでは以下の形式が使えます:
+.Pp
+.Bl -item -offset indent -compact
+.It
+.Cm ListenAddress
+.Sm off
+.Ar host No | Ar IPv4_addr No | Ar IPv6_addr
+.Sm on
+.It
+.Cm ListenAddress
+.Sm off
+.Ar host No | Ar IPv4_addr No : Ar port
+.Sm on
+.It
+.Cm ListenAddress
+.Sm off
+.Oo
+.Ar host No | Ar IPv6_addr Oc : Ar port
+.Sm on
+.El
+.Pp
+.Ar port
+が指定されていないときは
+sshd はそのアドレスで、それまでの
+.Cm Port
+設定項目で指定されたすべてのポートで接続を受けつけます。
+デフォルトではすべてのローカルアドレスに対して
+接続を受けつけるようになっています。
+.Cm ListenAddress
+項目は複数指定してもかまいません。また
+.Cm Port
+設定項目は、ポートつきでないアドレス指定に対しては
+この設定項目よりも前に指定しておく必要があります。
+.It Cm LoginGraceTime (ログイン猶予時間)
+ユーザがここで指定された時間内にログインできないと、
+サーバは接続を切ります。この値をゼロにすると、時間制限はなくなります。
+デフォルトの値は 120 (秒) です。
+.It Cm LogLevel (ログレベル)
+.Xr sshd 8
+が出力するログメッセージの冗長性レベルを指定します。
+とりうる値は次のとおりです: QUIET, FATAL, ERROR, INFO, VERBOSE, DEBUG,
+DEBUG1, DEBUG2 および DEBUG3。
+デフォルトでは INFO です。DEBUG と DEBUG1 は等価です。
+DEBUG2、DEBUG3 はそれぞれさらに冗長なログになります。
+DEBUG レベル以上のログはユーザのプライバシーを侵害するので、
+勧められるものではありません。
+.It Cm MACs (メッセージ認証コード)
+使用する MAC (メッセージ認証コード) 方式の優先順位を指定します。
+MAC 方式はプロトコル バージョン 2 で使われる、
+データの改ざんを防ぐ機構 (data integrity protection) です。
+複数の方式をカンマで区切って指定します。デフォルトは
+.Bd -literal -offset indent
+hmac-md5,hmac-sha1,umac-64@openssh.com,
+hmac-ripemd160,hmac-sha1-96,hmac-md5-96
+.Ed
+の順になっています。
+.It Cm Match (条件分岐)
+この項目によって、条件的な設定を指定できます。
+.Cm Match
+行にあるすべての条件が満たされた場合、これ以降の設定項目は
+次の
+.Cm Match
+指令が現れるまでグローバルな設定よりも優先されます。
+.Pp
+.Cm Match
+指令の引数は、ひとつ以上の「種類  パターン」の組によって与えられます。
+使用可能な種類は
+.Cm User
+(ユーザ名)、
+.Cm Group
+(グループ名)、
+.Cm Host
+(ホスト名) および
+.Cm Address
+(アドレス) です。
+一致するパターンとしては単一のエントリか、あるいはカンマで区切られた
+複数のエントリのリストを使うことができ、
+.Xr ssh_config 5 
+の
+.Sx PATTERNS
+セクションで説明されているワイルドカードや否定のための表記が使用できます。
+.Pp
+また、
+.Cm Address
+指定で使うパターンには CIDR 表記 (アドレス/マスク長 の形式) を含めることもできます。
+たとえば\&
+.Dq 192.0.2.0/24
+や
+.Dq 3ffe:ffff::/32 
+などです。
+ここで指定するマスク長はアドレスと一致させるようにしてください。
+アドレスに対して長すぎるマスク長や、適切なビットが 0 になっていない
+アドレスを指定するとエラーになります。
+たとえば、
+.Dq 192.0.2.0/33
+や
+.Dq 192.0.2.0/8
+は間違いです。
+.Pp
+すべての設定項目に
+.Cm Match
+指令が適用されるわけではありません。
+使用できる項目は、
+.Cm AllowTcpForwarding ,
+.Cm Banner ,
+.Cm ChrootDirectory ,
+.Cm ForceCommand ,
+.Cm GatewayPorts ,
+.Cm GSSAPIAuthentication ,
+.Cm HostbasedAuthentication ,
+.Cm KbdInteractiveAuthentication ,
+.Cm KerberosAuthentication ,
+.Cm MaxAuthTries ,
+.Cm MaxSessions ,
+.Cm PasswordAuthentication ,
+.Cm PermitOpen ,
+.Cm PermitRootLogin ,
+.Cm RhostsRSAAuthentication ,
+.Cm RSAAuthentication ,
+.Cm X11DisplayOffset ,
+.Cm X11Forwarding 
+および
+.Cm X11UseLocalHost 
+です。
+.It Cm MaxAuthTries (最大認証試行回数)
+ネットワーク接続 1つあたりの認証を最大で何回まで試みることができるかを指定します。
+ここで指定された半数以上の認証が失敗すると、それ以降の失敗はログに記録されます。
+デフォルトの値は 6 です。
+.It Cm MaxSessions
+ネットワーク接続 1つあたりに許される最大のセッション数を指定します。
+デフォルトは 10 です。
+.It Cm MaxStartups (最大起動数)
+認証されていない段階の接続を
+SSH デーモンが最大でどれだけ受けつけるかを指定します。
+この値を超えた (認証されていない段階の) 接続は捨てられます。
+この状態は (すでに接続したクライアントの) 認証が成功するか、その
+.Cm LoginGraceTime
+(ログイン猶予時間) が切れるまで続きます。
+デフォルトではこの数は 10 です。
+.Pp
+もうひとつの方法は、早いうちからランダムに接続を拒否するよう
+指定することです。これはこの設定項目にコロンで区切った 3 つの値を
+与えることによりおこないます。この値は
+.Dq start:rate:full
+(``開始時:確率:最大数'') の形をとります (例: "10:30:60" など)。
+.Xr sshd 8
+は認証されていない段階の接続が
+.Dq start
+(この例では 10) 個を超えると、これ以後の接続要求を
+.Dq rate/100
+(この例では 30%) の確率で拒否し始めます。この確率は
+.Dq full
+(この例では 60) 個の接続が来るまで線形に増えつづけ、
+最大数に達した時点でそれ以降すべての接続を拒否するようになります。
+.It Cm PasswordAuthentication (パスワード認証)
+パスワード認証を許可するかどうか指定します。デフォルトでは
+.Dq yes
+になっています。
+.It Cm PermitEmptyPasswords (空のパスワードを許可)
+パスワード認証が許可されているとき、パスワード文字列が空の
+アカウントに対してサーバがログインを許可するかどうか指定します。
+デフォルトは
+.Dq no
+です。
+.It Cm PermitOpen (許可するポート転送)
+許可する TCP ポート転送を指定します。
+ポート転送の指定は、以下のうちどれかの形式である必要があります:
+.Pp
+.Bl -item -offset indent -compact
+.It
+.Cm PermitOpen
+.Sm off
+.Ar ホスト名 : ポート
+.Sm on
+.It
+.Cm PermitOpen
+.Sm off
+.Ar IPv4アドレス : ポート
+.Sm on
+.It
+.Cm PermitOpen
+.Sm off
+.Ar \&[ IPv6アドレス \&] : ポート
+.Sm on
+.El
+.Pp
+複数のポート転送は空白で区切って指定できます。
+引数として
+.Dq any
+を使うと、一切の制限なくすべてのポート転送要求を許可するようになります。
+デフォルトでは、すべてのポート転送が許可されています。
+.It Cm PermitRootLogin (root ログイン許可)
+.Xr ssh 1
+を使って、root がログインできるかどうか指定します。この引数の値は
+.Dq yes
+、 
+.Dq without-password
+(パスワード認証なし)、
+.Dq forced-commands-only
+(強制コマンドのみ)、あるいは
+.Dq no
+のいずれかになります。デフォルトは
+.Dq yes
+です。この設定項目を
+.Dq without-password
+にすると、root はパスワード認証ではログインできなくなります。
+.Pp
+この設定項目を
+.Dq forced-commands-only
+にすると、root は公開鍵認証を使ってログインできますが、その鍵に
+.Ar command
+が指定されている場合にかぎります
+(これは通常の root ログインを許可していなくても、
+リモートバックアップをとりたいときなどに有用です)。
+root に対してはこれ以外の認証方法はすべて禁止になります。
+.Pp
+この設定項目を
+.Dq no
+にすると、root のログインは許可されません。
+.It Cm PermitTunnel (トンネリングを許可する)
+.Xr tun 4
+デバイスの転送を許可するかどうかを指定します。
+とりうる引数の値は
+.Dq yes ,
+.Dq point-to-point 
+(layer 3),
+.Dq ethernet
+(layer 2) あるいは
+.Dq no 
+です。
+.Dq yes
+を指定すると、
+.Dq point-to-point
+および
+.Dq ethernet 
+の両方を許可したことになります。
+デフォルトは
+.Dq no 
+になっています。
+.It Cm PermitUserEnvironment (ユーザの環境変数変更を許可する)
+.Xr sshd 8 
+が
+.Pa ~/.ssh/environment
+ファイルおよび
+.Pa ~/.ssh/authorized_keys
+における
+.Cm environment=
+オプションを処理すべきかどうかを指定します。
+デフォルトでは
+.Dq no
+です。
+環境変数の変更は、ユーザに 
+.Ev LD_PRELOAD
+などの設定を使った
+ある種のアクセス制限を回避させてしまう可能性があります。
+.It Cm PidFile (pid ファイル)
+SSH デーモンのプロセス ID を格納するファイルを指定します。
+デフォルトでは
+.Pa /var/run/sshd.pid
+になっています。
+.It Cm Port (ポート番号)
+.Xr sshd 8
+が接続を受けつける (listen する) ポート番号を指定します。
+デフォルトは 22 です。複数指定することも可能です。
+.Cm ListenAddress 
+の項も参照してください。
+.It Cm PrintLastLog (LastLog の表示)
+ユーザが対話的にログインしたとき、
+そのユーザが前回ログインした日付と時刻を表示するかどうか指定します。
+デフォルトでは
+.Dq yes
+になっています。
+.It Cm PrintMotd (motd の表示)
+ユーザが対話的にログインしたとき、
+.Pa /etc/motd
+(今日のお知らせ) ファイルの内容を表示するかどうか指定します。
+(システムによっては、これはシェルや
+.Pa /etc/profile
+に相当するものが表示します)。デフォルトは
+.Dq yes
+です。
+.It Cm Protocol (プロトコル)
+.Xr sshd 8
+がサポートするプロトコルのバージョンを指定します。
+とりうる値は
+.Sq 1
+と 
+.Sq 2
+です。複数のバージョンをカンマで区切って指定することもできます。
+デフォルトは
+.Dq 2,1
+です。
+ここでのプロトコルの順番は、優先度を指定するものではないことに
+注意してください。なぜなら複数のプロトコルがサーバで使用可能な場合、
+選択するのはクライアント側だからです。よって
+.Dq 2,1
+という指定は、
+.Dq 1,2
+と同じです。
+.It Cm PubkeyAuthentication (公開鍵認証)
+公開鍵認証を許可するかどうか指定します。
+デフォルトは
+.Dq yes
+です。
+この設定項目は プロトコル バージョン 2 にのみ適用されることに
+注意してください。
+.It Cm RhostsRSAAuthentication (rhosts-RSA 認証)
+RSA ホスト間認証が成功しているとき、rhosts や /etc/hosts.equiv
+を使った認証をおこなってよいかどうか指定します。デフォルトは
+.Dq no
+です。
+この設定項目はプロトコル バージョン 1 にのみ
+適用されることに注意してください。
+.It Cm RSAAuthentication (RSA 認証)
+純粋な RSA 認証を許可するかどうかを指定します。デフォルトは
+.Dq yes
+になっています。この設定項目はプロトコル バージョン 1 にのみ
+適用されることに注意してください。
+.It Cm ServerKeyBits (サーバ鍵のビット数)
+プロトコル バージョン 1 で短期的に使われるサーバ鍵の
+ビット数を指定します。
+最小値は 512 で、デフォルトは 1024 です。
+.It Cm StrictModes (厳格なモード)
+.Xr sshd 8
+がログインを許可する前に、ユーザのファイルおよび
+ホームディレクトリの所有権とパーミッションをチェックすべきか
+どうかを指定します。これはふつう初心者が、しばしば自分の
+ディレクトリを誰でも書き込めるようにしてしまう事故を防ぐために
+有効です。デフォルトでは
+.Dq yes
+になっています。
+.It Cm Subsystem (サブシステム)
+外部サブシステム (ファイル転送デーモンなど) を設定します。
+この設定項目への引数にはサブシステム名と、そのサブシステムに
+要求があったとき実行されるコマンド (および、必要な場合はその引数) を与えます。
+.Pp
+.Xr sftp-server 8
+はファイル転送サブシステム
+.Dq sftp
+を実装したものです。
+.Pp
+この他に、
+.Dq internal-sftp
+という名前を指定することにより、内蔵の
+.Dq sftp
+サーバを使用できます。これは
+.Cm ChrootDirectory
+を使って、クライアントに対してファイルシステム上の
+ルートディレクトリを変更させる状況での設定を簡単にします。
+.Pp
+デフォルトではサブシステムは
+何も定義されていません。この設定項目は
+プロトコル バージョン 2 にのみ適用されることに注意してください。
+.It Cm SyslogFacility (syslog 分類コード)
+.Xr sshd 8
+が出力するログメッセージで使われるログの分類コード
+(facility) を指定します。とりうる値は次のとおりです: DAEMON, USER,
+AUTH, LOCAL0, LOCAL1, LOCAL2, LOCAL3, LOCAL4, LOCAL5, LOCAL6,
+LOCAL7。デフォルトは AUTH です。
+.It Cm TCPKeepAlive (TCP接続を生かしておく)
+システムが相手のマシンに TCP keepalive メッセージを送るかどうか
+指定します。これが送られると、接続の異常終了や相手マシンの
+クラッシュが正しく通知されるようになります。
+しかしこれを使うと、たとえ経路が一時的にダウンしていても
+接続が死んでいるということになってしまい、これが邪魔になる場合もあります。
+その一方で、もし TCP keepalive が送られないとすると、セッションは
+サーバ上で永久に残ってしまことがあり、
+.Dq 幽霊
+ユーザを居座らせてサーバ資源を消費することがあります。
+.Pp
+デフォルトは
+.Dq yes
+(TCP keepalive メッセージを送る) です。そのため
+クライアントはネットワークがダウンするか、
+リモートホストがクラッシュすると通知してきます。
+これは永久に残るセッションを防ぎます。
+.Pp
+TCP Keepalive を禁止するには、この値を
+.Dq no
+にする必要があります。
+.It Cm UseDNS (リモートホスト名の確認)
+.Xr sshd 8
+が IP アドレスからリモートホスト名を逆引き検索して得た名前を
+正引きして、同じ IP アドレスになるかどうか確認します。
+デフォルトでは
+.Dq yes
+になっています。
+.It Cm UseLogin (login の使用)
+対話的ログインセッションの際、
+.Xr login 1
+プログラムを使うかどうかを指定します。
+デフォルトでは
+.Dq no
+になっています。
+対話的でないリモートコマンド実行のときに
+.Xr login 1
+が使われることは決してありません。また、これが許可されていると
+.Cm X11Forwarding (X11 転送)
+は許可されなくなるということに注意してください。
+なぜなら、
+.Xr login 1
+は
+.Xr xauth 1
+クッキーの扱いを知らないからです。
+.Cm UsePrivilegeSeparation
+が指定されている場合は、認証のあとで禁止されます。
+.It Cm UsePAM (PAM の使用)
+Pluggable Authentication Module (PAM) インターフェイスによる認証を許可します。
+これが 
+.Dq yes
+に設定されている場合、すべての認証形式に対して
+.Cm ChallengeResponseAuthentication
+を使用した PAM 認証と、PAM アカウントおよびセッションモジュールの処理が許可されます。
+.Pp
+ふつう PAM のチャレンジ・レスポンス認証はパスワード認証と等価な役割を
+提供しているので、
+.Cm PasswordAuthentication
+あるいは
+.Cm ChallengeResponseAuthentication.
+のどちらかを許可する必要があります。
+.Pp
+.Cm UsePAM
+を許可した場合、
+sshd を root 以外の一般ユーザで走らせることはできません。
+デフォルトは
+.Dq no
+です。
+.It Cm UsePrivilegeSeparation (root権限を分離)
+.Xr sshd 8
+が、受けつけるネットワークトラフィックを処理するために
+root 権限を分離するかどうかを指定します。
+これは root 権限をもたない子プロセスをつくることによって
+おこなわれます。認証が成功すると、そのユーザの権限をもつ
+別のプロセスが新たに作られます。これの目的は、まずそうな部分を
+root 権限をもたないプロセスのみに限定することによって、
+root 権限による被害の拡大を防ぐためです。
+デフォルトでは
+.Dq yes (root権限を分離する)
+になっています。
+.It Cm X11DisplayOffset (X11 ディスプレイ番号のオフセット値)
+.Xr sshd 8
+が X11 転送をするときに最初に使われるディスプレイ番号を指定します。
+これは sshd が X11 転送で使うディスプレイ番号が、
+本物の X サーバのディスプレイ番号と衝突してしまうのを防ぐためです。
+デフォルトの値は 10 です。
+.It Cm X11Forwarding (X11 転送)
+X11 転送を許可するかどうかを指定します。
+この引数の値は
+.Dq yes
+あるいは
+.Dq no
+で、デフォルトは
+.Dq no
+です。
+.Pp
+X11 転送が許可されており、転送された
+.Xr sshd 8
+のディスプレイが任意のアドレス (下の
+.Cm X11UseLocalhost
+参照) からの接続を受けつけるように設定されていると、
+サーバやクライアントのディスプレイは余計な危険に
+さらされることになります。しかし、デフォルトではそうなっていません。
+また、認証におけるなりすまし、認証データの確認や差し替えなどが
+クライアント側で起こります。X11 転送を使うセキュリティ上のリスクは、
+SSH クライアントが転送を要求したときに、クライアント上の X11 サーバが
+攻撃にさらされるかもしれないということです (
+.Xr ssh_config 5
+の
+.Cm ForwardX11
+注意書きを参照)。
+システム管理者はクライアントがうっかり X11 を転送して、
+余計な危険性を増すことのないように、これをかならず
+.Dq no
+に設定させるような立場をとることもできます。
+.Pp
+注意: X11 転送機能を禁止しても、ユーザが X11 の通信を転送できなくなる
+というわけではありません。なぜならユーザはいつでも自前の転送プログラムを
+インストールして使うことができるからです。
+.Cm UseLogin
+が許可されていると、X11 転送は自動的に禁止されます。
+.It Cm X11UseLocalhost (X11 で localhost のみを許可)
+.Xr sshd 8
+が転送された X11 サーバをループバックアドレス (localhost) に
+bind するかどうかを指定します。デフォルトでは、
+sshd は転送された X11 をループバックアドレスに bind し、環境変数
+.Ev DISPLAY
+のホスト名の部分を
+.Dq localhost
+に設定します。
+こうすると、(訳注: SSHサーバ以外の) リモートホストから
+転送された Xサーバに接続することはできなくなります。
+しかし、ふるい X11 クライアントだと、
+この設定では動作しないことがあります。
+そのようなときは
+.Cm X11UseLocalhost
+を
+.Dq no
+に設定して、転送された X サーバがワイルドカードアドレスに
+bind されるようにできます。
+この設定項目の引数は
+.Dq yes
+あるいは
+.Dq no
+です。デフォルトでは、これは
+.Dq yes (localhost にしか bind しない)
+になっています。
+.It Cm XAuthLocation (xauth の位置)
+.Xr xauth 1
+プログラムのフルパス名を指定します。デフォルトでは
+.Pa /usr/X11R6/bin/xauth
+になっています。
+.El
+.Sh 時間の表現
+.Xr sshd 8
+のコマンドライン引数や設定ファイル項目で
+時間を指定する場合、次の構文を並べた書式を使うことができます:
+.Sm off
+.Ar time Op Ar qualifier
+.Sm on
+.Pp
+ここで
+.Ar time
+は正の整数であり、
+.Ar qualifier
+は次のうちのどれかです:
+.Pp
+.Bl -tag -width Ds -compact -offset indent
+.It Aq Cm なし
+seconds (秒)
+.It Cm s | Cm S
+seconds (秒)
+.It Cm m | Cm M
+minutes (分)
+.It Cm h | Cm H
+hours (時間)
+.It Cm d | Cm D
+days (日)
+.It Cm w | Cm W
+weeks (週)
+.El
+.Pp
+これらの形式を組み合わせることもでき、
+その場合は各形式の時間が合計されます。
+.Pp
+時間表現の例:
+.Pp
+.Bl -tag -width Ds -compact -offset indent
+.It 600
+600 秒 (10 分)
+.It 10m
+10 分
+.It 1h30m
+1 時間 30 分 (90 分)
+.El
+.Sh 関連ファイル
+.Bl -tag -width Ds
+.It Pa /etc/ssh/sshd_config
+.Xr sshd 8
+の設定ファイルです。このファイルに書き込めるのは
+root だけでなくてはいけませんが、読むのは誰でもできるように
+しておいたほうがよいでしょう (必須ではありませんが)。
+.El
+.Sh 関連項目
+.Xr sshd 8
+.Sh 作者
+OpenSSH は Tatu Ylonen による、フリーな
+オリジナル版 ssh 1.2.12 リリースから派生したものです。
+Aaron Campbell、 Bob Beck、 Markus Friedl、 Niels Provos、
+Theo de Raadt および Dug Song が多くのバグを取り除き、
+新しい機能をふたたび追加して OpenSSH をつくりました。
+SSH プロトコル バージョン 1.5 および 2.0 のサポートは
+Markus Friedl の貢献によるものです。
+Niels Provos および Markus Friedl が root特権分離のサポートに
+貢献しました。

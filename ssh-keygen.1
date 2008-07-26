@@ -1,0 +1,479 @@
+.\"	$OpenBSD: ssh-keygen.1,v 1.78 2008/06/12 19:10:09 jmc Exp $
+.\"
+.\"  -*- nroff -*-
+.\"
+.\" Author: Tatu Ylonen <ylo@cs.hut.fi>
+.\" Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
+.\"                    All rights reserved
+.\"
+.\" As far as I am concerned, the code I have written for this software
+.\" can be used freely for any purpose.  Any derived versions of this
+.\" software must be clearly marked as such, and if the derived work is
+.\" incompatible with the protocol description in the RFC file, it must be
+.\" called by a name other than "ssh" or "Secure Shell".
+.\"
+.\"
+.\" Copyright (c) 1999,2000 Markus Friedl.  All rights reserved.
+.\" Copyright (c) 1999 Aaron Campbell.  All rights reserved.
+.\" Copyright (c) 1999 Theo de Raadt.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" Japanese translation: $Id: ssh-keygen.1,v 1.1.1.1 2007/09/05 12:13:54 yusuke Exp $
+.\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
+.\"
+.Dd $Mdocdate: June 11 2008 $
+.Dt SSH-KEYGEN 1
+.Os
+.Sh 名前
+.Nm ssh-keygen
+.Nd 認証用の鍵を生成、管理、および変換する
+.Sh 書式
+.Nm ssh-keygen
+.Bk -words
+.Op Fl q
+.Op Fl b Ar ビット数
+.Fl t Ar 鍵の種類
+.Op Fl N Ar 新しいパスフレーズ
+.Op Fl C Ar コメント (訳注: SSH1 のみ)
+.Op Fl f Ar 出力先identityファイル
+.Ek
+.Pp
+.Nm
+.Fl p
+.Op Fl P Ar 古いパスフレーズ
+.Op Fl N Ar 新しいパスフレーズ
+.Op Fl f Ar パスフレーズを変更するidentityファイル
+.Pp
+.Nm
+.Fl i
+.Op Fl f Ar 変換するidentityファイル
+.Pp
+.Nm
+.Fl e
+.Op Fl f Ar 変換するidentityファイル
+.Pp
+.Nm
+.Fl y
+.Op Fl f Ar identityファイル
+.Pp
+.Nm
+.Fl c
+.Op Fl P Ar パスフレーズ
+.Op Fl C Ar コメント
+.Op Fl f Ar コメントを変更するidentityファイル
+.Pp
+.Nm
+.Fl l
+.Op Fl f Ar 指紋を表示するidentityファイル
+.Pp
+.Nm
+.Fl B
+.Op Fl f Ar ダイジェストを表示するidentityファイル
+.Pp
+.Nm
+.Fl D Ar reader
+.Pp
+.Nm
+.Fl F Ar ホスト名
+.Op Fl f Ar known_hostsファイル
+.Pp
+.Nm
+.Fl H
+.Op Fl f Ar known_hostsファイル
+.Pp
+.Nm
+.Fl R Ar ホスト名
+.Op Fl f Ar known_hostsファイル
+.Pp
+.Nm
+.Fl U Ar リーダ
+.Op Fl f Ar 入力するidentityファイル
+.Pp
+.Nm
+.Fl r Ar ホスト名
+.Op Fl f Ar 入力するidentityファイル
+.Op Fl g
+.Pp
+.Nm
+.Fl G Ar 出力ファイル
+.Op Fl v
+.Op Fl b Ar ビット数
+.Op Fl M Ar 使用メモリ量
+.Op Fl S Ar 開始位置
+.Pp
+.Nm
+.Fl T Ar 出力ファイル
+.Fl f Ar 入力ファイル
+.Op Fl v
+.Op Fl a Ar 試行回数
+.Op Fl W Ar ジェネレータ
+.Sh 説明
+.Nm
+は
+.Xr ssh 1
+で認証に使う鍵を生成、管理および変換します。
+.Nm
+は SSH プロトコル バージョン 1 で使われる RSA 鍵と、
+SSH プロトコル バージョン 2 で使われる RSA 鍵および DSA 鍵を生成できます。
+生成する鍵の種類は
+.Fl t
+オプションによって指定できます。
+この指定がない場合、
+.Nm
+は SSH プロトコル バージョン 2 で使われる RSA 鍵を生成します。
+.Pp
+.Nm
+は Diffie-Hellman 群交換 (DH-GEX) で使われる群を生成するのにも使用します。
+詳しくは、
+.Sx 係数 (modulus) の生成
+の項を参照してください。
+.Pp
+ふつう、RSA 認証 または DSA 認証で SSH を使いたいユーザは、
+一度このプログラムを実行すれば
+.Pa ~/.ssh/identity
+、
+.Pa ~/.ssh/id_dsa
+または
+.Pa ~/.ssh/id_rsa
+に鍵 (identity ファイル) を作ることができます。また
+.Pa /etc/rc
+などで見られるように、
+システム管理者がホスト鍵を生成するためにこのプログラムを
+使うこともできます。
+.Pp
+通常、このプログラムは鍵を生成したあと、その鍵 (identity) をどのファイルに
+格納すればよいのか尋ねます。公開鍵は、秘密鍵を含む identity 
+ファイルの名前に
+.Dq .pub
+をつけた名前のファイルとして格納されます。またこのプログラムは
+パスフレーズも尋ねてきます。
+任意の長さの文字列をパスフレーズとして使用することができます。
+パスフレーズをつけないときには、これは空でもかまいません
+(ホスト鍵のパスフレーズは必ず空でなければいけません)。
+パスフレーズはパスワードに似ていますが、パスワードとは違って
+単語の列や句読点、数値、空白など、好きな文字を含めることができます。
+よいパスフレーズとは、10〜30 文字程度の長さで、簡単な文章や容易に
+推測できるものではないことです (英語の散文では 1 文字あたりのエントロピーは
+わずか 1〜2 ビットしかなく、パスフレーズとしては非常に望ましくありません)。
+また大文字と小文字が混じっているものがよいでしょう。
+パスフレーズは
+.Fl p
+オプションによって、後から変更することもできます。
+.Pp
+失われてしまったパスフレーズをもとに戻すことはできません。もし
+パスフレーズを忘れてしまったり、なくしてしまったときには、
+新しい鍵を生成してその公開鍵を別のマシンにコピーしなくてはならないでしょう。
+.Pp
+RSA1 鍵 (訳注: SSH1 で使う鍵) の場合、
+鍵のファイルにはコメントフィールドがあります。これはユーザが
+鍵を区別するためだけに便宜的に用意されているものです
+(訳注: SSH2 の鍵にはコメントはありません)。コメントには
+鍵の用途やその他有用な情報を書いておくことができます。
+最初に鍵が作られるとき、コメントは
+.Dq user@host
+の形に初期化されますが、
+.Fl c
+オプションを使えば変更することができます。
+.Pp
+鍵を生成したあと、それを使用可能にするために
+どこに置けばよいかは後で説明しています。
+.Pp
+オプションには次のようなものがあります:
+.Bl -tag -width Ds
+.It Fl a Ar 試行回数
+.Fl T 
+コマンドを使うときに、DH-GEX 群の候補を
+スクリーニングするために何回の素数判定テストをおこなうかを指定します。
+.It Fl B
+指定された秘密鍵あるいは公開鍵ファイルの bubblebabble ダイジェストを表示します。
+.It Fl b Ar ビット数
+生成する鍵のビット数を指定します。
+RSA 鍵の場合、最小のサイズは 768 ビットであり、デフォルトは 2048 ビットです。
+ふつうは 2048 ビットの鍵で充分だと考えられています。
+DSA 鍵の場合、FIPS 186-2 の規定によりサイズは正確に 1024 ビットでなければなりません。
+.It Fl C Ar コメント
+新しいコメントを追加します。
+.It Fl c
+秘密鍵ファイルおよび公開鍵ファイルのコメントを変更します。
+このオプションは プロトコル バージョン 1 における RSA 鍵に対してのみ有効です。
+まず秘密鍵の入っているファイル名を訊かれ、
+パスフレーズがあればそれを入力したあとに新しいコメントを入力します。
+.It Fl D Ar reader
+スマートカード
+.Ar reader
+に格納されている RSA 公開鍵を読み込みます。
+.It Fl e
+このオプションは OpenSSH 形式の秘密鍵あるいは公開鍵ファイルを
+読み、
+.Sq RFC 4716 SSH Public Key File Format (RFC 4716 SSH 公開鍵ファイル形式)
+の鍵を標準出力に表示します。
+このオプションを使うと、OpenSSH の鍵を
+いくつかの商用 SSH 実装で使われている形式の鍵に変換できます。
+.It Fl F Ar ホスト名
+指定された
+.Ar ホスト名
+を
+.Pa known_hosts
+ファイルの中から探し、見つかったものを一覧表示します。
+このオプションはハッシュされたホスト名あるいは IP アドレスを見つけるのに有用です。
+また、
+.Fl H
+オプションと組み合わせてハッシュされた形式の公開鍵を表示するのにも使えます。
+.It Fl f Ar ファイル名
+鍵を格納するファイル名を指定します。
+.It Fl G Ar 出力ファイル名
+DH-GEX のための素数候補を生成します。
+これらの素数は安全性のため (
+.Fl T
+オプションを使って) 実際の使用前にスクリーニングする必要があります。
+.It Fl g
+.Fl r
+コマンドを使って指紋のレコードを表示する際に、
+Generic DNS 形式を使用します。
+.It Fl H
+.Pa known_hosts
+ファイルをハッシュし、その結果を標準出力に表示します。
+これはすべてのホスト名および IP アドレスをハッシュされた表現で置き換え、
+そのファイルを更新します。古いファイルはサフィックス .old がついた名前で
+保存されます。
+.Nm ssh
+および
+.Nm sshd
+は、これらのハッシュ表現を普通に扱うことができますが、
+これによって、たとえファイルの内容が見えても
+識別可能な情報が明らかになることはありません。
+このオプションはすでに存在するハッシュされたホスト名を修正することはしないため、
+ハッシュされた表現とハッシュされていない表現が混在したファイルに対して
+このオプションを適用しても安全です。
+.It Fl i
+このオプションは SSH2-互換の形式である、暗号化されていない
+秘密鍵 (あるいは公開鍵) ファイルを読み、それを 
+OpenSSH 互換の秘密鍵 (あるいは公開鍵) に変換して
+標準出力に表示します。
+.Nm
+は
+.Sq RFC 4716 SSH Public Key File Format (RFC 4716 SSH 公開鍵ファイル形式)
+の鍵も読み込めます。
+このオプションを使うと、いくつかの商用 SSH 実装で使われている
+鍵を OpenSSH で使用できます。
+.It Fl l
+指定された秘密鍵ファイルあるいは公開鍵ファイルの
+指紋 (fingerprint) を表示します。プロトコル バージョン 1 における
+RSA 鍵 (RSA1) もサポートされています。
+プロトコル バージョン 2 の RSA および DSA 鍵の場合、
+.Nm
+はそれに該当する公開鍵ファイルを探し出してその指紋を表示します。
+.Fl v
+オプションがつけられた場合、
+その鍵の指紋を表現したアスキーアートも表示します。
+.It Fl M Ar メモリ
+DH-GEX のモジュロとなる素数候補を生成する際の
+メモリ消費量を (メガバイト単位で) 指定します。
+.It Fl N Ar 新しいパスフレーズ
+新しいパスフレーズを指定します。
+.It Fl P Ar パスフレーズ
+(古い) パスフレーズを指定します。
+.It Fl p
+新しく秘密鍵をつくるのではなく、すでにある秘密鍵ファイルのパス
+フレーズを変更します。まず秘密鍵の入っているファイルを訊かれ、
+古いパスフレーズを入力したあと、新しいパスワードを 2 回入力します。
+.It Fl q
+静かな
+.Nm
+。
+.Pa /etc/rc
+で新しい鍵をつくるときに使われます。
+.It Fl R Ar ホスト名
+.Pa known_hosts
+ファイルから、指定された
+.Ar ホスト名
+に属する鍵をすべて取り除きます。
+このオプションはハッシュされたホスト (上記の
+.Fl H
+オプションを参照) をファイルから取り除くのに有用です。
+.It Fl r Ar ホスト名
+指定された公開鍵に対する
+.Ar ホスト名
+の SSHFP fingerprint 資源レコードを表示します。
+.It Fl S Ar 開始点
+DH-GEX のモジュロとなる素数候補を生成する際の開始点を (16 進で) 指定します。
+.It Fl T Ar 出力ファイル
+(
+.Fl G
+オプションで生成された) DH 群交換のための素数候補に対して、
+安全性の試験をおこないます。
+.It Fl t Ar 鍵の種類
+生成する鍵の種類を指定します。
+とりうる値として、プロトコル バージョン 1 で使う
+.Dq rsa1
+、およびプロトコル バージョン 2 で使う
+.Dq rsa
+または
+.Dq dsa
+があります。
+.It Fl U Ar リーダ
+すでに存在している RSA 公開鍵をスマートカード
+.Ar リーダ
+にアップロードします。
+.It Fl v
+冗長表示モード。
+.Nm
+が進行中のデバッグメッセージを表示するようにします。
+これはモジュロ生成のデバッグ時に役立ちます。
+複数の
+.Fl v
+オプションをつけると出力が増えます。最大は 3 個です。
+.It Fl W Ar ジェネレータ
+DH-GEX 用の素数候補を検査するときのジェネレータを指定します。
+.It Fl y
+このオプションは OpenSSH 形式の秘密鍵ファイルを読み、
+OpenSSH 形式の公開鍵を標準出力に表示します。
+.El
+.Sh 係数 (modulus) の生成
+.Nm
+は、Diffie-Hellman 群交換 (Diffie-Hellman Group Exchange, DH-GEX) のための
+群を生成するのにも使うことができます。
+この群を生成するには、2 つの段階をふむ必要があります:
+まず、素数の候補が生成されます。これは高速ですが、メモリを消費します。
+つぎにこれらの候補が適切かどうか検査されます (このときは CPU 時間を消費します)。
+.Pp
+この素数の生成は
+.Fl G
+オプションによっておこなえます。
+必要な素数の長さは、
+.Fl b
+オプションで指定することができます。
+たとえば:
+.Pp
+.Dl # ssh-keygen -G moduli-2048.candidates -b 2048
+.Pp
+デフォルトでは、素数の探索は指定された長さの区間で
+ランダムに選ばれた位置から開始されます。
+この開始位置は
+.Fl S
+オプションによって変更することができます。
+.Pp
+候補となる素数の集合が生成されたあとは、それらが適切かどうかを
+検査する必要があります。これは
+.Fl T
+オプションを使っておこなえます。この場合、
+.Nm
+は標準入力 (あるいは
+.Fl f
+オプションで指定したファイル) から候補を読み込みます。
+たとえば:
+.Pp
+.Dl # ssh-keygen -T moduli-2048 -f moduli-2048.candidates
+.Pp
+デフォルトでは、候補となる各素数は 100回の素数判定テストにかけられます。
+この回数は、
+.Fl a
+オプションによって変更することができます。
+DH ジェネレータの値は探索中の素数のために自動的に選ばれます。
+特定のジェネレータが必要な場合は、
+.Fl W
+オプションによって指定することができます。
+許されるジェネレータの値は 2、3 あるいは 5 です。
+.Pp
+最終的にスクリーニングされた DH 群は
+.Pa /etc/moduli
+にインストールすることができます。
+注意: このファイルはある範囲のビット長の係数 (modulus) を格納しており、
+この数は 2つの通信端点間で同じものである必要があります。
+.Sh 関連ファイル
+.Bl -tag -width Ds
+.It Pa ~/.ssh/identity
+そのユーザの、プロトコル バージョン 1 における
+RSA 認証用の秘密鍵を格納します。このファイルはその
+ユーザ以外の誰にも見せてはいけません。この鍵を生成するときに
+パスフレーズを指定することもできます。パスフレーズは、3DES を使って
+ファイル中の秘密鍵の部分を暗号化するのに用いられます。このファイルは
+.Nm
+によって自動的にアクセスされるわけではありませんが、
+秘密鍵ファイルのデフォルトの名前としてこれが提案されます。
+.Xr ssh 1
+はログイン要求があった際にこのファイルを読み込みます。
+.It Pa ~/.ssh/identity.pub
+プロトコル バージョン 1 における RSA 認証用の公開鍵を格納します。
+そのユーザが RSA 認証でログインしたいすべてのマシンの
+.Pa ~/.ssh/authorized_keys
+にこのファイルの内容を追加しておいてください。
+このファイルの内容を秘密にしておく必要はありません。
+.It Pa ~/.ssh/id_dsa
+そのユーザの、プロトコル バージョン 2 における
+DSA 認証用の秘密鍵を格納します。このファイルはその
+ユーザ以外の誰にも見せてはいけません。この鍵を生成するときに
+パスフレーズを指定することもできます。パスフレーズは、3DES を使って
+ファイル中の秘密鍵の部分を暗号化するのに用いられます。このファイルは
+.Nm
+によって自動的にアクセスされるわけではありませんが、
+秘密鍵ファイルのデフォルトの名前としてこれが提案されます。
+.Xr ssh 1
+はログイン要求があった際にこのファイルを読み込みます。
+.It Pa ~/.ssh/id_dsa.pub
+プロトコル バージョン 2 における DSA 認証用の公開鍵を格納します。
+そのユーザが DSA 認証でログインしたいすべてのマシンの
+.Pa ~/.ssh/authorized_keys
+にこのファイルの内容を追加しておいてください。
+このファイルの内容を秘密にしておく必要はありません。
+.It Pa ~/.ssh/id_rsa
+そのユーザの、プロトコル バージョン 2 における
+RSA 認証用の秘密鍵を格納します。このファイルはその
+ユーザ以外の誰にも見せてはいけません。この鍵を生成するときに
+パスフレーズを指定することもできます。パスフレーズは、3DES を使って
+ファイル中の秘密鍵の部分を暗号化するのに用いられます。このファイルは
+.Nm
+によって自動的にアクセスされるわけではありませんが、
+秘密鍵ファイルのデフォルトの名前としてこれが提案されます。
+.Xr ssh 1
+はログイン要求があった際にこのファイルを読み込みます。
+.It Pa ~/.ssh/id_rsa.pub
+プロトコル バージョン 2 における RSA 認証用の公開鍵を格納します。
+そのユーザが RSA 認証でログインしたいすべてのマシンの
+.Pa ~/.ssh/authorized_keys
+にこのファイルの内容を追加しておいてください。
+このファイルの内容を秘密にしておく必要はありません。
+.It Pa /etc/moduli
+DH-GEX で使われる Diffie-Hellman 群を格納します。
+このファイル形式については、
+.Xr moduli 5
+を参照してください。
+.El
+.Sh 関連項目
+.Xr ssh 1 ,
+.Xr ssh-add 1 ,
+.Xr ssh-agent 1 ,
+.Xr moduli 5 ,
+.Xr sshd 8
+.Rs
+.%R RFC 4716
+.%T "The Secure Shell (SSH) Public Key File Format"
+.%D 2006
+.Re
+.Sh 作者
+OpenSSH は Tatu Ylonen による、フリーな
+オリジナル版 ssh 1.2.12 リリースから派生したものです。
+Aaron Campbell、 Bob Beck、 Markus Friedl、 Niels Provos、
+Theo de Raadt および Dug Song が多くのバグを取り除き、
+新しい機能をふたたび追加して OpenSSH をつくりました。
+SSH プロトコル バージョン 1.5 および 2.0 のサポートは
+Markus Friedl の貢献によるものです。

@@ -1,0 +1,481 @@
+.\" $OpenBSD: sftp.1,v 1.67 2008/07/15 02:23:14 djm Exp $
+.\"
+.\" Copyright (c) 2001 Damien Miller.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" Japanese translation: $Id: sftp.1,v 1.1.1.1 2007/09/05 12:13:54 yusuke Exp $
+.\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
+.\"
+.Dd $Mdocdate: April 18 2008 $
+.Dt SFTP 1
+.Os
+.Sh 名前
+.Nm sftp
+.Nd 安全なファイル転送プログラム
+.Sh 書式
+.Nm sftp
+.Bk -words
+.Op Fl 1Cv
+.Op Fl B Ar バッファサイズ
+.Op Fl b Ar バッチファイル
+.Op Fl F Ar ssh設定ファイル
+.Op Fl o Ar ssh設定項目
+.Op Fl P Ar sftpサーバパス
+.Op Fl R Ar 同時リクエスト数
+.Op Fl S Ar プログラム
+.Op Fl s Ar サブシステム | sftpサーバ
+.Op Ar ホスト
+.Pp
+.Nm sftp
+.Ek
+.Oo Oo Ar ユーザ Ns @ Oc Ns
+.Ar ホスト名 Ns Oo : Ns Ar ファイル Oo
+.Ar ファイル Oc Oc Oc
+.Pp
+.Nm sftp
+.Oo Oo Ar ユーザ Ns @ Oc Ns
+.Ar ホスト名 Ns Oo : Ns Ar ディレクトリ Ns
+.Oo Ar / Oc Oc Oc
+.Pp
+.Nm sftp
+.Fl b Ar バッチファイル
+.Oo Ar ユーザ Ns @ Oc Ns Ar ホスト名
+.Sh 説明
+.Nm
+は
+.Xr ftp 1
+に似た対話的なファイル転送プログラムです。
+すべての操作は
+.Xr ssh 1
+によって暗号化された
+通信路を経由しておこなわれます。
+.Nm
+では公開鍵認証や圧縮機能など、ssh の機能の多くを利用できます。
+.Nm
+は指定された
+.Ar ホスト
+に接続してログインしたあと、対話的なコマンドモードに入ります。
+.Pp
+2 番目の書式では、
+対話的でない (訳注: ユーザがパスフレーズ等を入力する必要のない) 認証が
+使われている場合に自動的にファイルを取得します。
+そうでない場合は対話的な認証ののちにファイルを取得します。
+.Pp
+3 番目の書式は、指定されたリモートディレクトリから
+.Nm
+を開始します。
+.Pp
+4 番目の書式は、
+.Fl b
+オプションを使って自動化されたセッションを可能にします。
+この場合、接続時にパスワードを入力しなくてもいいように、対話的でない
+認証方式を使うように設定しておく必要があります (詳しくは
+.Xr sshd 8
+および
+.Xr ssh-keygen 1
+を参照してください)。
+.Pp
+オプションは以下のとおりです:
+.Bl -tag -width Ds
+.It Fl 1
+プロトコル バージョン 1 を使用します。
+.It Fl B Ar バッファサイズ
+.Nm
+がファイル転送をおこなう際のバッファサイズを指定します。
+バッファを大きくすると、往復 (round trip) が少なくなりますが、
+そのぶんメモリは余計に消費します。デフォルトの値は 32768 バイトです。
+.It Fl b Ar バッチファイル
+バッチモードに入り、
+.Em 標準入力
+のかわりに指定された
+.Ar バッチファイル
+からコマンド列を読み込みます。
+これにはユーザが介入する余地がないので、このモードは
+対話的でない (訳注: ユーザがパスフレーズ等を入力する必要のない) 認証と
+組み合わせて使うべきでしょう。
+.Ar バッチファイル
+を
+.Sq \-
+とすると、標準入力から読み込みます。
+.Nm
+は以下のどれかのコマンドが失敗すると中断します:
+.Ic get , put , rename , ln ,
+.Ic rm , mkdir , chdir , ls ,
+.Ic lchdir , chmod , chown , 
+.Ic chgrp , lpwd , df 
+および
+.Ic lmkdir
+コマンド名の前にプレフィックス
+.Sq \-
+をつけることで、エラー時の強制終了を禁止することができます 
+(例:
+.Ic -rm /tmp/blah* 
+)。
+.It Fl C
+圧縮機能を使用可能にします (ssh の
+.Fl C
+フラグを利用します)。
+.It Fl F Ar ssh設定ファイル
+.Xr ssh 1
+に別のユーザ設定ファイルを指定します。
+このオプションは
+.Xr ssh 1
+に直接渡されます。
+.It Fl o Ar ssh設定項目
+設定ファイル
+.Xr ssh_config 5
+で使われている形式のオプションを指定します。これは
+.Nm sftp
+が独立したコマンドラインオプションを持っていないような
+項目を設定するのに便利です。たとえば、別のポートを使用するには
+.Ic sftp -oPort=24 
+のようにします。
+以下のオプションの詳細と、これらがとりうる値については
+.Xr ssh_config 5
+を参照してください。
+.Pp
+.Bl -tag -width Ds -offset indent -compact
+.It AddressFamily
+.It BatchMode
+.It BindAddress
+.It ChallengeResponseAuthentication
+.It CheckHostIP
+.It Cipher
+.It Ciphers
+.It Compression
+.It CompressionLevel
+.It ConnectionAttempts
+.It ConnectTimeout
+.It ControlMaster
+.It ControlPath
+.It GlobalKnownHostsFile
+.It GSSAPIAuthentication
+.It GSSAPIDelegateCredentials
+.It HashKnownHosts
+.It Host
+.It HostbasedAuthentication
+.It HostKeyAlgorithms
+.It HostKeyAlias
+.It HostName
+.It IdentityFile
+.It IdentitiesOnly
+.It KbdInteractiveDevices
+.It LogLevel
+.It MACs
+.It NoHostAuthenticationForLocalhost
+.It NumberOfPasswordPrompts
+.It PasswordAuthentication
+.It Port
+.It PreferredAuthentications
+.It Protocol
+.It ProxyCommand
+.It PubkeyAuthentication
+.It RekeyLimit
+.It RhostsRSAAuthentication
+.It RSAAuthentication
+.It SendEnv
+.It ServerAliveInterval
+.It ServerAliveCountMax
+.It SmartcardDevice
+.It StrictHostKeyChecking
+.It TCPKeepAlive
+.It UsePrivilegedPort
+.It User
+.It UserKnownHostsFile
+.It VerifyHostKeyDNS
+.El
+.It Fl P Ar sftpサーバパス
+(
+.Xr ssh 1
+を使わず)
+直接ローカルな sftp サーバに接続します。
+このオプションはクライアントとサーバのデバッグ用です。
+.It Fl R Ar 同時リクエスト数
+未完了のリクエストを同時に最大どれくらいまでおこなうかを指定します。
+この値を増やすとファイル転送速度が多少上がりますが、メモリを消費します。
+デフォルトでは 64 の未完了リクエストをおこないます。
+.It Fl S Ar プログラム
+暗号化された接続を使うための
+.Ar プログラム
+を指定します。ここで使うプログラムは、
+.Xr ssh 1
+のオプションを受けつける必要があります。
+.It Fl s Ar サブシステム | sftpサーバ
+SSH2 のサブシステム、またはリモートホスト上にある sftp サーバへの
+パスを指定します。パス指定は プロトコル バージョン 1 で
+.Nm
+を使用するときや、リモートの
+.Xr sshd 8
+に sftp サブシステムが設定されていないときなどに便利です。
+.It Fl v
+ログに残すレベルを変更します。このオプションは ssh にも渡されます。
+.El
+.Sh 対話的コマンド
+.Nm
+の対話的コマンドモードでは、
+.Xr ftp 1
+に似たコマンドが使えます。
+これらのコマンドの大文字・小文字は区別されません。
+空白を含むパス名は引用符で囲む必要があります。
+パス名のなかに
+.Xr glob 3
+によって認識される特殊文字が含まれているときは、
+それらをバックスラッシュ
+.Pq Sq \e
+でエスケープする必要があります。
+.Bl -tag -width Ds
+.It Ic bye
+.Nm sftp 
+を終了します。
+.It Ic cd Ar パス名
+リモート側のカレントディレクトリを
+.Ar パス名
+に変更します。
+.It Ic chgrp Ar グループID Ar パス名
+.Ar パス名
+で指定されたファイルのグループを
+.Ar グループID
+に変更します。
+.Ar パス名
+が
+.Xr glob 3
+の特殊文字を含む場合は、複数のファイルを指定することができます。
+.Ar グループID
+は数値表現である必要があります。
+.It Ic chmod Ar モード Ar パス名
+.Ar パス名
+で指定されたファイルのパーミッションを
+.Ar モード
+に変更します。
+.Ar パス名
+が
+.Xr glob 3
+の特殊文字を含む場合は、複数のファイルを指定することができます。
+.It Ic chown Ar ユーザID Ar パス名
+.Ar パス名
+で指定されたファイルの所有者を
+.Ar ユーザID
+に変更します。
+.Ar パス名
+が
+.Xr glob 3
+の特殊文字を含む場合は、複数のファイルを指定することができます。
+.Ar ユーザID
+は数値表現である必要があります。
+.It Xo Ic df
+.Op Fl hi
+.Op Ar パス名
+.Xc
+カレントディレクトリ (あるいは
+.Ar パス名
+で指定されたディレクトリ) のあるファイルシステムの使用状況を表示します。
+.Fl h
+フラグが指定されると、
+表示される情報は「可読な」サフィックスがついた形式になります。
+.Fl i
+フラグが指定されると、使用量の情報に加えて iノードに関する情報も表示します。
+このコマンドは、
+.Dq statvfs@openssh.com
+拡張をサポートしているサーバでのみ使用可能になります。
+.It Ic exit
+.Nm sftp 
+を終了します。
+.It Xo Ic get
+.Op Fl P
+.Ar リモートパス名
+.Op Ar ローカルパス名
+.Xc
+.Ar リモートパス名
+のファイルを取得し、ローカルマシン上に置きます。
+(訳注: ディレクトリを再帰的にまるごと get することはできません。)
+ローカルパス名が指定されていない場合、これは
+リモートマシン上でのファイル名と同じになります。
+.Ar リモートパス名
+が
+.Xr glob 3
+の特殊文字を含む場合は、複数のファイルを指定することができます。
+その場合、
+.Ar ローカルパス名
+を指定しているときは、それがディレクトリ名である必要があります。
+.Fl P
+フラグが指定されると、そのファイルのパーミッションおよび
+アクセス時間までもすべてコピーされます。
+.It Ic help
+ヘルプを表示します。
+.It Ic lcd Ar パス名
+ローカル側のカレントディレクトリを
+.Ar パス名
+に変更します。
+.It Ic lls Op Ar lsオプション Op Ar パス名
+ローカルマシン上の
+.Ar パス名
+のディレクトリ一覧を表示します。
+.Ar パス名
+の指定がなければ、カレントディレクトリの一覧を表示します。
+.Ar lsオプション
+ではローカルシステムの
+.Xr ls 1
+コマンドでサポートされているフラグがすべて使えます。
+.Ar パス名
+が
+.Xr glob 3
+の特殊文字を含む場合は、複数のファイルを指定することができます。
+.It Ic lmkdir Ar パス名
+ローカルマシン上に
+.Ar パス名
+で指定されたディレクトリを作成します。
+.It Ic ln Ar 古いパス名 Ar 新しいパス名
+.Ar 新しいパス名
+から
+.Ar 古いパス名
+へのシンボリックリンクを作成します。
+.It Ic lpwd
+ローカルマシン上のカレントディレクトリ
+(ワーキングディレクトリ) 
+を表示します。
+.It Xo Ic ls
+.Op Fl 1aflnrSt
+.Op Ar パス名
+.Xc
+リモートマシン上の
+.Ar パス名
+のディレクトリ一覧を表示します。
+.Ar パス名
+の指定がなければ、カレントディレクトリの一覧を表示します。
+.Ar パス名
+が
+.Xr glob 3
+の特殊文字を含む場合は、複数のファイルを指定することができます。
+.Pp
+以下のフラグを指定することで、
+.Ic ls
+のふるまいを変えることができます:
+.Bl -tag -width Ds
+.It Fl 1
+出力を 1 カラムのみにします。
+.It Fl a
+ドット
+.Pq Sq \&.
+で始まるファイルも表示します。
+.It Fl f
+ソートを禁止します。
+デフォルトでは、辞書順にソートされます。
+.It Fl l
+所有者やパーミッションなど、詳細な情報も表示します。
+.It Fl n
+ユーザ ID およびグループ ID を数値で表示します。
+.It Fl r
+ソートの順序を逆にします。
+.It Fl S
+ファイルサイズでソートします。
+.It Fl t
+最終更新時刻でソートします。
+.El
+.It Ic lumask Ar umask
+ローカルマシン上の umask を
+.Ar umask 
+に設定します。
+.It Ic mkdir Ar パス名
+リモートマシン上に
+.Ar パス名
+で指定されたディレクトリを作成します。
+.It Ic progress
+プログレスバーの表示/非表示を切り換えます。
+.It Xo Ic put
+.Op Fl P
+.Ar ローカルパス名
+.Op Ar リモートパス名
+.Xc
+.Ar ローカルパス名
+のファイルをリモートマシン上にアップロードします。
+(訳注: ディレクトリを再帰的にまるごと get することはできません。)
+リモートパス名が指定されていない場合、これは
+ローカルマシン上でのファイル名と同じになります。
+.Ar ローカルパス名
+が
+.Xr glob 3
+の特殊文字を含む場合は、複数のファイルを指定することができます。
+その場合、
+.Ar リモートパス名
+を指定しているときは、それがディレクトリ名である必要があります。
+.Fl P
+フラグが指定されると、そのファイルの全パーミッションおよび
+アクセス時間もコピーされます。
+.It Ic pwd
+リモートマシン上のカレントディレクトリ
+(ワーキングディレクトリ) 
+を表示します。
+.It Ic quit
+.Nm sftp 
+を終了します。
+.It Ic rename Ar 古いパス名 Ar 新しいパス名
+リモートマシン上の
+.Ar 古いパス名
+で表されたファイルを
+.Ar 新しいパス名
+に変更します。
+(訳注: ファイルやディレクトリを移動させることはできません。)
+.It Ic rm Ar パス名
+リモートマシン上の
+.Ar パス名
+で指定されるファイルを削除します。
+.It Ic rmdir Ar パス名
+リモートマシン上の
+.Ar パス名
+で指定されるディレクトリを削除します。
+(訳注: ファイルが含まれているディレクトリを削除することはできません。)
+.It Ic symlink Ar 古いパス名 Ar 新しいパス名
+.Ar 新しいパス名
+から
+.Ar 古いパス名
+へのシンボリックリンクを作成します。
+.It Ic \&! Ar コマンド
+ローカルマシン上のシェルで、
+.Ar コマンド
+を実行します。
+.It Ic version
+.Nm
+のプロトコルバージョン番号を表示します。
+.It Ic \&!
+ローカルマシン上のシェルに入ります。
+.It Ic \&?
+help と同じです。
+.El
+.Sh 関連項目
+.Xr ftp 1 ,
+.Xr ls 1 ,
+.Xr scp 1 ,
+.Xr ssh 1 ,
+.Xr ssh-add 1 ,
+.Xr ssh-keygen 1 ,
+.Xr glob 3 ,
+.Xr ssh_config 5 ,
+.Xr sftp-server 8 ,
+.Xr sshd 8
+.Rs
+.%A T. Ylonen
+.%A S. Lehtinen
+.%T "SSH File Transfer Protocol"
+.%N draft-ietf-secsh-filexfer-00.txt
+.%D January 2001
+.%O work in progress material
+.Re

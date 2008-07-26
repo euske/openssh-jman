@@ -1,0 +1,90 @@
+.\" $OpenBSD: ssh-keysign.8,v 1.9 2007/05/31 19:20:16 jmc Exp $
+.\"
+.\" Copyright (c) 2002 Markus Friedl.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" Japanese translation: $Id: ssh-keysign.8,v 1.1.1.1 2007/09/05 12:13:54 yusuke Exp $
+.\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
+.\"
+.Dd $Mdocdate$
+.Dt SSH-KEYSIGN 8
+.Os
+.Sh 名前
+.Nm ssh-keysign
+.Nd ホストベースド (host-based) 認証における ssh の補助プログラム
+.Sh 書式
+.Nm
+.Sh 説明
+.Nm
+は、
+.Xr ssh 1
+がローカルホスト鍵にアクセスし、
+SSH プロトコル バージョン 2 でホストベースド (host-based) 認証をおこなう際に
+必要なデジタル署名を生成するのに使われます。
+.Pp
+.Nm
+はデフォルトでは使用禁止になっており、システム全体にわたる
+クライアントの設定ファイル
+.Pa /etc/ssh/ssh_config
+で
+.Cm EnableSSHKeysign
+設定項目を
+.Dq yes
+に設定したときだけ使用されます。
+.Pp
+.Nm
+は
+.Xr ssh 1
+によって呼び出されるもので、ユーザが直接実行するものではありません。
+ホストベースド認証の詳細については
+.Xr ssh 1
+および
+.Xr sshd 8
+を参照してください。
+.Sh 関連ファイル
+.Bl -tag -width Ds
+.It Pa /etc/ssh/ssh_config
+このファイルにより、
+.Nm
+が使用されるかどうかが決定されます。
+.It Pa /etc/ssh/ssh_host_dsa_key, /etc/ssh/ssh_host_rsa_key
+これらのファイルにはホストの秘密鍵が格納され、
+デジタル署名を生成するのに使われます。
+これらのファイルは root が所有し、root だけが読み込み可能にすべきであり、
+これ以外の誰にも読ませてはいけません。
+これらは root だけが読み込み可能なため、
+ホストベースド認証を使うときは、
+.Nm
+を setuid root にしておく必要があります。
+.El
+.Sh 関連項目
+.Xr ssh 1 ,
+.Xr ssh-keygen 1 ,
+.Xr ssh_config 5 ,
+.Xr sshd 8
+.Sh 歴史
+.Nm
+は
+.Ox 3.2
+から導入されました。
+.Sh 作者
+.An Markus Friedl Aq markus@openbsd.org

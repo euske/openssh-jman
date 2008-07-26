@@ -1,0 +1,102 @@
+.\" $Id: ssh-rand-helper.8,v 1.1.1.1 2007/09/05 12:13:54 yusuke Exp $
+.\"
+.\" Copyright (c) 2002 Damien Miller.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" Japanese translation: $Id: ssh-rand-helper.8,v 1.1.1.1 2007/09/05 12:13:54 yusuke Exp $
+.\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
+.\"
+.Dd April 14, 2002
+.Dt SSH-RAND-HELPER 8
+.Os
+.Sh 名前
+.Nm ssh-rand-helper
+.Nd OpenSSH用 乱数生成器
+.Sh 書式
+.Nm ssh-rand-hlper
+.Op Fl vxXh
+.Op Fl b Ar バイト数
+.Sh 説明
+.Nm
+は、
+.Xr ssh 1 ,
+.Xr ssh-add 1 ,
+.Xr ssh-agent 1 ,
+.Xr ssh-keygen 1 ,
+.Xr ssh-keyscan 1 
+および
+.Xr sshd 8
+によって使われる補助プログラムです。
+.Xr openssl 4
+が暗号使用に耐えうる乱数を生成するようにはなっていない場合、
+自分でそのような乱数源を収集するのに使われます。
+.Pp
+ふつう
+.Nm
+は強い乱数シード (strong random seed) を生成し、それを
+呼び出したプログラムに標準出力を介して伝えます。
+標準出力が tty の場合、特に別の指定がなければ
+.Nm
+はかわりに 16進フォーマットでシードを表示します。
+.Pp
+デフォルトでは
+.Nm
+は
+.Pa /etc/ssh/ssh_prng_cmds
+に記されているシステムコマンドをつかって乱数を収集します。
+これらのコマンドの出力はハッシュされ、呼び出し元のプログラムの
+乱数シードを生成するのに使われます。
+また、
+.Nm
+は実行中にシードを
+.Pa ~/.ssh/prng_seed
+ファイルに格納します。
+.Pp
+あるいは、ビルド時に
+.Nm
+が EGD/PRNGd サーバから unix ドメインソケットまたは
+TCP localhost ソケットを介して乱数を収集するように
+configure されることもあります。
+.Pp
+このプログラムはエンドユーザが実行するようにはできていません。
+そのためコマンドラインオプションはほとんどデバッグ目的だけのものです。
+.Bl -tag -width Ds
+.It Fl b Ar バイト数
+出力に含める乱数のバイト数を指定します。
+.It Fl x
+バイナリ出力のかわりに 16進で出力します。
+.It Fl X
+たとえ標準出力が端末であっても、バイナリ出力を強制します。
+.It Fl v
+デバッグメッセージを出力します。複数の
+.Fl v
+オプションをつけるとデバッグレベルが上がります。
+.It Fl h
+オプションの簡単な説明を出力します。
+.El
+.Sh 作者
+Damien Miller <djm@mindrot.org>
+.Sh 関連項目
+.Xr ssh 1 ,
+.Xr ssh-add 1 ,
+.Xr ssh-keygen 1 ,
+.Xr sshd 8

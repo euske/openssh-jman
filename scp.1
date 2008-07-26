@@ -1,0 +1,228 @@
+.\"  -*- nroff -*-
+.\"
+.\" scp.1
+.\"
+.\" Author: Tatu Ylonen <ylo@cs.hut.fi>
+.\"
+.\" Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
+.\"                    All rights reserved
+.\"
+.\" Created: Sun May  7 00:14:37 1995 ylo
+.\"
+.\" $OpenBSD: scp.1,v 1.46 2008/07/12 05:33:41 djm Exp $
+.\"
+.\" Japanese translation: $Id: scp.1,v 1.2 2008/03/31 14:42:59 yusuke Exp $
+.\" by Yusuke Shinyama <yusuke @ cs . nyu . edu>
+.\"
+.Dd $Mdocdate: June 14 2008 $
+.Dt SCP 1
+.Os
+.Sh 名前
+.Nm scp
+.Nd 安全なファイルコピー (リモート ファイルコピー プログラム)
+.Sh 書式
+.Nm scp
+.Bk -words
+.Op Fl 1246BCpqrv
+.Op Fl c Ar 暗号方式
+.Op Fl F Ar ssh設定ファイル
+.Op Fl i Ar identityファイル
+.Op Fl l Ar 帯域制限
+.Op Fl o Ar ssh設定項目
+.Op Fl P Ar ポート番号
+.Op Fl S Ar プログラム
+.Sm off
+.Oo
+.Op Ar ユーザ No @
+.Ar ホスト1 No :
+.Oc Ns Ar ファイル1
+.Sm on
+.Ar ...
+.Sm off
+.Oo
+.Op Ar ユーザ No @
+.Ar ホスト2 No :
+.Oc Ar ファイル2
+.Sm on
+.Ek
+.Sh 説明
+.Nm
+はネットワーク上のホスト間でファイルをコピーします。
+これはデータ転送に 
+.Xr ssh 1
+を使い、これと同様の認証をおこないます。これによって、
+.Xr ssh 1
+と同様のセキュリティを提供します。
+.Xr rcp 1
+とは違って、
+.Nm
+は認証に必要な場合、パスワードまたはパスフレーズを尋ねてきます。
+.Pp
+各ファイル名には、ホストおよびユーザの指定を含めることができます。これは
+そのファイルがどのホストから、あるいはどのホストにコピーされるかを
+指定するものです。ローカルなファイル名は、
+.Sq :\&
+を含む名前を
+.Nm
+がホスト指定と混同しないように、
+絶対パス名または相対パス名を使ってください。
+2つのリモートホスト間でファイルコピーすることもできます。
+.Pp
+オプションは次のとおりです:
+.Bl -tag -width Ds
+.It Fl 1
+.Nm
+がプロトコル バージョン 1 を使うよう強制します。
+.It Fl 2
+.Nm
+がプロトコル バージョン 2 を使うよう強制します。
+.It Fl 4
+.Nm
+が IPv4 アドレスのみを使うよう強制します。
+.It Fl 6
+.Nm
+が IPv6 アドレスのみを使うよう強制します。
+.It Fl B
+バッチ処理モード (パスワードやパスフレーズを尋ねないようにします)。
+.It Fl C
+通信を圧縮します。
+.Xr ssh 1
+に
+.Fl C
+フラグを渡して圧縮を許可します。
+.It Fl c Ar 暗号方式
+データ転送に使う暗号方式を選択します。このオプションは直接
+.Xr ssh 1
+に渡されます。
+.It Fl F Ar ssh設定ファイル
+.Nm ssh
+に対して別のユーザ設定ファイルを指定します。
+このオプションは直接
+.Xr ssh 1
+に渡されます。
+.It Fl i Ar identityファイル
+公開鍵認証用の秘密鍵を読むファイルを選択します。
+このオプションは直接
+.Xr ssh 1
+に渡されます。
+.It Fl l Ar limit
+使われるネットワーク帯域を制限します。Kbit/s で指定します。
+.It Fl o Ar ssh設定項目
+設定ファイル
+.Xr ssh_config 5
+で使われている形式のオプションを
+.Nm ssh
+に渡すために使います。
+これは 
+.Nm scp
+のコマンドラインオプションからは直接指定できない
+項目を指定するときに便利です。
+以下のオプションの詳細と、これらがとりうる値については
+.Xr ssh_config 5
+を参照してください。
+.Pp
+.Bl -tag -width Ds -offset indent -compact
+.It AddressFamily
+.It BatchMode
+.It BindAddress
+.It ChallengeResponseAuthentication
+.It CheckHostIP
+.It Cipher
+.It Ciphers
+.It Compression
+.It CompressionLevel
+.It ConnectionAttempts
+.It ConnectTimeout
+.It ControlMaster
+.It ControlPath
+.It GlobalKnownHostsFile
+.It GSSAPIAuthentication
+.It GSSAPIDelegateCredentials
+.It HashKnownHosts
+.It Host
+.It HostbasedAuthentication
+.It HostKeyAlgorithms
+.It HostKeyAlias
+.It HostName
+.It IdentityFile
+.It IdentitiesOnly
+.It KbdInteractiveDevices
+.It LogLevel
+.It MACs
+.It NoHostAuthenticationForLocalhost
+.It NumberOfPasswordPrompts
+.It PasswordAuthentication
+.It Port
+.It PreferredAuthentications
+.It Protocol
+.It ProxyCommand
+.It PubkeyAuthentication
+.It RekeyLimit
+.It RhostsRSAAuthentication
+.It RSAAuthentication
+.It SendEnv
+.It ServerAliveInterval
+.It ServerAliveCountMax
+.It SmartcardDevice
+.It StrictHostKeyChecking
+.It TCPKeepAlive
+.It UsePrivilegedPort
+.It User
+.It UserKnownHostsFile
+.It VerifyHostKeyDNS
+.El
+.It Fl P Ar ポート番号
+リモートホストに接続するポート番号を指定します。
+このオプションは大文字の
+.Sq P
+であることに注意してください。これは小文字の
+.Fl p
+が、時刻やパーミッションを保つオプションとして
+.Xr rcp 1
+によってすでに使われているためです。
+.It Fl p
+コピー元ファイルの最終修正時刻、最終アクセス時刻、および
+パーミッションを保つようにします。
+.It Fl q
+沈黙モード。
+.Xr ssh 1
+が進行状況を表すメータや警告および診断メッセージを
+表示しないようにします。
+.It Fl r
+ディレクトリ全体を再帰的にコピーします。
+.Nm
+は遭遇したシンボリック・リンクを追いますので注意してください。
+.It Fl S Ar プログラム
+暗号化された接続のために使う
+.Ar プログラム
+の名前を指定します。このプログラムは
+.Xr ssh 1
+のオプションが使用できなくてはいけません。
+.It Fl v
+冗長表示モード。
+.Nm
+と
+.Xr ssh 1
+が進行中のデバッグメッセージを表示するようにします。
+これは接続や認証、設定の問題などをデバッグするときに役立ちます。
+.El
+.Pp
+.Ex -std scp
+.Sh 関連項目
+.Xr rcp 1 ,
+.Xr sftp 1 ,
+.Xr ssh 1 ,
+.Xr ssh-add 1 ,
+.Xr ssh-agent 1 ,
+.Xr ssh-keygen 1 ,
+.Xr ssh_config 5 ,
+.Xr sshd 8
+.Sh 歴史
+.Nm
+は、カリフォルニア州立大学評議会 (the Regents of the University of
+California) による BSD ソースコードの
+.Xr rcp 1
+を基にしています。
+.Sh 作者
+.An Timo Rinne Aq tri@iki.fi
+.An Tatu Ylonen Aq ylo@cs.hut.fi
