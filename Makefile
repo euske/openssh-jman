@@ -7,6 +7,7 @@
 VERSION=510p1
 
 PYTHON=python
+SVN=svn
 ROFF2HTML=$(PYTHON) roff2html.py
 
 #
@@ -24,9 +25,11 @@ all: $(HTML)
 clean: 
 	-rm $(HTML)
 
-PACKAGE=openssh-jman-$(VERSION).tar.gz
+PACKAGE=openssh-jman-$(VERSION)
 pack: clean
-	cd ..; tar c --exclude CVS --numeric-owner -z -f $(PACKAGE) jman
+	$(SVN) export . ../$(PACKAGE)
+	tar c --numeric-owner -z -f ../$(PACKAGE).tar.gz -C .. $(PACKAGE)
+	rm -rf ../$(PACKAGE)
 
 .1.html:
 	$(ROFF2HTML) $< > $@
