@@ -34,12 +34,12 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 .\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.\" $OpenBSD: ssh_config.5,v 1.111 2008/06/26 11:46:31 grunk Exp $
+.\" $OpenBSD: ssh_config.5,v 1.119 2009/02/22 23:50:57 djm Exp $
 .\"
 .\" Japanese translation: $Id: ssh_config.5,v 1.2 2008/03/31 14:42:59 yusuke Exp $
 .\" by Yusuke Shinyama <yusuke @ cs . nyu . edu>
 .\"
-.Dd $Mdocdate: June 12 2008 $
+.Dd $Mdocdate: February 12 2009 $
 .Dt SSH_CONFIG 5
 .Os
 .Sh 名前
@@ -208,9 +208,9 @@
 .Dq cast128-cbc 。
 デフォルトは:
 .Bd -literal -offset 3n
-aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,arcfour128,
-arcfour256,arcfour,aes192-cbc,aes256-cbc,aes128-ctr,
-aes192-ctr,aes256-ctr
+aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,
+aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,aes192-cbc,
+aes256-cbc,arcfour
 .Ed
 の順になっています。
 .It Cm ClearAllForwardings (すべてのポート転送をキャンセル)
@@ -836,7 +836,13 @@ IPv6 アドレスは角カッコで囲むか、これとは別の形式で指定します:
 .Ar ホスト名 Ns / Ns Ar ホスト側ポート
 ポート転送は複数指定することができ、
 コマンドラインから追加指定することもできます。
-特権ポートを転送できるのはスーパーユーザだけです。
+特権ポートを転送できるのは、そのリモートホスト上に root としてログインできるときだけです。
+.Pp
+.Ar ポート
+引数が
+.Ql 0
+の場合、listen するポートはサーバ側で動的に割り当てられ、
+実行時にクライアント側にその値が報告されます。
 .Pp
 デフォルトでは、サーバ側で listen するソケットは
 ループバックインターフェイスにのみ bind されます。
@@ -1106,11 +1112,13 @@ DNS 上の安全な指紋に一致する鍵を信頼するようになります。
 .It Cm VisualHostKey
 この項目が
 .Dq yes 
-に設定されている場合、16進数表示のリモートホストの鍵の指紋に加えて、
-それをアスキーアートで表現したものが表示されます。
+に設定されている場合、ホスト鍵が未知であるマシンにログインしようとした時、
+通常の16進数表示のリモートホストの鍵の指紋に加えて、
+これをアスキーアートで表現したものが表示されます。
 この項目が
 .Dq no 
-の場合は、16進表示の指紋のみが表示されます。
+の場合は、ホスト鍵が未知であるマシンにログインしようとした時に
+16進表示の指紋のみが表示されます。
 デフォルトは
 .Dq no 
 です。

@@ -34,12 +34,12 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 .\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.\" $OpenBSD: ssh.1,v 1.277 2008/07/02 13:47:39 djm Exp $
+.\" $OpenBSD: ssh.1,v 1.282 2009/02/12 03:44:25 djm Exp $
 .\"
 .\" Japanese translation: $Id: ssh.1,v 1.2 2008/03/31 14:42:59 yusuke Exp $
 .\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: June 26 2008 $
+.Dd $Mdocdate: February 12 2009 $
 .Dt SSH 1
 .Os
 .Sh 名前
@@ -47,7 +47,7 @@
 .Nd OpenSSH SSH クライアント (リモート ログイン プログラム)
 .Sh 書式
 .Nm ssh
-.Op Fl 1246AaCfgKkMNnqsTtVvXxY
+.Op Fl 1246AaCfgKkMNnqsTtVvXxYy
 .Op Fl b Ar bindするアドレス
 .Op Fl c Ar 暗号方式
 .Oo Fl D\ \&
@@ -567,6 +567,12 @@ IPv6 アドレスの場合はアドレスを角カッコ [ ] の中に入れるか、
 オプションが許可されているときのみです (
 .Xr sshd_config 5
 を参照してください)。
+.Pp
+.Ar ポート 
+引数に
+.Ql 0 
+を指定した場合、listen するポートはサーバ側で動的に割り当てられ、
+実行時にクライアント側にその値が報告されます。
 .It Fl S Ar 制御用パス名
 接続を共有する際の制御用ソケットの位置を指定します。
 詳細については
@@ -660,6 +666,10 @@ X11 の転送を禁止します。
 .It Fl Y
 信頼された X11 転送を許可します。
 信頼された X11 転送は、X11 SECURITY 拡張機能の制約をうけることはありません。
+.It Fl y
+.Xr syslog 3
+システムモジュールを使用してログ情報を送ります。
+デフォルトでは、この情報は標準エラー出力に送られます。
 .El
 .Pp
 さらに
@@ -912,9 +922,11 @@ sshをバックグラウンドに移行させます。
 .It Cm ~C
 コマンドラインをオープンします。
 現在これは
-.Fl L
-や
+.Fl L 
+、
 .Fl R
+および
+.Fl D
 オプション (上記参照) を使っていて、
 ポート転送を追加したい場合に有効です。
 また、これは

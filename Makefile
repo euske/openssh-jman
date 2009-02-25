@@ -4,7 +4,7 @@
 # by Yusuke Shinyama <yusuke @ cs . nyu . edu>
 # $Id: Makefile,v 1.5 2008/04/03 13:35:51 yusuke Exp $
 
-VERSION=510p1
+VERSION=520p1
 
 PYTHON=python
 SVN=svn

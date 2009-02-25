@@ -1,4 +1,4 @@
-.\"	$OpenBSD: ssh-keyscan.1,v 1.24 2008/04/30 10:14:03 djm Exp $
+.\"	$OpenBSD: ssh-keyscan.1,v 1.26 2008/12/29 01:12:36 stevesk Exp $
 .\"
 .\" Copyright 1995, 1996 by David Mazieres <dm@lcs.mit.edu>.
 .\"
@@ -9,7 +9,7 @@
 .\" Japanese translation: $Id: ssh-keyscan.1,v 1.1.1.1 2007/09/05 12:13:54 yusuke Exp $
 .\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: May 31 2007 $
+.Dd $Mdocdate: November 1 2008 $
 .Dt SSH-KEYSCAN 1
 .Os
 .Sh 名前
@@ -24,7 +24,7 @@
 .Op Fl T Ar タイムアウト秒数
 .Op Fl t Ar 鍵の種類
 .Op Ar ホスト名 | アドレスリスト ホスト名リスト
-.Op Ar ...
+.Ar ...
 .Ek
 .Sh 説明
 .Nm
@@ -136,7 +136,7 @@ ssh が走っていなかったり、ホストがダウンしていたりしても、です。
 .Pp
 .Pa hostname
 で指定されるマシンの
-.Pa rsa1
+.Pa rsa
 ホスト鍵を表示する:
 .Bd -literal
 $ ssh-keyscan hostname

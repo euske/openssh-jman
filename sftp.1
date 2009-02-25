@@ -1,4 +1,4 @@
-.\" $OpenBSD: sftp.1,v 1.67 2008/07/15 02:23:14 djm Exp $
+.\" $OpenBSD: sftp.1,v 1.69 2008/12/09 15:35:00 sobrado Exp $
 .\"
 .\" Copyright (c) 2001 Damien Miller.  All rights reserved.
 .\"
@@ -25,7 +25,7 @@
 .\" Japanese translation: $Id: sftp.1,v 1.1.1.1 2007/09/05 12:13:54 yusuke Exp $
 .\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: April 18 2008 $
+.Dd $Mdocdate: December 9 2008 $
 .Dt SFTP 1
 .Os
 .Sh 名前
@@ -47,14 +47,13 @@
 .Pp
 .Nm sftp
 .Ek
-.Oo Oo Ar ユーザ Ns @ Oc Ns
-.Ar ホスト名 Ns Oo : Ns Ar ファイル Oo
-.Ar ファイル Oc Oc Oc
+.Oo Ar ユーザ Ns @ Oc Ns
+.Ar ホスト名 Ns Oo : Ns Ar
 .Pp
 .Nm sftp
-.Oo Oo Ar ユーザ Ns @ Oc Ns
+.Oo Ar ユーザ Ns @ Oc Ns
 .Ar ホスト名 Ns Oo : Ns Ar ディレクトリ Ns
-.Oo Ar / Oc Oc Oc
+.Oo Ar / Oc 
 .Pp
 .Nm sftp
 .Fl b Ar バッチファイル
@@ -448,7 +447,7 @@ SSH2 のサブシステム、またはリモートホスト上にある sftp サーバへの
 から
 .Ar 古いパス名
 へのシンボリックリンクを作成します。
-.It Ic \&! Ar コマンド
+.It Ic \&! Ns Ar コマンド
 ローカルマシン上のシェルで、
 .Ar コマンド
 を実行します。
