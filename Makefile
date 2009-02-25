@@ -4,11 +4,17 @@
 # by Yusuke Shinyama <yusuke @ cs . nyu . edu>
 # $Id: Makefile,v 1.5 2008/04/03 13:35:51 yusuke Exp $
 
+PACKAGE=openssh-jman
 VERSION=520p1
 
-PYTHON=python
+GNUTAR=tar
 SVN=svn
+PYTHON=python
 ROFF2HTML=$(PYTHON) roff2html.py
+
+WORKDIR=/tmp
+DISTNAME=$(PACKAGE)-$(VERSION)
+DISTFILE=$(DISTNAME).tar.gz
 
 #
 .SUFFIXES: .0 .1 .2 .3 .4 .5 .6 .7 .8 .9 .html
@@ -25,12 +31,6 @@ all: $(HTML)
 clean: 
 	-rm $(HTML)
 
-PACKAGE=openssh-jman-$(VERSION)
-pack: clean
-	$(SVN) export . ../$(PACKAGE)
-	tar c --numeric-owner -z -f ../$(PACKAGE).tar.gz -C .. $(PACKAGE)
-	rm -rf ../$(PACKAGE)
-
 .1.html:
 	$(ROFF2HTML) $< > $@
 .5.html:
@@ -38,9 +38,18 @@ pack: clean
 .8.html:
 	$(ROFF2HTML) $< > $@
 
-DESTDIR=$$HOME/public_html/doc/openssh/jman/
-publish: pubhtml pubtgz
-pubhtml: $(HTML)
-	cp $(HTML) $(DESTDIR)
-pubtgz: clean pack
-	mv ../$(PACKAGE) $(DESTDIR)
+# Maintainance:
+
+$(WORKDIR)/$(DISTFILE): clean
+	$(SVN) cleanup
+	$(SVN) export . $(WORKDIR)/$(DISTNAME)
+	$(GNUTAR) c -z -C$(WORKDIR) -f $(WORKDIR)/$(DISTFILE) $(DISTNAME) --dereference --numeric-owner
+	rm -rf $(WORKDIR)/$(DISTNAME)
+
+commit: clean
+	$(SVN) commit
+
+WEBDIR=$$HOME/Site/unixuser.org/doc/openssh/jman/
+publish: $(WORKDIR)/$(DISTFILE) $(HTML)
+	cp $(HTML) $(WORKDIR)/$(DISTFILE) $(WEBDIR)
+	cp index.html $(WEBDIR)/index.html
