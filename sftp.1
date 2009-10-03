@@ -1,4 +1,4 @@
-.\" $OpenBSD: sftp.1,v 1.69 2008/12/09 15:35:00 sobrado Exp $
+.\" $OpenBSD: sftp.1,v 1.76 2009/08/19 04:56:03 jmc Exp $
 .\"
 .\" Copyright (c) 2001 Damien Miller.  All rights reserved.
 .\"
@@ -25,7 +25,7 @@
 .\" Japanese translation: $Id: sftp.1,v 1.1.1.1 2007/09/05 12:13:54 yusuke Exp $
 .\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: December 9 2008 $
+.Dd $Mdocdate: August 19 2009 $
 .Dt SFTP 1
 .Os
 .Sh 名前
@@ -34,30 +34,33 @@
 .Sh 書式
 .Nm sftp
 .Bk -words
-.Op Fl 1Cv
+.Op Fl 1246Cpqrv
 .Op Fl B Ar バッファサイズ
 .Op Fl b Ar バッチファイル
+.Op Fl c Ar 暗号
+.Op Fl D Ar sftpサーバパス
 .Op Fl F Ar ssh設定ファイル
+.Op Fl i Ar identityファイル
 .Op Fl o Ar ssh設定項目
-.Op Fl P Ar sftpサーバパス
+.Op Fl P Ar ポート
 .Op Fl R Ar 同時リクエスト数
 .Op Fl S Ar プログラム
 .Op Fl s Ar サブシステム | sftpサーバ
 .Op Ar ホスト
-.Pp
-.Nm sftp
 .Ek
-.Oo Ar ユーザ Ns @ Oc Ns
-.Ar ホスト名 Ns Oo : Ns Ar
 .Pp
 .Nm sftp
 .Oo Ar ユーザ Ns @ Oc Ns
-.Ar ホスト名 Ns Oo : Ns Ar ディレクトリ Ns
-.Oo Ar / Oc 
+.Ar ホスト Ns Op : Ns Ar
 .Pp
 .Nm sftp
-.Fl b Ar バッチファイル
-.Oo Ar ユーザ Ns @ Oc Ns Ar ホスト名
+.Oo Ar ユーザ Ns @ Oc Ns
+.Ar ホスト Ns Oo : Ns Ar ディレクトリ Ns
+.Op Ar / Oc
+.Pp
+.Nm sftp
+.Fl b Ar batchfile
+.Oo Ar ユーザ Ns @ Oc Ns Ar ホスト
 .Sh 説明
 .Nm
 は
@@ -97,6 +100,14 @@
 .Bl -tag -width Ds
 .It Fl 1
 プロトコル バージョン 1 を使用します。
+.It Fl 2
+プロトコル バージョン 2 を使用します。
+.It Fl 4
+.Nm
+が IPv4 アドレスのみを使うよう強制します。
+.It Fl 6
+.Nm
+が IPv6 アドレスのみを使うよう強制します。
 .It Fl B Ar バッファサイズ
 .Nm
 がファイル転送をおこなう際のバッファサイズを指定します。
@@ -133,11 +144,26 @@
 圧縮機能を使用可能にします (ssh の
 .Fl C
 フラグを利用します)。
+.It Fl c Ar 暗号
+Selects the cipher to use for encrypting the data transfers.
+This option is directly passed to
+.Xr ssh 1 .
+.It Fl D Ar sftpサーバパス
+(
+.Xr ssh 1
+を使わず)
+直接ローカルな sftp サーバに接続します。
+このオプションはクライアントとサーバのデバッグ用です。
 .It Fl F Ar ssh設定ファイル
 .Xr ssh 1
 に別のユーザ設定ファイルを指定します。
 このオプションは
 .Xr ssh 1
+に直接渡されます。
+.It Fl i Ar identityファイル
+公開鍵認証のさいに identity (秘密鍵) を読むファイルを指定します。
+このオプションは
+.Xr ssh 1 
 に直接渡されます。
 .It Fl o Ar ssh設定項目
 設定ファイル
@@ -202,16 +228,25 @@
 .It UserKnownHostsFile
 .It VerifyHostKeyDNS
 .El
-.It Fl P Ar sftpサーバパス
-(
-.Xr ssh 1
-を使わず)
-直接ローカルな sftp サーバに接続します。
-このオプションはクライアントとサーバのデバッグ用です。
+.It Fl P Ar ポート
+リモートホストに接続するポートを指定します。
+.It Fl p
+ファイル転送時に、もとのファイルの最終修正時刻、最終アクセス時刻
+およびパーミッションもコピーします。
+.It Fl q
+静かなモード:
+進行状況バーを非表示にします。また
+.Xr ssh 1 
+が表示する警告あるいは診断用メッセージも非表示にします。
 .It Fl R Ar 同時リクエスト数
 未完了のリクエストを同時に最大どれくらいまでおこなうかを指定します。
 この値を増やすとファイル転送速度が多少上がりますが、メモリを消費します。
 デフォルトでは 64 の未完了リクエストをおこないます。
+.It Fl r
+アップロードあるいはダウンロード時に、ディレクトリをまるごと再帰的に転送します。
+注意:
+.Nm
+はツリー内に現れたシンボリック・リンクは追いません。
 .It Fl S Ar プログラム
 暗号化された接続を使うための
 .Ar プログラム
@@ -299,7 +334,7 @@ SSH2 のサブシステム、またはリモートホスト上にある sftp サーバへの
 .Nm sftp 
 を終了します。
 .It Xo Ic get
-.Op Fl P
+.Op Fl Ppr
 .Ar リモートパス名
 .Op Ar ローカルパス名
 .Xc
@@ -315,9 +350,18 @@ SSH2 のサブシステム、またはリモートホスト上にある sftp サーバへの
 その場合、
 .Ar ローカルパス名
 を指定しているときは、それがディレクトリ名である必要があります。
+.Pp
 .Fl P
-フラグが指定されると、そのファイルのパーミッションおよび
+または
+.Fl p
+フラグが指定された場合、そのファイルのパーミッションおよび
 アクセス時間までもすべてコピーされます。
+.Pp
+.Fl r
+フラグが指定された場合、ディレクトリは再帰的にコピーされます。
+注意:
+.Nm
+は再帰的な転送時にもシンボリック・リンクを追跡することはありません。
 .It Ic help
 ヘルプを表示します。
 .It Ic lcd Ar パス名
@@ -400,7 +444,7 @@ SSH2 のサブシステム、またはリモートホスト上にある sftp サーバへの
 .It Ic progress
 プログレスバーの表示/非表示を切り換えます。
 .It Xo Ic put
-.Op Fl P
+.Op Fl Ppr
 .Ar ローカルパス名
 .Op Ar リモートパス名
 .Xc
@@ -416,9 +460,18 @@ SSH2 のサブシステム、またはリモートホスト上にある sftp サーバへの
 その場合、
 .Ar リモートパス名
 を指定しているときは、それがディレクトリ名である必要があります。
+.Pp
 .Fl P
-フラグが指定されると、そのファイルの全パーミッションおよび
+または
+.Fl p
+フラグが指定された場合、そのファイルの全パーミッションおよび
 アクセス時間もコピーされます。
+.Pp
+.Fl r
+フラグが指定された場合、ディレクトリは再帰的にコピーされます。
+注意:
+.Nm
+は再帰的な転送時にもシンボリック・リンクを追跡することはありません。
 .It Ic pwd
 リモートマシン上のカレントディレクトリ
 (ワーキングディレクトリ) 

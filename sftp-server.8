@@ -1,4 +1,4 @@
-.\" $OpenBSD: sftp-server.8,v 1.14 2008/07/18 22:51:01 jmc Exp $
+.\" $OpenBSD: sftp-server.8,v 1.17 2009/08/31 21:01:29 djm Exp $
 .\"
 .\" Copyright (c) 2000 Markus Friedl.  All rights reserved.
 .\"
@@ -25,7 +25,7 @@
 .\" Japanese translation: $Id: sftp-server.8,v 1.1.1.1 2007/09/05 12:13:54 yusuke Exp $
 .\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: July 14 2008 $
+.Dd $Mdocdate: August 31 2009 $
 .Dt SFTP-SERVER 8
 .Os
 .Sh 名前
@@ -33,8 +33,10 @@
 .Nd SFTP サーバ サブシステム
 .Sh 書式
 .Nm sftp-server
+.Op Fl eh
 .Op Fl f Ar ログ出力先
 .Op Fl l Ar ログレベル
+.Op Fl u Ar umask
 .Sh 説明
 .Nm
 はサーバ側の SFTP プロトコルを標準出力に向かって話し、
@@ -56,12 +58,19 @@
 .Pp
 使用できるオプションは以下のとおりです:
 .Bl -tag -width Ds
+.It Fl e
+デバッグのために、
+.Nm
+のログを syslog ではなく標準エラー出力に表示します。
 .It Fl f Ar ログ出力先
 .Nm
 のログメッセージ出力先 (facility) を指定します。
 指定できる値は: DAEMON, USER, AUTH, LOCAL0, LOCAL1, LOCAL2,
 LOCAL3, LOCAL4, LOCAL5, LOCAL6, LOCAL7
 のどれかです。デフォルトは AUTH です。
+.It Fl h
+.Nm
+の使用法を表示します。
 .It Fl l Ar ログレベル
 .Nm
 が表示するどのログメッセージを記録するかを指定します。
@@ -74,6 +83,11 @@ INFO および VERBOSE は
 DEBUG および DEBUG1 は等価です。
 DEBUG2 および DEBUG3 はそれぞれさらに高いレベルのデバッグ情報を残します。
 デフォルトの値は ERROR です。
+.It Fl u Ar umask
+新しく作られるファイルに対して、明示的に
+.Xr umask 2
+の値を指定します。これはユーザのデフォルト umask 値のかわりに使われます。
+.El
 .Pp
 ログをとるためには、
 .Nm
@@ -85,7 +99,6 @@ DEBUG2 および DEBUG3 はそれぞれさらに高いレベルのデバッグ情報を残します。
 を使うには
 .Xr syslogd 8
 が chroot ディレクトリ内にログ用ソケットを用意するよう設定する必要があります。
-.El
 .Sh 関連項目
 .Xr sftp 1 ,
 .Xr ssh 1 ,

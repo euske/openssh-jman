@@ -34,12 +34,12 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 .\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.\" $OpenBSD: sshd_config.5,v 1.102 2009/02/22 23:59:25 djm Exp $
+.\" $OpenBSD: sshd_config.5,v 1.107 2009/08/16 23:29:26 dtucker Exp $
 .\"
 .\" Japanese translation: $Id: sshd_config.5,v 1.2 2008/03/31 14:42:59 yusuke Exp $
 .\" by Yusuke Shinyama <yusuke @ cs . nyu . edu>
 .\"
-.Dd $Mdocdate: February 22 2009 $
+.Dd $Mdocdate: August 16 2009 $
 .Dt SSHD_CONFIG 5
 .Os
 .Sh 名前
@@ -195,6 +195,9 @@ allow/deny 関連の項目は以下の順に処理されます:
 このパスおよび、そこに到達するすべてのディレクトリは
 root が所有していなければならず、他のどのユーザやグループも
 書き込みできるようになっていてはいけません。
+chroot したあとに、
+.Xr sshd 8
+はワーキングディレクトリをそのユーザのホームディレクトリに変更します。
 .Pp
 このパス名には、以下のトークンを含むことができます。
 これらは接続してきたユーザが認証を完了したあと、ランタイムで
@@ -223,8 +226,10 @@ root が所有していなければならず、他のどのユーザやグループも
 .Dq sftp
 を使ったファイル転送をおこなうセッションでは、
 内蔵の sftp サーバを使うとサポート環境のための設定は
-必要ありません (詳しくは
-.Cm Subsystem
+必要ありませんが、chroot されたディレクトリ内に、ログ出力のための
+.Pa /dev/log
+を必要とします (詳しくは
+.Xr sftp-server 8
 を参照してください)。
 .Pp
 デフォルトでは、
@@ -623,6 +628,7 @@ hmac-ripemd160,hmac-sha1-96,hmac-md5-96
 .Cm PermitEmptyPasswords ,
 .Cm PermitOpen ,
 .Cm PermitRootLogin ,
+.Cm PubkeyAuthentication ,
 .Cm RhostsRSAAuthentication ,
 .Cm RSAAuthentication ,
 .Cm X11DisplayOffset ,

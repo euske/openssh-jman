@@ -34,12 +34,12 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 .\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.\" $OpenBSD: ssh.1,v 1.282 2009/02/12 03:44:25 djm Exp $
+.\" $OpenBSD: ssh.1,v 1.283 2009/03/19 15:15:09 jmc Exp $
 .\"
 .\" Japanese translation: $Id: ssh.1,v 1.2 2008/03/31 14:42:59 yusuke Exp $
 .\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: February 12 2009 $
+.Dd $Mdocdate: March 19 2009 $
 .Dt SSH 1
 .Os
 .Sh 名前
@@ -193,27 +193,9 @@
 .Ar cipher_spec
 はカンマで区切られたリストになっており、
 暗号方式の優先順位を指定できます。
-現在サポートされている暗号方式は以下のとおりです:
-3des-cbc ,
-aes128-cbc ,
-aes192-cbc ,
-aes256-cbc ,
-aes128-ctr ,
-aes192-ctr ,
-aes256-ctr ,
-arcfour128 ,
-arcfour256 ,
-arcfour ,
-blowfish-cbc ,
-そして
-cast128-cbc 。
-デフォルトでは
-.Bd -literal -offset indent
-aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,arcfour128,
-arcfour256,arcfour,aes192-cbc,aes256-cbc,aes128-ctr,
-aes192-ctr,aes256-ctr
-.Ed
-になっています。
+より詳しい情報については、
+.Cm Ciphers
+キーワードの項を参照してください。
 .It Fl D Xo
 .Sm off
 .Oo Ar bindするアドレス : Oc
