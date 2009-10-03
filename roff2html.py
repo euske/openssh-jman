@@ -4,7 +4,7 @@ import re, sys, time
 stdout = sys.stdout
 stderr = sys.stderr
 
-VERSION = '5.1p1'
+VERSION = '5.3p1'
 DATE = time.strftime('%Y/%m/%d')
 COMMONTITLE = u'<a href="http://www.openssh.com/ja/">OpenSSH</a>-%s 日本語マニュアルページ (%s)' % (VERSION, DATE)
   
