@@ -5,7 +5,7 @@
 # $Id: Makefile,v 1.5 2008/04/03 13:35:51 yusuke Exp $
 
 PACKAGE=openssh-jman
-VERSION=520p1
+VERSION=530p1
 
 GNUTAR=tar
 SVN=svn
