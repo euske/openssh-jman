@@ -1,5 +1,6 @@
 -*- coding: euc-jp -*-
 README.txt
+$Id:$
 
 OpenSSH の日本語マニュアルです。
 
