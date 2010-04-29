@@ -1,4 +1,4 @@
-.\" $OpenBSD: sftp.1,v 1.76 2009/08/19 04:56:03 jmc Exp $
+.\" $OpenBSD: sftp.1,v 1.83 2010/02/08 10:50:20 markus Exp $
 .\"
 .\" Copyright (c) 2001 Damien Miller.  All rights reserved.
 .\"
@@ -22,10 +22,10 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 .\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.\" Japanese translation: $Id: sftp.1,v 1.1.1.1 2007/09/05 12:13:54 yusuke Exp $
+.\" Japanese translation: $Id$
 .\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: August 19 2009 $
+.Dd $Mdocdate: February 8 2010 $
 .Dt SFTP 1
 .Os
 .Sh 名前
@@ -209,6 +209,7 @@ This option is directly passed to
 .It NoHostAuthenticationForLocalhost
 .It NumberOfPasswordPrompts
 .It PasswordAuthentication
+.It PKCS11Provider
 .It Port
 .It PreferredAuthentications
 .It Protocol
@@ -220,7 +221,6 @@ This option is directly passed to
 .It SendEnv
 .It ServerAliveInterval
 .It ServerAliveCountMax
-.It SmartcardDevice
 .It StrictHostKeyChecking
 .It TCPKeepAlive
 .It UsePrivilegedPort
@@ -396,7 +396,7 @@ SSH2 のサブシステム、またはリモートホスト上にある sftp サーバへの
 (ワーキングディレクトリ) 
 を表示します。
 .It Xo Ic ls
-.Op Fl 1aflnrSt
+.Op Fl 1afhlnrSt
 .Op Ar パス名
 .Xc
 リモートマシン上の
@@ -422,6 +422,11 @@ SSH2 のサブシステム、またはリモートホスト上にある sftp サーバへの
 .It Fl f
 ソートを禁止します。
 デフォルトでは、辞書順にソートされます。
+.It Fl h
+詳細表示でファイルサイズの桁数が 4桁よりも多い場合、
+つぎの単位を使用します: Byte, Kilobyte,
+Megabyte, Gigabyte, Terabyte, Petabyte および Exabyte。
+これらの単位は 2のべき乗を使っています (K=1024, M=1048576 など)。
 .It Fl l
 所有者やパーミッションなど、詳細な情報も表示します。
 .It Fl n

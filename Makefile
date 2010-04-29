@@ -2,10 +2,10 @@
 
 # Makefile for Japanese OpenSSH manpage
 # by Yusuke Shinyama <yusuke @ cs . nyu . edu>
-# $Id: Makefile,v 1.5 2008/04/03 13:35:51 yusuke Exp $
+# $Id$
 
 PACKAGE=openssh-jman
-VERSION=530p1
+VERSION=550p1
 
 GNUTAR=tar
 SVN=svn

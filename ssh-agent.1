@@ -1,4 +1,4 @@
-.\" $OpenBSD: ssh-agent.1,v 1.47 2009/03/26 08:38:39 sobrado Exp $
+.\" $OpenBSD: ssh-agent.1,v 1.50 2010/01/17 21:49:09 tedu Exp $
 .\"
 .\" Author: Tatu Ylonen <ylo@cs.hut.fi>
 .\" Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
@@ -34,10 +34,10 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 .\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.\" Japanese translation: $Id: ssh-agent.1,v 1.2 2008/03/31 14:42:59 yusuke Exp $
+.\" Japanese translation: $Id$
 .\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: March 26 2009 $
+.Dd $Mdocdate: January 17 2010 $
 .Dt SSH-AGENT 1
 .Os
 .Sh 名前
@@ -69,7 +69,8 @@ ssh-agent プログラムのクライアントとして起動するようにします。
 オプションには次のようなものがあります:
 .Bl -tag -width Ds
 .It Fl a Ar bindするアドレス
-Unix ドメインソケットを
+.Ux Ns ドメイン
+ソケットを
 .Ar bind_address 
 に bind するようにします。
 この値は、デフォルトでは
@@ -126,10 +127,11 @@ Unix ドメインソケットを
 この identity ファイルにパスフレーズが必要な場合、
 .Xr ssh-add 1
 はそのパスフレーズを尋ねてきます 
-(X11 を使っているときは、
+X を使っていないときは端末を使って尋ねてきます。
+X11 を使っているときは、
 .Xr ssh-add 1
-は X のちょっとしたアプリケーションを使います。
-X を使っていないときは端末を使って尋ねてきます)。
+は X のちょっとしたアプリケーションがあれば、それを使います。
+どちらもできない場合、認証は失敗します。
 この後、identity ファイルに含まれている認証鍵が
 認証エージェントに送られます。
 認証エージェントには複数の鍵を格納することができ、
@@ -178,7 +180,8 @@ X を使っていないときは端末を使って尋ねてきます)。
 このためエージェントを使うことによって秘密鍵がクライアントに
 漏れるようなことはありません。
 .Pp
-Unix ドメインのソケットが作られ、そのソケットの名前が
+.Ux Ns ドメイン
+のソケットが作られ、そのソケットの名前が
 .Ev SSH_AUTH_SOCK
 環境変数に入れられます。このソケットはそのユーザのみ
 がアクセス可能ですが、現在のところ root または同一ユーザの
@@ -201,7 +204,9 @@ Unix ドメインのソケットが作られ、そのソケットの名前が
 そのユーザがプロトコル バージョン 2 で使う RSA 秘密鍵が
 入っています。
 .It Pa /tmp/ssh-XXXXXXXXXX/agent.\*(Ltppid\*(Gt
-認証エージェントに対する接続を保持する Unix ドメイン のソケットです。
+認証エージェントに対する接続を保持する
+.Ux Ns ドメイン 
+のソケットです。
 このソケットは、所有者だけが読めるようになっているはずです。
 このソケットは認証エージェントが終了するとき自動的に削除されます。
 .El

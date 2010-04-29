@@ -1,5 +1,5 @@
-README.txt
 -*- coding: euc-jp -*-
+README.txt
 
 OpenSSH の日本語マニュアルです。
 

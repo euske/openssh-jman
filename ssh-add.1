@@ -1,4 +1,4 @@
-.\"	$OpenBSD: ssh-add.1,v 1.46 2007/06/12 13:41:03 jmc Exp $
+.\"	$OpenBSD: ssh-add.1,v 1.52 2010/03/05 10:28:21 djm Exp $
 .\"
 .\"  -*- nroff -*-
 .\"
@@ -37,10 +37,10 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 .\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.\" Japanese translation: $Id: ssh-add.1,v 1.1.1.1 2007/09/05 12:13:54 yusuke Exp $
+.\" Japanese translation: $Id$
 .\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: May 31 2007 $
+.Dd $Mdocdate: March 5 2010 $
 .Dt SSH-ADD 1
 .Os
 .Sh 名前
@@ -53,10 +53,10 @@
 .Op Ar
 .Pp
 .Nm
-.Fl s Ar reader
+.Fl s Ar pkcs11
 .Pp
 .Nm
-.Fl e Ar reader
+.Fl e Ar pkcs11
 .Sh 説明
 .Nm
 は認証エージェントである
@@ -67,8 +67,14 @@
 .Pa ~/.ssh/id_dsa 
 および
 .Pa ~/.ssh/identity
-の各ファイルを追加します。コマンドラインから別の
-ファイル名を与えることもできます。パスフレーズが必要な場合、
+の各ファイルを追加します。秘密鍵を読み込んだあと、
+.Nm
+はそれに対応する証明書情報を、秘密鍵のファイル名にサフィックス
+.Pa -cert.pub
+を追加したファイルから読み込もうとします。
+コマンドラインから別のファイル名を与えることもできます。
+.Pp
+パスフレーズが必要な場合、
 .Nm
 はユーザにそれを尋ねます。
 このパスフレーズはユーザの端末から読み込まれます。
@@ -104,19 +110,19 @@
 は自動的に文字列
 .Pa .pub
 を追加して検索します。
-.It Fl e Ar reader
-スマートカード
-.Ar reader
-から鍵を削除します。
+.It Fl e Ar pkcs11
+PKCS#11共有ライブラリ
+.Ar pkcs11
+によって提供される鍵を削除します。
 .It Fl L
 現在、エージェントによって保持されているすべての公開鍵の
 情報を表示します。
 .It Fl l
 現在、エージェントによって保持されているすべての鍵の指紋
 (fingerprint) を表示します。
-.It Fl s Ar reader
-スマートカード
-.Ar reader
+.It Fl s Ar pkcs11
+PKCS#11共有ライブラリ
+.Ar pkcs11
 に鍵を追加します。
 .It Fl t Ar 鍵の生存時間
 エージェントに鍵を追加する際、その鍵の最大生存時間を指定します。
@@ -153,7 +159,9 @@ X11 ウインドウを開きます。これは特に
 .Pa /dev/null
 にリダイレクトしておく必要があるかもしれません)。
 .It Ev SSH_AUTH_SOCK
-エージェントと通信するための unix ドメインソケットへのパス名が入っています。
+エージェントと通信するための
+.Ux Ns ドメイン
+ソケットへのパス名が入っています。
 .El
 .Sh 関連ファイル
 .Bl -tag -width Ds
