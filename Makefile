@@ -42,7 +42,7 @@ clean:
 
 # Maintainance:
 
-dist: $(DISTFILE)
+archive: $(DISTFILE)
 $(DISTFILE): clean
 	$(GIT) archive HEAD | $(GZIP) -c > $(DISTFILE)
 
