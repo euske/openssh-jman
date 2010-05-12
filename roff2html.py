@@ -441,6 +441,10 @@ class Roff2HTML(RoffParser):
     self.write(' <kbd>%s</kbd> ' % ' '.join(args))
     return
   
+  def do_command_ux(self, args):
+    self.write('Unix')
+    return
+  
   def do_command_sq(self, args):
     self.write(' `<kbd>%s</kbd>\' ' % ' '.join(args))
     return
