@@ -34,12 +34,12 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 .\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.\" $OpenBSD: sshd_config.5,v 1.107 2009/08/16 23:29:26 dtucker Exp $
+.\" $OpenBSD: sshd_config.5,v 1.120 2010/03/04 23:17:25 djm Exp $
 .\"
 .\" Japanese translation: $Id$
 .\" by Yusuke Shinyama <yusuke @ cs . nyu . edu>
 .\"
-.Dd $Mdocdate: August 16 2009 $
+.Dd $Mdocdate: March 4 2010 $
 .Dt SSHD_CONFIG 5
 .Os
 .Sh 名前
@@ -191,8 +191,8 @@ allow/deny 関連の項目は以下の順に処理されます:
 .It Cm ChrootDirectory (chrootディレクトリ)
 認証の後に、
 .Xr chroot 2
-をおこなうパス名を指定します。
-このパスおよび、そこに到達するすべてのディレクトリは
+をおこなうディレクトリのパス名を指定します。
+ここに到達するまでの上位のディレクトリはすべて
 root が所有していなければならず、他のどのユーザやグループも
 書き込みできるようになっていてはいけません。
 chroot したあとに、
@@ -427,6 +427,14 @@ rhosts あるいは /etc/hosts.equiv 認証を許可するかどうか
 デフォルトでは
 .Dq no
 になっています。
+.It Cm HostCertificate (ホスト証明書)
+公開されているホスト証明書を格納したファイルを指定します。
+証明書の公開鍵は、あらかじめ
+.Cm HostKey
+で指定されたホスト秘密鍵と対応するものである必要があります。
+デフォルトでは
+.Xr sshd 8
+は証明書を読み込みません。
 .It Cm HostKey (ホスト鍵)
 SSH で使われる、ホスト秘密鍵が格納されているファイルを指定します。
 デフォルトでは、プロトコル バージョン 1 用の鍵が
@@ -802,7 +810,7 @@ SSH デーモンのプロセス ID を格納するファイルを指定します。
 .Sq 2
 です。複数のバージョンをカンマで区切って指定することもできます。
 デフォルトは
-.Dq 2,1
+.Dq 2
 です。
 ここでのプロトコルの順番は、優先度を指定するものではないことに
 注意してください。なぜなら複数のプロトコルがサーバで使用可能な場合、
@@ -818,6 +826,11 @@ SSH デーモンのプロセス ID を格納するファイルを指定します。
 です。
 この設定項目は プロトコル バージョン 2 にのみ適用されることに
 注意してください。
+.It Cm RevokedKeys (廃止された鍵)
+廃止された公開鍵のリストを指定します。
+このファイルに含まれている鍵では、公開鍵認証が拒否されます。
+注意: このファイルが読み込み可能になっていない場合、
+すべてのユーザの公開鍵認証が拒否されます。
 .It Cm RhostsRSAAuthentication (rhosts-RSA 認証)
 RSA ホスト間認証が成功しているとき、rhosts や /etc/hosts.equiv
 を使った認証をおこなってよいかどうか指定します。デフォルトは
@@ -843,6 +856,10 @@ RSA ホスト間認証が成功しているとき、rhosts や /etc/hosts.equiv
 有効です。デフォルトでは
 .Dq yes
 になっています。
+注意: この項目は
+.Cm ChrootDirectory 
+には適応されません。ChrootDirectory では、
+所有権とパーミッションはつねにチェックされます。
 .It Cm Subsystem (サブシステム)
 外部サブシステム (ファイル転送デーモンなど) を設定します。
 この設定項目への引数にはサブシステム名と、そのサブシステムに
@@ -892,6 +909,24 @@ LOCAL7。デフォルトは AUTH です。
 TCP Keepalive を禁止するには、この値を
 .Dq no
 にする必要があります。
+.It Cm TrustedUserCAKeys (信頼されるユーザCAの鍵)
+認証用のユーザ証明書に署名するときに信頼した認証局(CA)の、
+公開鍵を格納したファイルを指定します。
+鍵は1行につきひとつずつ指定します。
+空行や
+.Ql #
+で始まるコメント行を含むこともできます。
+認証時に証明書が提示されており、そこに署名しているCAの鍵が
+このファイルに含まれている場合、この証明書の principal リストに含まれている
+どのユーザもこれを使うことができます。
+注意: principal のリストがない証明書は、
+.Cm TrustedUserCAKeys
+を使った認証に使うことはできません。
+証明書に関する詳細は、
+.Xr ssh-keygen 1 
+の
+.Sx 証明書
+のセクションをごらんください。
 .It Cm UseDNS (リモートホスト名の確認)
 .Xr sshd 8
 が IP アドレスからリモートホスト名を逆引き検索して得た名前を

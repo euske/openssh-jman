@@ -34,12 +34,12 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 .\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.\" $OpenBSD: ssh.1,v 1.283 2009/03/19 15:15:09 jmc Exp $
+.\" $OpenBSD: ssh.1,v 1.304 2010/03/26 06:54:36 jmc Exp $
 .\"
 .\" Japanese translation: $Id$
 .\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: March 19 2009 $
+.Dd $Mdocdate: March 26 2010 $
 .Dt SSH 1
 .Os
 .Sh 名前
@@ -58,6 +58,7 @@
 .Oc
 .Op Fl e Ar エスケープ文字
 .Op Fl F Ar 設定ファイル
+.Op Fl I Ar pkcs11
 .Bk -words
 .Op Fl i Ar identityファイル
 .Ek
@@ -82,11 +83,11 @@
 .Oc
 .Op Fl S Ar 制御用パス名
 .Bk -words
+.Op Fl W Ar ホスト : Ns Ar ポート
 .Oo Fl w Ar ローカルtun Ns
 .Op : Ns Ar リモートtun Oc
 .Oo Ar ユーザ Ns @ Oc Ns Ar ホスト名
 .Op Ar コマンド
-.Ek
 .Sh 説明
 .Nm
 (SSH クライアント) はリモートマシンにログインしたり、
@@ -289,13 +290,10 @@ IPv6 アドレスはこれとは別の形式で指定できます:
 待ってから、バックグラウンドに移行します。
 .It Fl g
 リモートホストが転送されたローカルなポートに接続することを許可します。
-.It Fl I Ar スマートカードデバイス
+.It Fl I Ar pkcs11
 .Nm
-がユーザの RSA 秘密鍵を格納するスマートカードと
-通信するのに使うデバイスを指定します。
-このオプションはスマートカード・デバイスのサポートを
-有効にしてコンパイルされているときだけ有効です
-(デフォルトではサポートされていません)。
+がユーザの RSA 秘密鍵を提供する PKCS#11 トークンと
+通信するときに使う、PKCS#11 共有ライブラリを指定します。
 .It Fl i Ar identityファイル
 RSA 認証 あるいは DSA 認証の際に
 identity (秘密鍵) を読むファイルを指定します。
@@ -311,6 +309,11 @@ identity (秘密鍵) を読むファイルを指定します。
 .Fl i
 オプションを指定することも可能です。
 (設定ファイルで複数の鍵を指定することもできます。)
+また、
+.Nm
+は末尾に
+.Pa -cert.pub
+のついたファイル名から証明書を読み込もうとします。
 .It Fl K
 GSSAPI ベース認証および、
 GSSAPI 証明書 (credential) のサーバへの転送 (委譲、delegation) を許可します。
@@ -471,6 +474,7 @@ MAC についての詳しい情報は
 .It NumberOfPasswordPrompts
 .It PasswordAuthentication
 .It PermitLocalCommand
+.It PKCS11Provider
 .It Port
 .It PreferredAuthentications
 .It Protocol
@@ -483,7 +487,6 @@ MAC についての詳しい情報は
 .It SendEnv
 .It ServerAliveInterval
 .It ServerAliveCountMax
-.It SmartcardDevice
 .It StrictHostKeyChecking
 .It TCPKeepAlive
 .It Tunnel
@@ -557,6 +560,9 @@ IPv6 アドレスの場合はアドレスを角カッコ [ ] の中に入れるか、
 実行時にクライアント側にその値が報告されます。
 .It Fl S Ar 制御用パス名
 接続を共有する際の制御用ソケットの位置を指定します。
+ここで
+.Dq none
+を指定すると、接続共有は禁止されます。
 詳細については
 .Xr ssh_config 5
 の
@@ -594,6 +600,20 @@ IPv6 アドレスの場合はアドレスを角カッコ [ ] の中に入れるか、
 複数の
 .Fl v
 オプションをつけると出力が増えます。最大は 3 個です。
+.It Fl W Ar ホスト : Ns Ar ポート
+クライアントの標準入力と標準出力を、安全な通信路を通して
+.Ar ホスト
+の
+.Ar ポート
+上に接続します。
+このオプションは、
+.Fl N ,
+.Fl T ,
+.Cm ExitOnForwardFailure
+および
+.Cm ClearAllForwardings
+を暗黙のうちに含んでおり、
+プロトコル バージョン 2 でのみ使用できます。
 .It Fl w Xo
 .Ar ローカルtun Ns Op : Ns Ar リモートtun
 .Xc
@@ -668,11 +688,8 @@ X11 の転送を禁止します。
 .Sh 認証
 OpenSSH SSH クライアントは SSH プロトコル バージョン 1 と
 プロトコル バージョン 2 をサポートしています。
-デフォルトはプロトコル バージョン 2 です。
-これがサポートされていない場合、
-.Nm
-はプロトコル バージョン 1 に戻ります。
-この設定は
+デフォルトでは、プロトコル バージョン 2 のみを使います。
+これは
 .Xr ssh_config 5 
 の
 .Cm Protocol
@@ -680,14 +697,14 @@ OpenSSH SSH クライアントは SSH プロトコル バージョン 1 と
 .Fl 1
 または
 .Fl 2
-オプション (上記参照) によって強制的に指定できます。
+オプション (上記参照) によって指定できます。
 どちらのプロトコルも類似の認証機構を
 サポートしていますが、プロトコル バージョン 2 は
 より強力な秘匿性
 (通信は AES、 3DES、 Blowfish、 CAST128 または Arcfour で
 暗号化されます) および正真性
 (hmac-md5, hmac-sha1, umac-64, hmac-ripemd160) を提供しているため、
-こちらのほうが好まれます。
+こちらがデフォルトになっています。
 プロトコル バージョン 1 は接続の正真性を保証する
 (訳注: 内容の改ざんを防ぐ) 強力な機構が用意されていません。
 .Pp
@@ -797,7 +814,19 @@ RSA 方式だけですが、プロトコル バージョン 2 では
 各行はかなり長くなることもあります)。
 この後、ユーザはパスワードなしでログインすることができます。
 .Pp
-公開鍵認証を使う際にいちばん便利なのは
+公開鍵認証の変形として、
+証明書 (certificate) を使った認証が使用できます。
+これは、公開鍵・秘密鍵の対を使うかわりに、
+署名された証明書を用います。この方法の利点は、
+多くの公開鍵・秘密鍵ペアのかわりに、
+単一の信頼された認証局 (CA) を使えることです。
+より詳しい情報については
+.Xr ssh-keygen 1
+の
+.Sx 証明書
+のセクションを参照してください。
+.Pp
+公開鍵認証や証明書を使う際に、いちばん便利なのは
 「認証エージェント」と呼ばれるものを使うことでしょう。
 詳しくは
 .Xr ssh-agent 1
@@ -1334,7 +1363,7 @@ X11 の接続が安全でなくなってしまうため、ユーザは環境変数
 .It ~/.ssh/environment
 環境変数の追加定義を格納します。上の
 .Sx 環境変数
-の節を見てください。
+のセクションを見てください。
 .Pp
 .It ~/.ssh/identity
 .It ~/.ssh/id_dsa
