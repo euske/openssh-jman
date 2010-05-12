@@ -277,6 +277,8 @@ class Roff2HTML(RoffParser):
   def do_command_ar(self, args):
     if args:
       self.write('<span class="arg">%s</span> ' % args.pop(0))
+    else:
+      self.write('<span class="arg">%s</span> ' % 'file')
     self.do_remain(args)
     return
   
