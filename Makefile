@@ -7,14 +7,15 @@
 PACKAGE=openssh-jman
 VERSION=550p1
 
-GNUTAR=tar
-SVN=svn
+GIT=git
+RM=rm -f
+CP=cp -f
+GZIP=gzip
 PYTHON=python
 ROFF2HTML=$(PYTHON) roff2html.py
 
-WORKDIR=/tmp
 DISTNAME=$(PACKAGE)-$(VERSION)
-DISTFILE=$(DISTNAME).tar.gz
+DISTFILE=/tmp/$(DISTNAME).tar.gz
 
 #
 .SUFFIXES: .0 .1 .2 .3 .4 .5 .6 .7 .8 .9 .html
@@ -29,7 +30,8 @@ HTML=scp.html sftp-server.html sftp.html ssh-add.html ssh-agent.html ssh-keygen.
 all: $(HTML)
 
 clean: 
-	-rm $(HTML)
+	-$(RM) $(HTML)
+	-$(RM) $(DISTFILE)
 
 .1.html:
 	$(ROFF2HTML) $< > $@
@@ -40,16 +42,11 @@ clean:
 
 # Maintainance:
 
-$(WORKDIR)/$(DISTFILE): clean
-	$(SVN) cleanup
-	$(SVN) export . $(WORKDIR)/$(DISTNAME)
-	$(GNUTAR) c -z -C$(WORKDIR) -f $(WORKDIR)/$(DISTFILE) $(DISTNAME) --dereference --numeric-owner
-	rm -rf $(WORKDIR)/$(DISTNAME)
-
-commit: clean
-	$(SVN) commit
+dist: $(DISTFILE)
+$(DISTFILE): clean
+	$(GIT) archive HEAD | $(GZIP) -c > $(DISTFILE)
 
 WEBDIR=$$HOME/Site/unixuser.org/doc/openssh/jman/
-publish: $(WORKDIR)/$(DISTFILE) $(HTML)
-	cp $(HTML) $(WORKDIR)/$(DISTFILE) $(WEBDIR)
-	cp index.html $(WEBDIR)/index.html
+publish: $(DISTFILE) $(HTML)
+	$(CP) $(HTML) $(DISTFILE) $(WEBDIR)
+	$(CP) index.html $(WEBDIR)/index.html
