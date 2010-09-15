@@ -1,4 +1,4 @@
-.\"	$OpenBSD: ssh-keygen.1,v 1.94 2010/04/16 06:47:04 jmc Exp $
+.\"	$OpenBSD: ssh-keygen.1,v 1.98 2010/08/04 06:07:11 djm Exp $
 .\"
 .\"  -*- nroff -*-
 .\"
@@ -37,18 +37,17 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 .\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.\" Japanese translation: $Id$
-.\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
+.\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: April 16 2010 $
+.Dd $Mdocdate: August 4 2010 $
 .Dt SSH-KEYGEN 1
 .Os
 .Sh Ì¾Á°
 .Nm ssh-keygen
 .Nd Ç§¾ÚÍÑ¤Î¸°¤òÀ¸À®¡¢´ÉÍý¡¢¤ª¤è¤ÓÊÑ´¹¤¹¤ë
 .Sh ½ñ¼°
-.Nm ssh-keygen
 .Bk -words
+.Nm ssh-keygen
 .Op Fl q
 .Op Fl b Ar ¥Ó¥Ã¥È¿ô
 .Fl t Ar ¸°¤Î¼ïÎà
@@ -56,74 +55,76 @@
 .Op Fl C Ar ¥³¥á¥ó¥È (ÌõÃí: SSH1 ¤Î¤ß)
 .Op Fl f Ar ½ÐÎÏÀèidentity¥Õ¥¡¥¤¥ë
 .Pp
-.Nm
+.Nm ssh-keygen
 .Fl p
 .Op Fl P Ar ¸Å¤¤¥Ñ¥¹¥Õ¥ì¡¼¥º
 .Op Fl N Ar ¿·¤·¤¤¥Ñ¥¹¥Õ¥ì¡¼¥º
 .Op Fl f Ar ¥Ñ¥¹¥Õ¥ì¡¼¥º¤òÊÑ¹¹¤¹¤ëidentity¥Õ¥¡¥¤¥ë
 .Pp
-.Nm
+.Nm ssh-keygen
 .Fl i
+.Op Fl m Ar ¸°¤Î·Á¼°
 .Op Fl f Ar ÊÑ´¹¤¹¤ëidentity¥Õ¥¡¥¤¥ë
 .Pp
-.Nm
+.Nm ssh-keygen
 .Fl e
+.Op Fl m Ar ¸°¤Î·Á¼°
 .Op Fl f Ar ÊÑ´¹¤¹¤ëidentity¥Õ¥¡¥¤¥ë
 .Pp
-.Nm
+.Nm ssh-keygen
 .Fl y
 .Op Fl f Ar identity¥Õ¥¡¥¤¥ë
 .Pp
-.Nm
+.Nm ssh-keygen
 .Fl c
 .Op Fl P Ar ¥Ñ¥¹¥Õ¥ì¡¼¥º
 .Op Fl C Ar ¥³¥á¥ó¥È
 .Op Fl f Ar ¥³¥á¥ó¥È¤òÊÑ¹¹¤¹¤ëidentity¥Õ¥¡¥¤¥ë
 .Pp
-.Nm
+.Nm ssh-keygen
 .Fl l
 .Op Fl f Ar »ØÌæ¤òÉ½¼¨¤¹¤ëidentity¥Õ¥¡¥¤¥ë
 .Pp
-.Nm
+.Nm ssh-keygen
 .Fl B
 .Op Fl f Ar ¥À¥¤¥¸¥§¥¹¥È¤òÉ½¼¨¤¹¤ëidentity¥Õ¥¡¥¤¥ë
 .Pp
-.Nm
+.Nm ssh-keygen
 .Fl D Ar pkcs11
 .Pp
-.Nm
+.Nm ssh-keygen
 .Fl F Ar ¥Û¥¹¥ÈÌ¾
 .Op Fl f Ar known_hosts¥Õ¥¡¥¤¥ë
 .Op Fl l
 .Pp
-.Nm
+.Nm ssh-keygen
 .Fl H
 .Op Fl f Ar known_hosts¥Õ¥¡¥¤¥ë
 .Pp
-.Nm
+.Nm ssh-keygen
 .Fl R Ar ¥Û¥¹¥ÈÌ¾
 .Op Fl f Ar known_hosts¥Õ¥¡¥¤¥ë
 .Pp
-.Nm
+.Nm ssh-keygen
 .Fl r Ar ¥Û¥¹¥ÈÌ¾
 .Op Fl f Ar ÆþÎÏ¤¹¤ëidentity¥Õ¥¡¥¤¥ë
 .Op Fl g
 .Pp
-.Nm
+.Nm ssh-keygen
 .Fl G Ar ½ÐÎÏ¥Õ¥¡¥¤¥ë
 .Op Fl v
 .Op Fl b Ar ¥Ó¥Ã¥È¿ô
 .Op Fl M Ar »ÈÍÑ¥á¥â¥êÎÌ
 .Op Fl S Ar ³«»Ï°ÌÃÖ
 .Pp
-.Nm
+.Nm ssh-keygen
 .Fl T Ar ½ÐÎÏ¥Õ¥¡¥¤¥ë
 .Fl f Ar ÆþÎÏ¥Õ¥¡¥¤¥ë
 .Op Fl v
 .Op Fl a Ar »î¹Ô²ó¿ô
 .Op Fl W Ar ¥¸¥§¥Í¥ì¡¼¥¿
 .Pp
-.Nm
+.Nm ssh-keygen
 .Fl s Ar CA¸°
 .Fl I Ar ¾ÚÌÀ½ñ¤ÎÈëÌ©¸°
 .Op Fl h
@@ -133,7 +134,7 @@
 .Op Fl z Ar ¥·¥ê¥¢¥ëÈÖ¹æ
 .Ar
 .Pp
-.Nm
+.Nm ssh-keygen
 .Fl L
 .Op Fl f Ar ÆþÎÏ¤¹¤ë¸°¥Õ¥¡¥¤¥ë
 .Ek
@@ -232,11 +233,20 @@ DSA ¸°¤Î¾ì¹ç¡¢FIPS 186-2 ¤Îµ¬Äê¤Ë¤è¤ê¥µ¥¤¥º¤ÏÀµ³Î¤Ë 1024 ¥Ó¥Ã¥È¤Ç¤Ê¤±¤ì¤Ð¤Ê¤ê¤Þ¤
 ¤³¤³¤Ç»ØÄê¤¹¤ë PKCS#11 ¶¦Í­¥é¥¤¥Ö¥é¥ê
 .Ar pkcs11
 ¤Ë³ÊÇ¼¤µ¤ì¤Æ¤¤¤ë RSA ¸ø³«¸°¤òÆÉ¤ß¹þ¤ß¤Þ¤¹¡£
+.Fl s
+¤È°ì½ï¤Ë»ÈÍÑ¤µ¤ì¤¿¾ì¹ç¡¢
+¤³¤Î¥ª¥×¥·¥ç¥ó¤Ï CA ¸°¤¬ PKCS#11 ¥È¡¼¥¯¥óÃæ¤Ë³ÊÇ¼¤µ¤ì¤Æ¤¤¤ë¤³¤È¤ò»ØÄê¤·¤Þ¤¹¡£
+(¾Ü¤·¤¯¤Ï
+.Sx ¾ÚÌÀ½ñ
+¤Î¥»¥¯¥·¥ç¥ó¤ò¤´¤é¤ó¤¯¤À¤µ¤¤)
 .It Fl e
 ¤³¤Î¥ª¥×¥·¥ç¥ó¤Ï OpenSSH ·Á¼°¤ÎÈëÌ©¸°¤¢¤ë¤¤¤Ï¸ø³«¸°¥Õ¥¡¥¤¥ë¤ò
 ÆÉ¤ß¡¢
-.Sq RFC 4716 SSH Public Key File Format (RFC 4716 SSH ¸ø³«¸°¥Õ¥¡¥¤¥ë·Á¼°)
-¤Î¸°¤òÉ¸½à½ÐÎÏ¤ËÉ½¼¨¤·¤Þ¤¹¡£
+.Fl m
+¥ª¥×¥·¥ç¥ó¤Ç»ØÄê¤µ¤ì¤¿·Á¼°¤ÇÉ¸½à½ÐÎÏ¤ËÉ½¼¨¤·¤Þ¤¹¡£
+¥Ç¥Õ¥©¥ë¥È¤Î·Á¼°¤Ï
+.Dq RFC4716
+¤Ç¤¹¡£
 ¤³¤Î¥ª¥×¥·¥ç¥ó¤ò»È¤¦¤È¡¢OpenSSH ¤Î¸°¤ò
 ¤¤¤¯¤Ä¤«¤Î¾¦ÍÑ SSH ¼ÂÁõ¤Ç»È¤ï¤ì¤Æ¤¤¤ë·Á¼°¤Î¸°¤ËÊÑ´¹¤Ç¤­¤Þ¤¹¡£
 .It Fl F Ar ¥Û¥¹¥ÈÌ¾
@@ -286,16 +296,16 @@ Generic DNS ·Á¼°¤ò»ÈÍÑ¤·¤Þ¤¹¡£
 .Sx ¾ÚÌÀ½ñ
 ¤Î¥»¥¯¥·¥ç¥ó¤ò¤´¤é¤ó¤¯¤À¤µ¤¤¡£
 .It Fl i
-¤³¤Î¥ª¥×¥·¥ç¥ó¤Ï SSH2-¸ß´¹¤Î·Á¼°¤Ç¤¢¤ë¡¢°Å¹æ²½¤µ¤ì¤Æ¤¤¤Ê¤¤
-ÈëÌ©¸° (¤¢¤ë¤¤¤Ï¸ø³«¸°) ¥Õ¥¡¥¤¥ë¤òÆÉ¤ß¡¢¤½¤ì¤ò 
-OpenSSH ¸ß´¹¤ÎÈëÌ©¸° (¤¢¤ë¤¤¤Ï¸ø³«¸°) ¤ËÊÑ´¹¤·¤Æ
-É¸½à½ÐÎÏ¤ËÉ½¼¨¤·¤Þ¤¹¡£
-.Nm
-¤Ï
-.Sq RFC 4716 SSH Public Key File Format (RFC 4716 SSH ¸ø³«¸°¥Õ¥¡¥¤¥ë·Á¼°)
-¤Î¸°¤âÆÉ¤ß¹þ¤á¤Þ¤¹¡£
+¤³¤Î¥ª¥×¥·¥ç¥ó¤Ï¡¢°Å¹æ²½¤µ¤ì¤Æ¤¤¤Ê¤¤ÈëÌ©¸° (¤¢¤ë¤¤¤Ï¸ø³«¸°) ¥Õ¥¡¥¤¥ë¤òÆÉ¤ß¡¢
+¤½¤ì¤ò OpenSSH ¸ß´¹¤ÎÈëÌ©¸° (¤¢¤ë¤¤¤Ï¸ø³«¸°) ¤ËÊÑ´¹¤·¤Æ
+É¸½à½ÐÎÏ¤ËÉ½¼¨¤·¤Þ¤¹¡£¸°¤Î·Á¼°¤Ï
+.Fl m
+¥ª¥×¥·¥ç¥ó¤Ë¤è¤Ã¤Æ»ØÄê¤µ¤ì¤Þ¤¹¡£
 ¤³¤Î¥ª¥×¥·¥ç¥ó¤ò»È¤¦¤È¡¢¤¤¤¯¤Ä¤«¤Î¾¦ÍÑ SSH ¼ÂÁõ¤Ç»È¤ï¤ì¤Æ¤¤¤ë
 ¸°¤ò OpenSSH ¤Ç»ÈÍÑ¤Ç¤­¤Þ¤¹¡£
+¥Ç¥Õ¥©¥ë¥È¤Î·Á¼°¤Ï¡¢
+.Dq RFC4716 
+¤Ç¤¹¡£
 .It Fl L
 ¾ÚÌÀ½ñ¤ÎÆâÍÆ¤òÉ½¼¨¤·¤Þ¤¹¡£
 .It Fl l
@@ -311,6 +321,23 @@ RSA ¸° (RSA1) ¤â¥µ¥Ý¡¼¥È¤µ¤ì¤Æ¤¤¤Þ¤¹¡£
 .It Fl M Ar ¥á¥â¥ê
 DH-GEX ¤Î¥â¥¸¥å¥í¤È¤Ê¤ëÁÇ¿ô¸õÊä¤òÀ¸À®¤¹¤ëºÝ¤Î
 ¥á¥â¥ê¾ÃÈñÎÌ¤ò (¥á¥¬¥Ð¥¤¥ÈÃ±°Ì¤Ç) »ØÄê¤·¤Þ¤¹¡£
+.It Fl m Ar ¸°¤Î·Á¼°
+¸°¤òÊÑ´¹¤¹¤ë
+.Fl i
+¥ª¥×¥·¥ç¥ó (import) ¤¢¤ë¤¤¤Ï
+.Fl e
+¥ª¥×¥·¥ç¥ó (export) ¤Ç»È¤ï¤ì¤ë¸°¤Î·Á¼°¤ò»ØÄê¤·¤Þ¤¹¡£
+¥µ¥Ý¡¼¥È¤µ¤ì¤Æ¤¤¤ë·Á¼°¤Ï:
+.Dq RFC4716
+(RFC 4716/SSH2 ¤Î¸ø³«¸°¤¢¤ë¤¤¤ÏÈëÌ©¸°)¡¢
+.Dq PKCS8
+(PEM PKCS8 ¤Î¸ø³«¸°)
+¤¢¤ë¤¤¤Ï
+.Dq PEM
+(PEM ¤Î¸ø³«¸°) ¤Ç¤¹¡£
+¥Ç¥Õ¥©¥ë¥È¤Î·Á¼°¤Ï¡¢
+.Dq RFC4716 
+¤Ë¤Ê¤Ã¤Æ¤¤¤Þ¤¹¡£
 .It Fl N Ar ¿·¤·¤¤¥Ñ¥¹¥Õ¥ì¡¼¥º
 ¿·¤·¤¤¥Ñ¥¹¥Õ¥ì¡¼¥º¤ò»ØÄê¤·¤Þ¤¹¡£
 .It Fl n Ar principal
@@ -561,7 +588,17 @@ DH ¥¸¥§¥Í¥ì¡¼¥¿¤ÎÃÍ¤ÏÃµº÷Ãæ¤ÎÁÇ¿ô¤Î¤¿¤á¤Ë¼«Æ°Åª¤ËÁª¤Ð¤ì¤Þ¤¹¡£
 À¸À®¤µ¤ì¤¿¥Û¥¹¥È¾ÚÌÀ½ñ¤Ï¡¢
 .Pa /path/to/host_key-cert.pub 
 ¤ËÃÖ¤«¤ì¤Þ¤¹¡£
-¤É¤Á¤é¤Î¾ì¹ç¤â¡¢
+.Pp
+.Fl D
+¥ª¥×¥·¥ç¥ó¤ò»È¤Ã¤Æ¡¢¥È¡¼¥¯¥ó¤Î¥é¥¤¥Ö¥é¥ê¤ò»ØÄê¤¹¤ë¤³¤È¤Ç
+PKCS#11 ¥È¡¼¥¯¥óÃæ¤Ë³ÊÇ¼¤µ¤ì¤¿ CA¸°¤Ë½ðÌ¾¤¹¤ë¤³¤È¤â²ÄÇ½¤Ç¤¹¡£
+¤³¤Î¤µ¤¤¡¢CA¸°¤Î¸ø³«Éô¤ò
+.Fl s
+°ú¿ô¤Ç»ØÄê¤·¤Þ¤¹:
+.Pp
+.Dl $ ssh-keygen -s ca_key.pub -D libpkcs11.so -I key_id host_key.pub
+.Pp
+¤¤¤º¤ì¤Î¾ì¹ç¤â¡¢
 .Ar key_id
 ¤Ï¡Ö¸°¼±ÊÌ»Ò¡×¤òÉ½¤·¤Æ¤ª¤ê¡¢¤³¤ì¤Ï¤½¤Î¾ÚÌÀ½ñ¤¬Ç§¾Ú¤Ë»È¤ï¤ì¤¿ºÝ¤Ë¤Ï
 ¥µ¡¼¥ÐÂ¦¤Ë¥í¥°¤È¤·¤Æ»Ä¤ê¤Þ¤¹¡£

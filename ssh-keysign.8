@@ -1,4 +1,4 @@
-.\" $OpenBSD: ssh-keysign.8,v 1.9 2007/05/31 19:20:16 jmc Exp $
+.\" $OpenBSD: ssh-keysign.8,v 1.11 2010/08/08 19:36:30 jmc Exp $
 .\"
 .\" Copyright (c) 2002 Markus Friedl.  All rights reserved.
 .\"
@@ -22,10 +22,9 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 .\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.\" Japanese translation: $Id$
-.\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
+.\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate$
+.Dd $Mdocdate: August 8 2010 $
 .Dt SSH-KEYSIGN 8
 .Os
 .Sh 名前
@@ -61,12 +60,14 @@ SSH プロトコル バージョン 2 でホストベースド (host-based) 認証をおこなう際に
 .Xr sshd 8
 を参照してください。
 .Sh 関連ファイル
-.Bl -tag -width Ds
+.Bl -tag -width Ds -compact
 .It Pa /etc/ssh/ssh_config
 このファイルにより、
 .Nm
 が使用されるかどうかが決定されます。
-.It Pa /etc/ssh/ssh_host_dsa_key, /etc/ssh/ssh_host_rsa_key
+.Pp
+.It Pa /etc/ssh/ssh_host_dsa_key
+.It Pa /etc/ssh/ssh_host_rsa_key
 これらのファイルにはホストの秘密鍵が格納され、
 デジタル署名を生成するのに使われます。
 これらのファイルは root が所有し、root だけが読み込み可能にすべきであり、
@@ -75,6 +76,11 @@ SSH プロトコル バージョン 2 でホストベースド (host-based) 認証をおこなう際に
 ホストベースド認証を使うときは、
 .Nm
 を setuid root にしておく必要があります。
+.Pp
+.It Pa /etc/ssh/ssh_host_dsa_key-cert.pub
+.It Pa /etc/ssh/ssh_host_rsa_key-cert.pub
+これらのファイルが存在する場合、ここには秘密鍵に対応する、
+公開の証明書に関する情報が格納されているとみなされます。
 .El
 .Sh 関連項目
 .Xr ssh 1 ,

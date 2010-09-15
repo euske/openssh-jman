@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: euc-jp -*-
-# $Id:$
 
 import re, sys, time
 stdout = sys.stdout
 stderr = sys.stderr
 
-VERSION = '5.5p1'
+VERSION = '5.6p1'
 DATE = time.strftime('%Y/%m/%d')
 COMMONTITLE = u'<a href="http://www.openssh.com/ja/">OpenSSH</a>-%s 日本語マニュアルページ (%s)' % (VERSION, DATE)
   
@@ -474,18 +473,21 @@ class Roff2HTML(RoffParser):
 # main
 def main(argv):
   import getopt
+  global VERSION
   def usage():
-    print 'usage: %s [-d] [-c encin] [-C encout] [file ...]' % argv[0]
+    print 'usage: %s [-d] [-s version] [-c encin] [-C encout] [file ...]' % argv[0]
     return 100
   try:
-    (opts, args) = getopt.getopt(argv[1:], 'dc:C:')
+    (opts, args) = getopt.getopt(argv[1:], 'ds:c:C:')
   except getopt.GetoptError:
     return usage()
   encin = 'euc-jp'
   encout = 'utf-8'
   for (k, v) in opts:
     if k == '-d': debug += 1
-    elif k == '-c': encoding = v
+    elif k == '-s': VERSION = v
+    elif k == '-c': encin = v
+    elif k == '-C': encout = v
   parser = Roff2HTML(stdout, encout)
   for fname in (args or ['-']):
     if fname == '-':

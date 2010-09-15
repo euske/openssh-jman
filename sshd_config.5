@@ -34,12 +34,10 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 .\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.\" $OpenBSD: sshd_config.5,v 1.120 2010/03/04 23:17:25 djm Exp $
+.\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" Japanese translation: $Id$
-.\" by Yusuke Shinyama <yusuke @ cs . nyu . edu>
-.\"
-.Dd $Mdocdate: March 4 2010 $
+.\" $OpenBSD: sshd_config.5,v 1.125 2010/06/30 07:28:34 jmc Exp $
+.Dd $Mdocdate: June 30 2010 $
 .Dt SSHD_CONFIG 5
 .Os
 .Sh 名前
@@ -163,6 +161,11 @@ allow/deny 関連の項目は以下の順に処理されます:
 .It Cm AuthorizedKeysFile (authorized_keys ファイル)
 ユーザ認証の際に使われる公開鍵を格納しているファイル名を
 指定します。
+ファイル形式については、
+.Xr sshd 8
+の
+.Sx AUTHORIZED_KEYS ファイルの形式
+セクションで説明しています。
 .Cm AuthorizedKeysFile
 のファイル名中に %T が含まれている場合、その部分は接続の間
 別のものに置換されます。%% は「%」1文字に置換されます。
@@ -173,6 +176,46 @@ allow/deny 関連の項目は以下の順に処理されます:
 に渡されます。デフォルトでの値は
 .Dq .ssh/authorized_keys
 となっています。
+.It Cm AuthorizedPrincipalsFile (許可されるprincipalファイル)
+証明書による認証で許可されるprincipal名の一覧を記したファイルを指定します。
+.Cm TrustedUserCAKeys 
+で指定されている鍵によって署名された証明書を使う場合、
+このファイルには名前の一覧が入ります。これらの名前は
+証明書の中で認証を許可されていなければなりません。
+名前は各行にひとつずつ書き、そのあとに鍵のオプション
+(
+.Xr sshd 8
+の
+.Sx AUTHORIZED_KEYS ファイルの形式
+で説明されているもの) を書きます。
+空行、あるいは
+.Ql #
+で始まる行は無視されます。
+.Pp
+.Cm AuthorizedPrincipalsFile
+のファイル名中に %T が含まれている場合、その部分は接続の間
+別のものに置換されます。%% は「%」1文字に置換されます。
+%h は認証しようとしているユーザのホームディレクトリに置換され、
+%u はそのユーザのユーザ名に置換されます。この後、
+.Cm AuthorizedPrincipalsFile
+の値は、絶対パスあるいはユーザのホームディレクトリからの相対パスとして
+解釈されます。
+.Pp
+デフォルトでは、principal名の一覧を記したファイルは使いません。 \(en
+この場合、認証が受け入れられるには、そのユーザ名が
+証明書の principal 一覧に記されている必要があります。
+注意:
+.Cm AuthorizedPrincipalsFile
+が使われるのは、
+.Cm TrustedUserCAKeys
+に記されている CA を使って認証を進めるときだけです。
+.Pa ~/.ssh/authorized_keys 
+で信用されている CA は使われません。
+しかし、鍵のオプションである
+.Cm principals=
+を使えば、同様の効果を得ることはできます (詳しくは
+.Xr sshd 8
+を参照してください)。
 .It Cm Banner (バナー)
 ここで指定されたファイルの内容は、認証が許可される前に
 リモートユーザに提示されます。
@@ -622,12 +665,15 @@ hmac-ripemd160,hmac-sha1-96,hmac-md5-96
 使用できる項目は、
 .Cm AllowAgentForwarding ,
 .Cm AllowTcpForwarding ,
+.Cm AuthorizedKeysFile ,
+.Cm AuthorizedPrincipalsFile ,
 .Cm Banner ,
 .Cm ChrootDirectory ,
 .Cm ForceCommand ,
 .Cm GatewayPorts ,
 .Cm GSSAPIAuthentication ,
 .Cm HostbasedAuthentication ,
+.Cm HostbasedUsesNameFromPacketOnly ,
 .Cm KbdInteractiveAuthentication ,
 .Cm KerberosAuthentication ,
 .Cm MaxAuthTries ,
@@ -636,6 +682,7 @@ hmac-ripemd160,hmac-sha1-96,hmac-md5-96
 .Cm PermitEmptyPasswords ,
 .Cm PermitOpen ,
 .Cm PermitRootLogin ,
+.Cm PermitTunnel ,
 .Cm PubkeyAuthentication ,
 .Cm RhostsRSAAuthentication ,
 .Cm RSAAuthentication ,

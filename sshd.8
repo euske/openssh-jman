@@ -34,12 +34,10 @@
 .\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 .\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\"
-.\" $OpenBSD: sshd.8,v 1.255 2010/03/05 06:50:35 jmc Exp $
+.\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" Japanese translation: $Id$
-.\" by Yusuke Shinyama <yusuke at cs . nyu . edu>
-.\"
-.Dd $Mdocdate: March 5 2010 $
+.\" $OpenBSD: sshd.8,v 1.258 2010/08/08 19:36:30 jmc Exp $
+.Dd $Mdocdate: August 8 2010 $
 .Dt SSHD 8
 .Os
 .Sh 名前
@@ -616,13 +614,22 @@ CA はユーザ認証のための署名された証明書を確認するときに使われます。
 .Li ``ssh -L''
 のポート転送先を、
 指定されたホストの指定されたポートのみに限定します。
-IPv6 アドレスの場合は、指定する形式が異なります:
-.Ar host Ns / Ns Ar port
+IPv6 アドレスは、ブラケット [ ] で区切って指定できます。
 .Cm permitopen
 オプションはカンマで区切って複数個指定することもできます。
 パターンマッチングはおこなわれません。
 ホスト名にはドメイン名かアドレスを
 そのまま書く必要があります。
+.It Cm principals="principals"
+.Cm cert-authority
+行で、証明書による認証が許可されている principal の一覧を
+カンマで区切って指定します。その認証が受け入れられるためには、
+少なくともこれらのうちひとつの名前が、証明書の principal 一覧に
+記されている必要があります。
+このオプションは、
+.Cm cert-authority
+で指定される、
+信頼された証明書の署名者とみなされていない鍵に対しては無視されます。
 .It Cm tunnel="n"
 サーバ側の
 .Xr tun 4
@@ -779,7 +786,7 @@ AAAA1234.....=
 .Ed
 .Sh 関連ファイル
 .Bl -tag -width Ds -compact
-.It ~/.hushlogin
+.It Pa ~/.hushlogin
 このファイルがあると、
 .Cm PrintLastLog
 および
@@ -792,7 +799,7 @@ AAAA1234.....=
 .Cm Banner
 によって指定されているバナーはかならず表示します。
 .Pp
-.It ~/.rhosts
+.It Pa ~/.rhosts
 このファイルはホストベースド認証 (host-based authentication
 -- 詳しくは
 .Xr ssh 1
@@ -803,14 +810,14 @@ AAAA1234.....=
 マシンによっては、このファイルは誰にでも
 読めるようにしておく必要があるかもしれません。
 .Pp
-.It ~/.shosts
+.It Pa ~/.shosts
 このファイルは
 .Pa .rhosts
 とまったく同じように扱われます。
 しかしこれは rlogin/rsh から使われることなく
 ホストベースド認証を許可することができます。
 .Pp
-.It ~/.ssh/
+.It Pa ~/.ssh/
 このディレクトリはユーザ用のすべての設定や認証用の情報が入る
 デフォルトの場所です。一般的に、このディレクトリの内容をまるごと
 隠しておくという必要があるわけではありませんが、推奨される
@@ -838,7 +845,7 @@ AAAA1234.....=
 .Dq no 
 に設定されていない限り、このファイルの内容を使用しません。
 .Pp
-.It ~/.ssh/environment
+.It Pa ~/.ssh/environment
 このファイルは (存在している場合)、
 ログイン時に環境変数に読み込まれます。
 これが含んでいてよいのは、空行、(
@@ -852,7 +859,7 @@ AAAA1234.....=
 .Cm PermitUserEnvironment
 項目を設定する必要があります。
 .Pp
-.It ~/.ssh/known_hosts
+.It Pa ~/.ssh/known_hosts
 そのユーザがこれまでにログインしたすべてのホストのホスト鍵で、
 システム全体で使われる /etc/ssh/ssh_known_hosts の一覧に
 含まれていないものが格納されています。
@@ -861,39 +868,39 @@ AAAA1234.....=
 書き込み可能にしておくべきですが、
 誰にでも読めるようにしておく必要はありません。
 .Pp
-.It ~/.ssh/rc
+.It Pa ~/.ssh/rc
 ユーザのホームディレクトリがアクセス可能になる前に
 実行すべき初期化作業が格納されています。
 このファイルの形式は上で説明されています。
 これらのファイルは所有者にのみ書き込み可能にしておくべきです。
 誰にでも読めるようにしておく必要はありません。
 .Pp
-.It /etc/hosts.allow
-.It /etc/hosts.deny
+.It Pa /etc/hosts.allow
+.It Pa /etc/hosts.deny
 このファイルは tcp-wrappers による
 アクセス制限を定義しています。詳しい説明は
 .Xr hosts_access 5
 を参照してください。
 .Pp
-.It /etc/hosts.equiv
+.It Pa /etc/hosts.equiv
 このファイルはホストベースド認証 (host-based authentication
 -- 詳しくは
 .Xr ssh 1
 を参照) で使われます。
 このファイルは root のみ書き込み可能にしておくべきです。
 .Pp
-.It /etc/moduli
+.It Pa /etc/moduli
 Diffie-Hellman 鍵交換 (Diffie-Hellman Group Exchange) で
 使われる、Diffie-Hellman 群を格納します。
 このファイルの形式は
 .Xr moduli 5 
 で説明されています。
 .Pp
-.It /etc/motd
+.It Pa /etc/motd
 .Xr motd 5 
 を参照してください。
 .Pp
-.It /etc/nologin
+.It Pa /etc/nologin
 このファイルが存在していると、
 .Nm
 は root を除くすべてのユーザのログインを拒否します。
@@ -901,16 +908,16 @@ Diffie-Hellman 鍵交換 (Diffie-Hellman Group Exchange) で
 ログインしようとして拒否された人に対して表示されます。この
 ファイルは誰にでも読めるようになっている必要があります。
 .Pp
-.It /etc/shosts.equiv
+.It Pa /etc/shosts.equiv
 これは
 .Pa hosts.equiv
 とまったく同じように扱われます。
 しかしこれは rlogin/rsh から使われることなく
 ホストベースド認証を許可することができます。
 .Pp
-.It /etc/ssh/ssh_host_key
-.It /etc/ssh/ssh_host_dsa_key
-.It /etc/ssh/ssh_host_rsa_key
+.It Pa /etc/ssh/ssh_host_key
+.It Pa /etc/ssh/ssh_host_dsa_key
+.It Pa /etc/ssh/ssh_host_rsa_key
 これら 3 つのファイルはホストの秘密鍵を格納します。
 このファイルは root が所有し、
 root だけが読み込み可能にすべきであり、
@@ -919,9 +926,9 @@ root だけが読み込み可能にすべきであり、
 はこのファイルが誰にでも読めるようになっていると
 起動しないので注意してください。
 .Pp
-.It /etc/ssh/ssh_host_key.pub
-.It /etc/ssh/ssh_host_dsa_key.pub
-.It /ssh/etc/ssh_host_rsa_key.pub
+.It Pa /etc/ssh/ssh_host_key.pub
+.It Pa /etc/ssh/ssh_host_dsa_key.pub
+.It Pa /ssh/etc/ssh_host_rsa_key.pub
 これら 3 つのファイルはホスト鍵の公開鍵部分を格納します。
 このファイルは誰にでも読めるようになっている
 必要がありますが、
@@ -934,7 +941,7 @@ root だけが読み込み可能にすべきであり、
 .Xr ssh-keygen 1
 を使って生成することができます。
 .Pp
-.It /etc/ssh/ssh_known_hosts
+.It Pa /etc/ssh/ssh_known_hosts
 システム全体で使われるホスト鍵の一覧です。
 このファイルはシステム管理者によって用意され、
 その組織のすべてのマシンのホスト鍵を含んでいるべきです。
@@ -943,14 +950,14 @@ root だけが読み込み可能にすべきであり、
 書き込み可能にしておくべきであり、
 誰にでも読めるようになっている必要があります。
 .Pp
-.It /etc/ssh/sshd_config
+.It Pa /etc/ssh/sshd_config
 .Nm sshd
 の設定ファイルです。
 このファイルの形式と設定項目は
 .Xr sshd_config 5
 で説明されています。
 .Pp
-.It /etc/ssh/sshrc
+.It Pa /etc/ssh/sshrc
 .Pa ~/.ssh/rc
 に似ています。これはそのマシン全体にわたって
 ログイン時の初期化を指定するのに使われます。これは

@@ -1,20 +1,20 @@
 # for GNU make only!
 
 # Makefile for Japanese OpenSSH manpage
-# by Yusuke Shinyama <yusuke @ cs . nyu . edu>
-# $Id$
+# by Yusuke Shinyama <yusuke at cs . nyu . edu>
 
 PACKAGE=openssh-jman
-VERSION=550p1
+VERSION=5.6p1
+VERSION2=560p1
 
 GIT=git
 RM=rm -f
 CP=cp -f
 GZIP=gzip
 PYTHON=python
-ROFF2HTML=$(PYTHON) roff2html.py
+ROFF2HTML=$(PYTHON) roff2html.py -s $(VERSION)
 
-DISTNAME=$(PACKAGE)-$(VERSION)
+DISTNAME=$(PACKAGE)-$(VERSION2)
 DISTFILE=/tmp/$(DISTNAME).tar.gz
 
 #
@@ -22,10 +22,10 @@ DISTFILE=/tmp/$(DISTNAME).tar.gz
 
 #
 SRCS=scp.1 sftp-server.8 sftp.1 ssh-add.1 ssh-agent.1 ssh-keygen.1 ssh-keyscan.1 \
-	ssh.1 sshd.8 ssh-keysign.8 ssh-rand-helper.8 ssh_config.5 sshd_config.5
+	ssh.1 sshd.8 ssh-keysign.8 ssh_config.5 sshd_config.5
 
 HTML=scp.html sftp-server.html sftp.html ssh-add.html ssh-agent.html ssh-keygen.html ssh-keyscan.html \
-	ssh.html sshd.html ssh-keysign.html ssh-rand-helper.html ssh_config.html sshd_config.html
+	ssh.html sshd.html ssh-keysign.html ssh_config.html sshd_config.html
 
 all: $(HTML)
 
