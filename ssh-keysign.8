@@ -1,4 +1,4 @@
-.\" $OpenBSD: ssh-keysign.8,v 1.11 2010/08/08 19:36:30 jmc Exp $
+.\" $OpenBSD: ssh-keysign.8,v 1.12 2010/08/31 11:54:45 djm Exp $
 .\"
 .\" Copyright (c) 2002 Markus Friedl.  All rights reserved.
 .\"
@@ -24,7 +24,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: August 8 2010 $
+.Dd $Mdocdate: August 31 2010 $
 .Dt SSH-KEYSIGN 8
 .Os
 .Sh 名前
@@ -67,6 +67,7 @@ SSH プロトコル バージョン 2 でホストベースド (host-based) 認証をおこなう際に
 が使用されるかどうかが決定されます。
 .Pp
 .It Pa /etc/ssh/ssh_host_dsa_key
+.It Pa /etc/ssh/ssh_host_ecdsa_key
 .It Pa /etc/ssh/ssh_host_rsa_key
 これらのファイルにはホストの秘密鍵が格納され、
 デジタル署名を生成するのに使われます。
@@ -78,6 +79,7 @@ SSH プロトコル バージョン 2 でホストベースド (host-based) 認証をおこなう際に
 を setuid root にしておく必要があります。
 .Pp
 .It Pa /etc/ssh/ssh_host_dsa_key-cert.pub
+.It Pa /etc/ssh/ssh_host_ecdsa_key-cert.pub
 .It Pa /etc/ssh/ssh_host_rsa_key-cert.pub
 これらのファイルが存在する場合、ここには秘密鍵に対応する、
 公開の証明書に関する情報が格納されているとみなされます。

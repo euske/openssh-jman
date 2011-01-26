@@ -1,6 +1,4 @@
-.\"	$OpenBSD: ssh-add.1,v 1.52 2010/03/05 10:28:21 djm Exp $
-.\"
-.\"  -*- nroff -*-
+.\"	$OpenBSD: ssh-add.1,v 1.55 2010/10/28 18:33:28 jmc Exp $
 .\"
 .\" Author: Tatu Ylonen <ylo@cs.hut.fi>
 .\" Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
@@ -39,12 +37,12 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: March 5 2010 $
+.Dd $Mdocdate: October 28 2010 $
 .Dt SSH-ADD 1
 .Os
 .Sh 名前
 .Nm ssh-add
-.Nd 認証エージェントに RSA あるいは DSA 秘密鍵を追加する
+.Nd 認証エージェントに秘密鍵を追加する
 .Sh 書式
 .Nm
 .Op Fl cDdLlXx
@@ -60,10 +58,11 @@
 .Nm
 は認証エージェントである
 .Xr ssh-agent 1
-に、RSA あるいは DSA の認証鍵を追加します。
+に、秘密鍵を追加します。
 引数なしで実行された場合、これは
 .Pa ~/.ssh/id_rsa ,
-.Pa ~/.ssh/id_dsa 
+.Pa ~/.ssh/id_dsa ,
+.Pa ~/.ssh/id_ecdsa
 および
 .Pa ~/.ssh/identity
 の各ファイルを追加します。秘密鍵を読み込んだあと、
@@ -170,6 +169,9 @@ RSA 認証用の秘密鍵が入っています。
 .It Pa ~/.ssh/id_dsa
 そのユーザがプロトコル バージョン 2 で使用する
 DSA 認証用の秘密鍵が入っています。
+.It Pa ~/.ssh/id_ecdsa
+そのユーザがプロトコル バージョン 2 で使用する
+ECDSA 認証用の秘密鍵が入っています。
 .It Pa ~/.ssh/id_rsa
 そのユーザがプロトコル バージョン 2 で使用する
 RSA 認証用の秘密鍵が入っています。
@@ -179,7 +181,7 @@ RSA 認証用の秘密鍵が入っています。
 他人から読めるようになっていると、
 .Nm
 はこのファイルを無視します。
-.Sh 診断
+.Sh 終了状態
 .Nm
 は、成功すると終了状態として 0 を、指定されたコマンドが失敗すると 1 を、
 認証エージェントと通信できない場合は 2 を返します。

@@ -1,4 +1,4 @@
-.\"	$OpenBSD: ssh-keyscan.1,v 1.28 2010/01/09 23:04:13 dtucker Exp $
+.\"	$OpenBSD: ssh-keyscan.1,v 1.29 2010/08/31 11:54:45 djm Exp $
 .\"
 .\" Copyright 1995, 1996 by David Mazieres <dm@lcs.mit.edu>.
 .\"
@@ -8,7 +8,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: January 9 2010 $
+.Dd $Mdocdate: August 31 2010 $
 .Dt SSH-KEYSCAN 1
 .Os
 .Sh 名前
@@ -84,9 +84,10 @@ ssh が走っていなかったり、ホストがダウンしていたりしても、です。
 とりうる値は、プロトコル バージョン 1 の
 .Dq rsa1
 と、プロトコル バージョン 2 の
-.Dq rsa
+.Dq dsa ,
+.Dq ecdsa ,
 あるいは
-.Dq dsa
+.Dq rsa
 です。
 複数の値を指定するときは、カンマで区切ってください。
 デフォルトではこれは
@@ -118,17 +119,20 @@ ssh が走っていなかったり、ホストがダウンしていたりしても、です。
 ホストあるいはホスト名のリスト ビット数 べき指数 係数
 .Ed
 .Pp
-.Pa rsa および dsa 鍵の出力形式:
+.Pa rsa, dsa および ecdsa 鍵の出力形式:
 .Bd -literal
 ホストあるいはホスト名のリスト 鍵の種類 base64エンコードされた鍵
 .Ed
 .Pp
 .Pa keytype
 の値は
-.Dq ssh-rsa
-あるいは
+.Dq ecdsa-sha2-nistp256 ,
+.Dq ecdsa-sha2-nistp384 ,
+.Dq ecdsa-sha2-nistp521 ,
 .Dq ssh-dss
-のどちらかです。
+あるいは
+.Dq ssh-rsa
+のいずれかです。
 .Pp
 .Pa /etc/ssh/ssh_known_hosts
 .Sh 使用例
@@ -148,7 +152,7 @@ $ ssh-keyscan hostname
 .Pa ssh_known_hosts
 ファイルにあるものと鍵が違っているホストを見つける:
 .Bd -literal
-$ ssh-keyscan -t rsa,dsa -f ssh_hosts | \e\ 
+$ ssh-keyscan -t rsa,dsa,ecdsa -f ssh_hosts | \e
 	sort -u - ssh_known_hosts | diff ssh_known_hosts -
 .Ed
 .Sh 関連項目

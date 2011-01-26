@@ -1,4 +1,3 @@
-.\"  -*- nroff -*-
 .\"
 .\" scp.1
 .\"
@@ -9,11 +8,11 @@
 .\"
 .\" Created: Sun May  7 00:14:37 1995 ylo
 .\"
-.\" $OpenBSD: scp.1,v 1.50 2010/02/08 10:50:20 markus Exp $
+.\" $OpenBSD: scp.1,v 1.56 2010/12/09 14:13:32 jmc Exp $
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: February 8 2010 $
+.Dd $Mdocdate: December 9 2010 $
 .Dt SCP 1
 .Os
 .Sh 名前
@@ -22,7 +21,7 @@
 .Sh 書式
 .Nm scp
 .Bk -words
-.Op Fl 1246BCpqrv
+.Op Fl 12346BCpqrv
 .Op Fl c Ar 暗号方式
 .Op Fl F Ar ssh設定ファイル
 .Op Fl i Ar identityファイル
@@ -75,6 +74,10 @@
 .It Fl 2
 .Nm
 がプロトコル バージョン 2 を使うよう強制します。
+.It Fl 3
+ローカルホストを経由して、2つのリモートホスト間でコピーをおこないます。
+このオプションが指定されない場合、データは2つのリモートホスト間でじかにコピーされます。
+注意: このオプションを使うと、進行状況の表示はされません。
 .It Fl 4
 .Nm
 が IPv4 アドレスのみを使うよう強制します。
@@ -145,7 +148,9 @@
 .It HostName
 .It IdentityFile
 .It IdentitiesOnly
+.It IPQoS
 .It KbdInteractiveDevices
+.It KexAlgorithms
 .It LogLevel
 .It MACs
 .It NoHostAuthenticationForLocalhost
@@ -205,7 +210,7 @@
 が進行中のデバッグメッセージを表示するようにします。
 これは接続や認証、設定の問題などをデバッグするときに役立ちます。
 .El
-.Pp
+.Sh 終了状態
 .Ex -std scp
 .Sh 関連項目
 .Xr rcp 1 ,

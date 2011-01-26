@@ -1,4 +1,4 @@
-.\" $OpenBSD: sftp.1,v 1.83 2010/02/08 10:50:20 markus Exp $
+.\" $OpenBSD: sftp.1,v 1.88 2010/12/04 00:18:01 djm Exp $
 .\"
 .\" Copyright (c) 2001 Damien Miller.  All rights reserved.
 .\"
@@ -24,7 +24,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: February 8 2010 $
+.Dd $Mdocdate: December 4 2010 $
 .Dt SFTP 1
 .Os
 .Sh 名前
@@ -40,6 +40,7 @@
 .Op Fl D Ar sftpサーバパス
 .Op Fl F Ar ssh設定ファイル
 .Op Fl i Ar identityファイル
+.Op Fl l Ar 制限
 .Op Fl o Ar ssh設定項目
 .Op Fl P Ar ポート
 .Op Fl R Ar 同時リクエスト数
@@ -53,9 +54,11 @@
 .Ar ホスト Ns Op : Ns Ar
 .Pp
 .Nm sftp
-.Oo Ar ユーザ Ns @ Oc Ns
+.Oo 
+.Ar ユーザ Ns @ Oc Ns
 .Ar ホスト Ns Oo : Ns Ar ディレクトリ Ns
-.Op Ar / Oc
+.Op Ar / 
+.Oc
 .Pp
 .Nm sftp
 .Fl b Ar batchfile
@@ -130,7 +133,7 @@
 .Ic get , put , rename , ln ,
 .Ic rm , mkdir , chdir , ls ,
 .Ic lchdir , chmod , chown , 
-.Ic chgrp , lpwd , df 
+.Ic chgrp , lpwd , df , symlink ,
 および
 .Ic lmkdir
 コマンド名の前にプレフィックス
@@ -164,6 +167,8 @@ This option is directly passed to
 このオプションは
 .Xr ssh 1 
 に直接渡されます。
+.It Fl l Ar 制限
+帯域を制限します。Kbit/s で指定します。
 .It Fl o Ar ssh設定項目
 設定ファイル
 .Xr ssh_config 5
@@ -202,7 +207,9 @@ This option is directly passed to
 .It HostName
 .It IdentityFile
 .It IdentitiesOnly
+.It IPQoS
 .It KbdInteractiveDevices
+.It KexAlgorithms
 .It LogLevel
 .It MACs
 .It NoHostAuthenticationForLocalhost
@@ -385,11 +392,18 @@ SSH2 のサブシステム、またはリモートホスト上にある sftp サーバへの
 ローカルマシン上に
 .Ar パス名
 で指定されたディレクトリを作成します。
-.It Ic ln Ar 古いパス名 Ar 新しいパス名
-.Ar 新しいパス名
-から
+.It Xo Ic ln
+.Op Fl s
 .Ar 古いパス名
+.Ar 新しいパス名
+.Xc
+.Ar 古いパス名
+から
+.Ar 新しいパス名
 へのシンボリックリンクを作成します。
+.Fl s
+フラグが指定されている場合、そのリンクはシンボリックリンクになります。
+そうでない場合はハードリンクが作成されます。
 .It Ic lpwd
 ローカルマシン上のカレントディレクトリ
 (ワーキングディレクトリ) 
