@@ -2,17 +2,11 @@
 # -*- coding: euc-jp -*-
 
 import re, sys, time
-stdout = sys.stdout
-stderr = sys.stderr
 
-VERSION = '5.6p1'
-DATE = time.strftime('%Y/%m/%d')
-COMMONTITLE = u'<a href="http://www.openssh.com/ja/">OpenSSH</a>-%s 日本語マニュアルページ (%s)' % (VERSION, DATE)
-  
 
 ##  RoffParser
 ##
-class RoffParser:
+class RoffParser(object):
 
   def feedfile(self, fp, encoding='ascii'):
     for line in fp:
@@ -139,15 +133,15 @@ class RoffParser:
     return
   
   def handle_escape(self, cmd, arg):
-    print >>stderr, 'ESCAPE:', cmd, arg
+    print >>sys.stderr, 'ESCAPE:', cmd, arg
     return
   
   def handle_text(self, s):
-    print >>stderr, 'TEXT:', s
+    print >>sys.stderr, 'TEXT:', s
     return
   
   def do_unknown_command(self, cmd, args):
-    print >>stderr, 'UNKNOWN:', cmd, args
+    print >>sys.stderr, 'UNKNOWN:', cmd, args
     return
 
 
@@ -179,7 +173,8 @@ class Roff2HTML(RoffParser):
     'ssh', 'sshd', 'ssh_config', 'sshd_config',
     ]       
   
-  def __init__(self, fp=stdout, encoding='ascii'):
+  def __init__(self, headline, fp=sys.stdout, encoding='ascii'):
+    self.headline = headline
     self.fp = fp
     self.stack = []
     self.state = None
@@ -249,7 +244,7 @@ class Roff2HTML(RoffParser):
     self.write('<title>%s</title>\n' % s)
     self.write('</head><body>\n')
     self.write('<h1>%s</h1>\n' % s)
-    self.write('<p class=info>%s\n' % COMMONTITLE)
+    self.write('<p class=info>%s\n' % self.headline)
     return
   
   def do_command_nd(self, args):
@@ -473,7 +468,6 @@ class Roff2HTML(RoffParser):
 # main
 def main(argv):
   import getopt
-  global VERSION
   def usage():
     print 'usage: %s [-d] [-s version] [-c encin] [-C encout] [file ...]' % argv[0]
     return 100
@@ -485,10 +479,12 @@ def main(argv):
   encout = 'utf-8'
   for (k, v) in opts:
     if k == '-d': debug += 1
-    elif k == '-s': VERSION = v
+    elif k == '-s': version = v
     elif k == '-c': encin = v
     elif k == '-C': encout = v
-  parser = Roff2HTML(stdout, encout)
+  date = time.strftime('%Y/%m/%d')
+  title = u'<a href="http://www.openssh.com/ja/">OpenSSH</a>-%s 日本語マニュアルページ (%s)' % (version, date)
+  parser = Roff2HTML(title, sys.stdout, encout)
   for fname in (args or ['-']):
     if fname == '-':
       fp = sys.stdin

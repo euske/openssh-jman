@@ -1,4 +1,3 @@
-.\"  -*- nroff -*-
 .\"
 .\" Author: Tatu Ylonen <ylo@cs.hut.fi>
 .\" Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
@@ -36,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: ssh_config.5,v 1.138 2010/08/04 05:37:01 djm Exp $
-.Dd $Mdocdate: August 4 2010 $
+.\" $OpenBSD: ssh_config.5,v 1.146 2010/12/08 04:02:47 djm Exp $
+.Dd $Mdocdate: December 8 2010 $
 .Dt SSH_CONFIG 5
 .Os
 .Sh 名前
@@ -563,8 +562,19 @@ GSSAPI ベースの認証をおこなうかどうかを指定します。
 クライアントはここで指定された
 優先順位の方式を使って認証を試みます。
 この項目のデフォルトは
-.Dq ssh-rsa,ssh-dss
+.Bd -literal -offset 3n
+ecdsa-sha2-nistp256-cert-v01@openssh.com,
+ecdsa-sha2-nistp384-cert-v01@openssh.com,
+ecdsa-sha2-nistp521-cert-v01@openssh.com,
+ssh-rsa-cert-v01@openssh.com,ssh-dss-cert-v01@openssh.com,
+ssh-rsa-cert-v00@openssh.com,ssh-dss-cert-v00@openssh.com,
+ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,
+ssh-rsa,ssh-dss
+.Ed
 です。
+.Pp
+相手ホストのホスト鍵がわかっている場合、
+これらのデフォルト値は相手のアルゴリズムに合うよう修正されます。
 .It Cm HostKeyAlias (ホスト鍵のエイリアス)
 ホスト鍵データベースからホスト鍵を検索するとき、あるいは
 データベースにホスト鍵を保存するときに、実際のホスト名のかわりに
@@ -605,15 +615,16 @@ If the hostname contains the character sequence
 .Dq no
 になっています。
 .It Cm IdentityFile (identity ファイル)
-ユーザの RSA または DSA 認証用 identity (秘密鍵) を
-読むファイルを指定します
+ユーザの DSA, ECDSA または RSA 認証用 identity (秘密鍵) を
+読むファイルを指定します。
 デフォルトは、プロトコル バージョン 1 の場合
 ユーザのホームディレクトリにある
 .Pa ~/.ssh/identity
 ファイルが、プロトコル バージョン 2 の場合は
-.Pa ~/.ssh/id_rsa
+.Pa ~/.ssh/id_dsa ,
+.Pa ~/.ssh/id_ecdsa
 および
-.Pa ~/.ssh/id_dsa
+.Pa ~/.ssh/id_rsa
 が使われます。
 これに加えて、認証エージェントによって現れる identity も使われます。
 .Xr ssh 1
@@ -639,6 +650,43 @@ If the hostname contains the character sequence
 .Pp
 設定ファイルでは複数の identity を指定することもでき、
 この場合すべての identity が順に試されます。
+.It Cm IPQoS (QoS指定)
+接続における IPv4 type-of-service または DSCP クラスを指定します。
+可能な値は
+.Dq af11 ,
+.Dq af12 ,
+.Dq af13 ,
+.Dq af14 ,
+.Dq af22 ,
+.Dq af23 ,
+.Dq af31 ,
+.Dq af32 ,
+.Dq af33 ,
+.Dq af41 ,
+.Dq af42 ,
+.Dq af43 ,
+.Dq cs0 ,
+.Dq cs1 ,
+.Dq cs2 ,
+.Dq cs3 ,
+.Dq cs4 ,
+.Dq cs5 ,
+.Dq cs6 ,
+.Dq cs7 ,
+.Dq ef ,
+.Dq lowdelay ,
+.Dq throughput ,
+.Dq reliability 
+または数値のいずれかです。
+このオプションには 1つあるいは2つの引数を空白で区切って与えることができます。
+引数が 1つ指定された場合、これはパケットクラスを無条件に指定します。
+引数が 2つ指定された場合、最初の引数は対話的セッションで使われ、
+2番目の引数は非対話的セッションで使われます。
+デフォルト値は、対話的セッションのときは
+.Dq lowdelay
+であり、非対話的セッションのときは
+.Dq throughput
+となっています。
 .It Cm KbdInteractiveAuthentication (キーボード対話的認証)
 キーボード対話的認証を使用するかどうかを指定します。
 このキーワードの引数は
@@ -658,6 +706,17 @@ OpenSSH サーバの場合、これは以下の組み合わせになります:
 .Dq pam 、
 および
 .Dq skey 。
+.It Cm KexAlgorithms (鍵交換アルゴリズム)
+利用可能な KEX (Key Exchange、鍵交換) アルゴリズムを指定します。
+複数のアルゴリズムはカンマで区切ってください。
+デフォルトは:
+.Bd -literal -offset indent
+ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,
+diffie-hellman-group-exchange-sha256,
+diffie-hellman-group-exchange-sha1,
+diffie-hellman-group14-sha1,
+diffie-hellman-group1-sha1
+.Ed
 .It Cm LocalCommand (ローカルで実行するコマンド)
 サーバへのログインが成功したあとにローカルマシン上で実行する
 コマンドを指定します。この行の終端までがコマンド文字列とみなされ、

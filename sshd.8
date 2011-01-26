@@ -1,4 +1,3 @@
-.\"  -*- nroff -*-
 .\"
 .\" Author: Tatu Ylonen <ylo@cs.hut.fi>
 .\" Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
@@ -36,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: sshd.8,v 1.258 2010/08/08 19:36:30 jmc Exp $
-.Dd $Mdocdate: August 8 2010 $
+.\" $OpenBSD: sshd.8,v 1.260 2010/10/28 18:33:28 jmc Exp $
+.Dd $Mdocdate: October 28 2010 $
 .Dt SSHD 8
 .Os
 .Sh 名前
@@ -174,9 +173,10 @@ fork したデーモンは、鍵の交換、暗号化、認証、コマンド実行、
 デフォルトでは、プロトコル バージョン 1 用の鍵が
 .Pa /etc/ssh/ssh_host_key
 であり、プロトコル バージョン 2 用の鍵が
-.Pa /etc/ssh/ssh_host_rsa_key
+.Pa /etc/ssh/ssh_host_dsa_key ,
+.Pa /etc/ssh/ssh_host_ecdsa_key
 および
-.Pa /etc/ssh/ssh_host_dsa_key
+.Pa /etc/ssh/ssh_host_rsa_key
 です。
 異なるバージョンのプロトコルやホスト鍵の方式に対し、
 複数のホスト鍵ファイルを指定することも可能です。
@@ -278,10 +278,9 @@ SSH プロトコルバージョン 2 のみをサポートしていますが、
 の
 .Cm Protocol
 オプションで変更できます。
-プロトコルバージョン 2 は RSA および DSA鍵をどちらも
-サポートしています。プロトコルバージョン 1 がサポートするのは
-RSA 鍵だけです。どちらのプロトコルでも、各ホストは
-識別のためのホストごとの鍵を持っており、
+プロトコルバージョン 2 は DSA, ECDSA および RSA鍵をサポートしています。
+プロトコルバージョン 1 がサポートするのは RSA 鍵だけです。
+どちらのプロトコルでも、各ホストは識別のためのホストごとの鍵を持っており、
 これは通常 2048ビットからなります。
 .Pp
 プロトコルバージョン 1 では、追加のサーバ鍵によって
@@ -491,6 +490,9 @@ base64 エンコードされた鍵本体、鍵のコメント。
 ビット数、指数および係数 (modulus) によって表されます。
 コメント欄は利用されません (が、鍵を区別するのに役立ちます)。
 プロトコル バージョン 2 では、鍵の種類は
+.Dq ecdsa-sha2-nistp256 ,
+.Dq ecdsa-sha2-nistp384 ,
+.Dq ecdsa-sha2-nistp521 ,
 .Dq ssh-dss
 あるいは
 .Dq ssh-rsa
@@ -503,7 +505,8 @@ DSA 鍵の長さの制限は最大 8 キロバイトで、
 RSA 鍵の最大は 16 キロバイトです。
 これを手でタイプする気にはならないでしょう。かわりに
 .Pa identity.pub ,
-.Pa id_dsa.pub
+.Pa id_dsa.pub ,
+.Pa id_ecdsa.pub ,
 あるいは
 .Pa id_rsa.pub
 をコピーして、それを編集してください。
@@ -826,7 +829,7 @@ AAAA1234.....=
 .Pp
 .It Pa ~/.ssh/authorized_keys
 そのユーザのアカウントでログインするときに
-使われる公開鍵 (RSA または DSA) の一覧が入っています。
+使われる公開鍵 (DSA/ECDSA/RSA) の一覧が入っています。
 このファイルの形式は上で説明されています。
 このファイルの内容はそれほど秘密にする必要はありませんが、
 推奨されるパーミッションは、その所有者のみが読み書き可能で、
@@ -917,6 +920,7 @@ Diffie-Hellman 鍵交換 (Diffie-Hellman Group Exchange) で
 .Pp
 .It Pa /etc/ssh/ssh_host_key
 .It Pa /etc/ssh/ssh_host_dsa_key
+.It Pa /etc/ssh/ssh_host_ecdsa_key
 .It Pa /etc/ssh/ssh_host_rsa_key
 これら 3 つのファイルはホストの秘密鍵を格納します。
 このファイルは root が所有し、
@@ -928,6 +932,7 @@ root だけが読み込み可能にすべきであり、
 .Pp
 .It Pa /etc/ssh/ssh_host_key.pub
 .It Pa /etc/ssh/ssh_host_dsa_key.pub
+.It Pa /etc/ssh/ssh_host_ecdsa_key.pub
 .It Pa /ssh/etc/ssh_host_rsa_key.pub
 これら 3 つのファイルはホスト鍵の公開鍵部分を格納します。
 このファイルは誰にでも読めるようになっている
