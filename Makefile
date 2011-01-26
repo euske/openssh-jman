@@ -11,7 +11,7 @@ GIT=git
 RM=rm -f
 CP=cp -f
 GZIP=gzip
-PYTHON=python
+PYTHON=python2
 ROFF2HTML=$(PYTHON) roff2html.py -s $(VERSION)
 
 DISTNAME=$(PACKAGE)-$(VERSION2)
