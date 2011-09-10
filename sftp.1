@@ -1,4 +1,4 @@
-.\" $OpenBSD: sftp.1,v 1.88 2010/12/04 00:18:01 djm Exp $
+.\" $OpenBSD: sftp.1,v 1.91 2011/09/05 05:56:13 djm Exp $
 .\"
 .\" Copyright (c) 2001 Damien Miller.  All rights reserved.
 .\"
@@ -24,7 +24,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: December 4 2010 $
+.Dd $Mdocdate: September 5 2011 $
 .Dt SFTP 1
 .Os
 .Sh 名前
@@ -97,6 +97,9 @@
 および
 .Xr ssh-keygen 1
 を参照してください)。
+.Pp
+書式によっては、ホスト名とパス名の区切りにコロン (:) を使うことがあるため、
+IPv6 アドレスを使用する場合は曖昧さを避けるためにブラケット ([]) で囲む必要があります。
 .Pp
 オプションは以下のとおりです:
 .Bl -tag -width Ds
@@ -196,6 +199,7 @@ This option is directly passed to
 .It ConnectTimeout
 .It ControlMaster
 .It ControlPath
+.It ControlPersist
 .It GlobalKnownHostsFile
 .It GSSAPIAuthentication
 .It GSSAPIDelegateCredentials
@@ -208,6 +212,7 @@ This option is directly passed to
 .It IdentityFile
 .It IdentitiesOnly
 .It IPQoS
+.It KbdInteractiveAuthentication
 .It KbdInteractiveDevices
 .It KexAlgorithms
 .It LogLevel

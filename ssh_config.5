@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: ssh_config.5,v 1.146 2010/12/08 04:02:47 djm Exp $
-.Dd $Mdocdate: December 8 2010 $
+.\" $OpenBSD: ssh_config.5,v 1.153 2011/08/02 01:22:11 djm Exp $
+.Dd $Mdocdate: August 2 2011 $
 .Dt SSH_CONFIG 5
 .Os
 .Sh 名前
@@ -111,6 +111,18 @@
 .Ar ホスト名
 そのもののことです
 (つまり、ホスト名はマッチングの前に正規化されたりしません)。
+.Pp
+パターンの前に感嘆符
+
+A pattern entry may be negated by prefixing it with an exclamation mark
+.Pq Sq !\&
+をつけると否定の意味になります。
+否定されたパターンにマッチした場合、行中のほかのパターンが
+マッチしたときでも
+.Cm Host
+項目は無視されます。
+したがって、否定のパターンはワイルドカードに対する例外を
+記述するのに有用です。
 .Pp
 パターン (ワイルドカード文字) についての詳細は
 .Sx パターン
@@ -315,19 +327,26 @@ X11 および
 .Dq none
 を指定してください。
 このパス名の中ではエスケープシーケンスが利用でき、その場合
+.Ql %L
+はローカルのホスト名の最初の部分に、
 .Ql %l
-はローカルのホスト名に、
+はローカルのホスト名 (ドメイン名がある場合はそれも含む) に、
 .Ql %h
 は対象のリモートホスト名に、
+.Ql %n
+はもとのコマンドラインで指定されたホスト名に、
 .Ql %p
-はポートに、そして
+はポートに、
 .Ql %r
-はリモート側のログイン名に変換されます。
+はリモート側のログイン名に、
+そして
+.Ql %u
+は実行ユーザのログイン名に変換されます。
 Master 接続が利用できないときに自動的に新しい接続を作るよう指定した場合 (opportunistic multiplexing)、
 .Cm ControlPath
 の値には少なくとも %h, %p および %r の
-エスケープシーケンスをすべて含めるようにすることが
-推奨されます。こうすることで、共有する接続を一意に定めることができるからです。
+エスケープシーケンスをすべて含めるようにすることが推奨されます。
+こうすることで、共有する接続を一意に定めることができるからです。
 .It Cm ControlPersist (制御の持続)
 これは
 .Cm ControlMaster 
@@ -512,9 +531,11 @@ bind するようになります。これは他のホストもその転送されたポートに
 .Dq no (転送されているポートに他ホストからの接続を許可しない)
 に設定されています。
 .It Cm GlobalKnownHostsFile (大域的 known_host ファイル)
-そのホスト全体で
-.Pa /etc/ssh/ssh_known_hosts
-のかわりに使用するホスト鍵データベースファイルを指定します。
+そのホスト全体で大域的に使用されるホスト鍵データベースファイルを空白で区切って指定します。
+デフォルトは
+.Pa /etc/ssh/ssh_known_hosts 
+.Pa /etc/ssh/ssh_known_hosts2 
+です。
 .It Cm GSSAPIAuthentication (GSSAPI 認証)
 GSSAPI ベースの認証をおこなうかどうかを指定します。
 デフォルトの値は
@@ -650,6 +671,10 @@ If the hostname contains the character sequence
 .Pp
 設定ファイルでは複数の identity を指定することもでき、
 この場合すべての identity が順に試されます。
+複数の
+.Cm IdentityFile
+が指定された場合、これは試す identity の一覧に追加されます
+(このふるまいは他の設定項目とは異なるものです)。
 .It Cm IPQoS (QoS指定)
 接続における IPv4 type-of-service または DSCP クラスを指定します。
 可能な値は
@@ -788,7 +813,9 @@ MAC 方式はプロトコル バージョン 2 で使われる、
 デフォルトは:
 .Bd -literal -offset indent
 hmac-md5,hmac-sha1,umac-64@openssh.com,
-hmac-ripemd160,hmac-sha1-96,hmac-md5-96
+hmac-ripemd160,hmac-sha1-96,hmac-md5-96,
+hmac-sha2-256,hmac-sha2-256-96,hmac-sha2-512,
+hmac-sha2-512-96
 .Ed
 の順になっています。
 .It Cm NoHostAuthenticationForLocalhost (localhostでのホスト認証を抑制)
@@ -976,6 +1003,25 @@ IPv6 アドレスは、ブラケット [ ] で囲むことにより指定します。
 設定項目が許可されているときのみです (
 .Xr sshd_config 5
 を参照してください)。
+.It Cm RequestTTY (TTYの要求)
+セッションに対して、仮想端末 (TTY) を要求するかどうかを指定します。
+とりうる引数の値は
+.Dq no
+(TTYを要求しない)、
+.Dq yes
+(標準入力がTTYの場合はTTYを要求する)、
+.Dq force
+(つねにTTYを要求する)、
+あるいは
+.Dq auto
+(ログインセッションのときにTTYを要求する)
+となっています。この項目は、
+.Xr ssh 1 
+における
+.Fl t
+および
+.Fl T
+オプションに対応しています。
 .It Cm RhostsRSAAuthentication (rhosts-RSA 認証)
 RSA ホスト認証を使った rhosts ベースの認証を試みるかどうかを
 指定します。
@@ -1182,9 +1228,11 @@ TCP Keepalive メッセージを禁止するには、この値を
 異なるユーザ名が使われている場合に便利です。
 これでコマンドラインからわざわざユーザ名を与えなくてもすみます。
 .It Cm UserKnownHostsFile (個人用 known_hosts ファイル)
-ホスト鍵データベースとして
+ホスト鍵データベースとして使うファイルを空白で区切って指定します。
+デフォルトでは
 .Pa ~/.ssh/known_hosts
-以外のファイルを使うときに指定します。
+.Pa ~/.ssh/known_hosts2
+になっています。
 .It Cm VerifyHostKeyDNS (DNSでホスト鍵を確認する)
 DNS と SSHFP 資源レコードを使って、
 リモートホストの公開鍵を検証するかどうかを指定します。

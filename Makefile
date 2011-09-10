@@ -4,8 +4,8 @@
 # by Yusuke Shinyama <yusuke at cs . nyu . edu>
 
 PACKAGE=openssh-jman
-VERSION=5.8p1
-VERSION2=580p1
+VERSION=5.9p1
+VERSION2=590p1
 
 GIT=git
 RM=rm -f

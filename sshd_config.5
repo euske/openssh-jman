@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: sshd_config.5,v 1.131 2010/12/08 04:02:47 djm Exp $
-.Dd $Mdocdate: December 8 2010 $
+.\" $OpenBSD: sshd_config.5,v 1.135 2011/08/02 01:22:11 djm Exp $
+.Dd $Mdocdate: August 2 2011 $
 .Dt SSHD_CONFIG 5
 .Os
 .Sh 名前
@@ -172,8 +172,9 @@ allow/deny 関連の項目は以下の順に処理されます:
 %u はそのユーザのユーザ名に置換されます。この後、
 その絶対パスあるいはユーザのホームディレクトリからの相対パスが
 .Cm AuthorizedKeysFile
-に渡されます。デフォルトでの値は
-.Dq .ssh/authorized_keys
+に渡されます。複数のファイルは空白で区切ることにより指定できます。
+デフォルトの値は
+.Dq .ssh/authorized_keys .ssh/authorized_keys2
 となっています。
 .It Cm AuthorizedPrincipalsFile (許可されるprincipalファイル)
 証明書による認証で許可されるprincipal名の一覧を記したファイルを指定します。
@@ -663,7 +664,9 @@ MAC 方式はプロトコル バージョン 2 で使われる、
 複数の方式をカンマで区切って指定します。デフォルトは
 .Bd -literal -offset indent
 hmac-md5,hmac-sha1,umac-64@openssh.com,
-hmac-ripemd160,hmac-sha1-96,hmac-md5-96
+hmac-ripemd160,hmac-sha1-96,hmac-md5-96,
+hmac-sha2-256,hmac-sha256-96,hmac-sha2-512,
+hmac-sha2-512-96
 .Ed
 の順になっています。
 .It Cm Match (条件分岐)
@@ -1083,6 +1086,11 @@ root 権限による被害の拡大を防ぐためです。
 デフォルトでは
 .Dq yes (root権限を分離する)
 になっています。
+.Cm UsePrivilegeSeparation
+が
+.Dq sandbox
+に指定されている場合、認証前の特権をもたないプロセスは
+さらなる制限の対象となります。
 .It Cm X11DisplayOffset (X11 ディスプレイ番号のオフセット値)
 .Xr sshd 8
 が X11 転送をするときに最初に使われるディスプレイ番号を指定します。

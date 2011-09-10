@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: sshd.8,v 1.260 2010/10/28 18:33:28 jmc Exp $
-.Dd $Mdocdate: October 28 2010 $
+.\" $OpenBSD: sshd.8,v 1.263 2011/08/02 01:22:11 djm Exp $
+.Dd $Mdocdate: August 2 2011 $
 .Dt SSHD 8
 .Os
 .Sh 名前
@@ -316,7 +316,8 @@ Diffie-Hellman 鍵交換によって提供されます。
 さらに、通信の正真性 (integrity、訳注: 内容が改ざんされていないこと) が
 メッセージ認証コード (MAC) によって提供されます。
 これには 
-hmac-md5, hmac-sha1, umac-64 あるいは hmac-ripemd160 が使われます。
+hmac-md5, hmac-sha1, umac-64, hmac-ripemd160,
+hmac-sha2-256 あるいは hmac-sha2-512 が使われます。
 .Pp
 最後にサーバとクライアントは認証をおこないます。
 ここではクライアントは自分自身を認証するために、
@@ -471,7 +472,9 @@ fi
 ファイルを指定します。指定がない場合、このファイルは
 デフォルトで
 .Pa ~/.ssh/authorized_keys
-になります。
+および
+.Pa ~/.ssh/authorized_keys2
+となります。
 このファイルには各行にひとつの鍵が格納されています (空行や
 .Ql #
 で始まる行はコメントとして無視されます)。

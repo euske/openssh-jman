@@ -8,11 +8,11 @@
 .\"
 .\" Created: Sun May  7 00:14:37 1995 ylo
 .\"
-.\" $OpenBSD: scp.1,v 1.56 2010/12/09 14:13:32 jmc Exp $
+.\" $OpenBSD: scp.1,v 1.58 2011/09/05 07:01:44 jmc Exp $
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: December 9 2010 $
+.Dd $Mdocdate: September 5 2011 $
 .Dt SCP 1
 .Os
 .Sh 名前
@@ -33,7 +33,7 @@
 .Oo
 .Op Ar ユーザ No @
 .Ar ホスト1 No :
-.Oc Ns Ar ファイル1
+.Oc Ar ファイル1
 .Sm on
 .Ar ...
 .Sm off
@@ -137,6 +137,7 @@
 .It ConnectTimeout
 .It ControlMaster
 .It ControlPath
+.It ControlPersist
 .It GlobalKnownHostsFile
 .It GSSAPIAuthentication
 .It GSSAPIDelegateCredentials
@@ -149,6 +150,7 @@
 .It IdentityFile
 .It IdentitiesOnly
 .It IPQoS
+.It KbdInteractiveAuthentication
 .It KbdInteractiveDevices
 .It KexAlgorithms
 .It LogLevel
