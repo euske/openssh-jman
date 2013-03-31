@@ -1,4 +1,4 @@
-.\"	$OpenBSD: ssh-add.1,v 1.55 2010/10/28 18:33:28 jmc Exp $
+.\"	$OpenBSD: ssh-add.1,v 1.58 2012/12/03 08:33:02 jmc Exp $
 .\"
 .\" Author: Tatu Ylonen <ylo@cs.hut.fi>
 .\" Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
@@ -37,7 +37,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: October 28 2010 $
+.Dd $Mdocdate: December 3 2012 $
 .Dt SSH-ADD 1
 .Os
 .Sh 名前
@@ -45,7 +45,7 @@
 .Nd 認証エージェントに秘密鍵を追加する
 .Sh 書式
 .Nm
-.Op Fl cDdLlXx
+.Op Fl cDdkLlXx
 .Op Fl t Ar 鍵の生存時間
 .Op Ar
 .Pp
@@ -100,9 +100,9 @@
 .It Fl d
 鍵を追加するのではなく、エージェントから鍵を取り除きます。
 .Nm
-が他の引数なしで起動された場合、デフォルトの鍵が除かれます。
+が他の引数なしで起動された場合、デフォルトの鍵とそれに対応する証明書が除かれます。
 引数がある場合、これらの引数のリストは除去する各公開鍵ファイルへの
-パス名とみなされ、一致する鍵が除かれます。与えられたパス名に
+パス名とみなされ、一致する鍵と証明書が除かれます。与えられたパス名に
 公開鍵ファイルが見つからない場合、
 .Nm
 は自動的に文字列
@@ -112,6 +112,9 @@
 PKCS#11共有ライブラリ
 .Ar pkcs11
 によって提供される鍵を削除します。
+.It Fl k
+エージェントに鍵を追加または削除するとき、
+普通の秘密鍵のみを処理し、証明書をスキップします。
 .It Fl L
 現在、エージェントによって保持されているすべての公開鍵の
 情報を表示します。

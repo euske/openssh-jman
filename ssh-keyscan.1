@@ -1,4 +1,4 @@
-.\"	$OpenBSD: ssh-keyscan.1,v 1.29 2010/08/31 11:54:45 djm Exp $
+.\"	$OpenBSD: ssh-keyscan.1,v 1.30 2012/04/11 13:34:17 djm Exp $
 .\"
 .\" Copyright 1995, 1996 by David Mazieres <dm@lcs.mit.edu>.
 .\"
@@ -8,7 +8,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: August 31 2010 $
+.Dd $Mdocdate: April 11 2012 $
 .Dt SSH-KEYSCAN 1
 .Os
 .Sh 名前
@@ -92,6 +92,8 @@ ssh が走っていなかったり、ホストがダウンしていたりしても、です。
 複数の値を指定するときは、カンマで区切ってください。
 デフォルトではこれは
 .Dq rsa
+および
+.Dq ecdsa
 になっています。
 .It Fl v
 冗長表示モード。

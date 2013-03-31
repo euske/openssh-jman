@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: ssh.1,v 1.321 2011/08/26 01:45:15 djm Exp $
-.Dd $Mdocdate: August 26 2011 $
+.\" $OpenBSD: ssh.1,v 1.330 2012/10/04 13:21:50 markus Exp $
+.Dd $Mdocdate: October 4 2012 $
 .Dt SSH 1
 .Os
 .Sh 名前
@@ -386,9 +386,11 @@ MAC についての詳しい情報は
 の指令はマスタープロセスに渡されます。
 使用可能なコマンドは以下のとおりです:
 .Dq check
-(マスタープロセスが走っているかどうかチェックする)、
+(マスタープロセスが走っているかどうかチェックする)
 .Dq forward
-(コマンドを実行せずにポート転送を要求する) 
+(コマンドを実行せずにポート転送を要求する)
+.Dq cancel
+(ポート転送をキャンセルする)
 .Dq exit
 (マスタープロセスを終了するよう指示する)
 および
@@ -583,7 +585,7 @@ IPv6 アドレスはブラケット [ ] で囲むことで指定できます。
 .Cm ExitOnForwardFailure
 および
 .Cm ClearAllForwardings
-を暗黙のうちに含んでおり、
+を暗黙のうちに含んでいます。
 プロトコル バージョン 2 でのみ使用できます。
 .It Fl w Xo
 .Ar ローカルtun Ns Op : Ns Ar リモートtun
@@ -670,7 +672,9 @@ OpenSSH SSH クライアントは SSH プロトコル バージョン 1 と
 より強力な秘匿性
 (通信は AES、 3DES、 Blowfish、 CAST128 または Arcfour で
 暗号化されます) および正真性
-(hmac-md5, hmac-sha1, hmac-sha2-256, hmac-sha2-512, umac-64, hmac-ripemd160)
+(hmac-md5, hmac-sha1, 
+hmac-sha2-256, hmac-sha2-512, 
+umac-64, umac-128, hmac-ripemd160)
 を提供しているため、こちらがデフォルトになっています。
 プロトコル バージョン 1 は接続の正真性を保証する
 (訳注: 内容の改ざんを防ぐ) 強力な機構が用意されていません。
@@ -913,12 +917,20 @@ sshをバックグラウンドに移行させます。
 .Fl D
 オプション (上記参照) を使っていて、
 ポート転送を追加したい場合に有効です。
-また、これは
+また、これはローカルポートの場合、
+.Sm off
+.Fl KL Oo Ar bindするアドレス : Oc Ar ポート
+.Sm on
+リモートの場合、
 .Sm off
 .Fl KR Oo Ar bindするアドレス : Oc Ar ポート
 .Sm on
+動的ポート転送の場合、
+.Sm off
+.Fl KD Oo Ar bindするアドレス : Oc Ar ポート
+.Sm on
 を使うことによって、すでに有効になっている
-リモート側のポート転送を中止することも可能です。
+ポート転送を中止することも可能です。
 .Ic !\& Ns Ar command
 を使うと、
 .Xr ssh_config 5 
@@ -933,6 +945,14 @@ sshをバックグラウンドに移行させます。
 その接続の rekeying を要求します 
 (SSH プロトコル バージョン 2 で、
 なおかつ相手がこれをサポートしているときのみ有効)。
+.It Cm ~V
+標準エラー出力に表示されるログの
+.Pq Ic LogLevel
+を下げます。
+.It Cm ~v
+標準エラー出力に表示されるログの
+.Pq Ic LogLevel
+を上げます。
 .El
 .Sh TCP 転送
 安全な通信路を使った任意の TCP/IP 接続への転送は、
@@ -1401,7 +1421,7 @@ X11 の接続が安全でなくなってしまうため、ユーザは環境変数
 .It Pa /etc/ssh/ssh_host_dsa_key
 .It Pa /etc/ssh/ssh_host_ecdsa_key
 .It Pa /etc/ssh/ssh_host_rsa_key
-これら 3 つのファイルにはホスト秘密鍵が格納されています。
+これらのファイルにはホスト秘密鍵が格納されています。
 これらは、ホストベースの認証に使われます。
 プロトコル バージョン 1 を使う場合、
 ホスト鍵は root にしか読めないので
@@ -1454,77 +1474,117 @@ X11 の接続が安全でなくなってしまうため、ユーザは環境変数
 .Xr ssh_config 5 ,
 .Xr ssh-keysign 8,
 .Xr sshd 8
+.Sh 標準
 .Rs
+.%A S. Lehtinen
+.%A C. Lonvick
+.%D January 2006
 .%R RFC 4250
-.%T "The Secure Shell (SSH) Protocol Assigned Numbers"
-.%D 2006
+.%T The Secure Shell (SSH) Protocol Assigned Numbers
 .Re
+.Pp
 .Rs
+.%A T. Ylonen
+.%A C. Lonvick
+.%D January 2006
 .%R RFC 4251
-.%T "The Secure Shell (SSH) Protocol Architecture"
-.%D 2006
+.%T The Secure Shell (SSH) Protocol Architecture
 .Re
+.Pp
 .Rs
+.%A T. Ylonen
+.%A C. Lonvick
+.%D January 2006
 .%R RFC 4252
-.%T "The Secure Shell (SSH) Authentication Protocol"
-.%D 2006
+.%T The Secure Shell (SSH) Authentication Protocol
 .Re
+.Pp
 .Rs
+.%A T. Ylonen
+.%A C. Lonvick
+.%D January 2006
 .%R RFC 4253
-.%T "The Secure Shell (SSH) Transport Layer Protocol"
-.%D 2006
+.%T The Secure Shell (SSH) Transport Layer Protocol
 .Re
+.Pp
 .Rs
+.%A T. Ylonen
+.%A C. Lonvick
+.%D January 2006
 .%R RFC 4254
-.%T "The Secure Shell (SSH) Connection Protocol"
-.%D 2006
+.%T The Secure Shell (SSH) Connection Protocol
 .Re
+.Pp
 .Rs
+.%A J. Schlyter
+.%A W. Griffin
+.%D January 2006
 .%R RFC 4255
-.%T "Using DNS to Securely Publish Secure Shell (SSH) Key Fingerprints"
-.%D 2006
+.%T Using DNS to Securely Publish Secure Shell (SSH) Key Fingerprints
 .Re
+.Pp
 .Rs
+.%A F. Cusack
+.%A M. Forssen
+.%D January 2006
 .%R RFC 4256
-.%T "Generic Message Exchange Authentication for the Secure Shell Protocol (SSH)"
-.%D 2006
+.%T Generic Message Exchange Authentication for the Secure Shell Protocol (SSH)
 .Re
+.Pp
 .Rs
+.%A J. Galbraith
+.%A P. Remaker
+.%D January 2006
 .%R RFC 4335
-.%T "The Secure Shell (SSH) Session Channel Break Extension"
-.%D 2006
+.%T The Secure Shell (SSH) Session Channel Break Extension
 .Re
+.Pp
 .Rs
+.%A M. Bellare
+.%A T. Kohno
+.%A C. Namprempre
+.%D January 2006
 .%R RFC 4344
-.%T "The Secure Shell (SSH) Transport Layer Encryption Modes"
-.%D 2006
+.%T The Secure Shell (SSH) Transport Layer Encryption Modes
 .Re
+.Pp
 .Rs
+.%A B. Harris
+.%D January 2006
 .%R RFC 4345
-.%T "Improved Arcfour Modes for the Secure Shell (SSH) Transport Layer Protocol"
-.%D 2006
+.%T Improved Arcfour Modes for the Secure Shell (SSH) Transport Layer Protocol
 .Re
+.Pp
 .Rs
+.%A M. Friedl
+.%A N. Provos
+.%A W. Simpson
+.%D March 2006
 .%R RFC 4419
-.%T "Diffie-Hellman Group Exchange for the Secure Shell (SSH) Transport Layer Protocol"
-.%D 2006
+.%T Diffie-Hellman Group Exchange for the Secure Shell (SSH) Transport Layer Protocol
 .Re
+.Pp
 .Rs
+.%A J. Galbraith
+.%A R. Thayer
+.%D November 2006
 .%R RFC 4716
-.%T "The Secure Shell (SSH) Public Key File Format"
-.%D 2006
+.%T The Secure Shell (SSH) Public Key File Format
 .Re
 .Rs
+.%A D. Stebila
+.%A J. Green
+.%D December 2009
 .%R RFC 5656
-.%T "Elliptic Curve Algorithm Integration in the Secure Shell Transport Layer"
-.%D 2009
+.%T Elliptic Curve Algorithm Integration in the Secure Shell Transport Layer
 .Re
+.Pp
 .Rs
-.%T "Hash Visualization: a New Technique to improve Real-World Security"
 .%A A. Perrig
 .%A D. Song
 .%D 1999
-.%O "International Workshop on Cryptographic Techniques and E-Commerce (CrypTEC '99)"
+.%O International Workshop on Cryptographic Techniques and E-Commerce (CrypTEC '99)
+.%T Hash Visualization: a New Technique to improve Real-World Security
 .Re
 .Sh 作者
 OpenSSH は Tatu Ylonen による、フリーな

@@ -1,4 +1,4 @@
-.\" $OpenBSD: sftp-server.8,v 1.19 2010/01/09 03:36:00 jmc Exp $
+.\" $OpenBSD: sftp-server.8,v 1.21 2013/01/04 19:26:38 jmc Exp $
 .\"
 .\" Copyright (c) 2000 Markus Friedl.  All rights reserved.
 .\"
@@ -24,7 +24,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: January 9 2010 $
+.Dd $Mdocdate: January 4 2013 $
 .Dt SFTP-SERVER 8
 .Os
 .Sh 名前
@@ -33,6 +33,7 @@
 .Sh 書式
 .Nm sftp-server
 .Op Fl ehR
+.Op Fl d Ar 開始ディレクトリ
 .Op Fl f Ar ログ出力先
 .Op Fl l Ar ログレベル
 .Op Fl u Ar umask
@@ -57,6 +58,18 @@
 .Pp
 使用できるオプションは以下のとおりです:
 .Bl -tag -width Ds
+.It Fl d Ar 開始ディレクトリ
+ユーザ用の別の開始ディレクトリを指定します。
+パス名は以下のトークンを含むことができます。
+これらは、実行時に展開されます。
+%% はリテラル '%' に、
+%h は認証されたユーザのホームディレクトリに、また
+%u はそのユーザのユーザ名に置換されます。
+デフォルトでは、そのユーザのホームディレクトリを使用します。
+このオプションは
+.Xr sshd_config 5
+.Cm ChrootDirectory
+と組み合わせて使うと有用です。
 .It Fl e
 デバッグのために、
 .Nm

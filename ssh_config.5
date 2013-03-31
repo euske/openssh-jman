@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: ssh_config.5,v 1.153 2011/08/02 01:22:11 djm Exp $
-.Dd $Mdocdate: August 2 2011 $
+.\" $OpenBSD: ssh_config.5,v 1.161 2013/01/08 18:49:04 markus Exp $
+.Dd $Mdocdate: January 8 2013 $
 .Dt SSH_CONFIG 5
 .Os
 .Sh 名前
@@ -209,6 +209,8 @@ A pattern entry may be negated by prefixing it with an exclamation mark
 .Dq aes128-ctr ,
 .Dq aes192-ctr ,
 .Dq aes256-ctr ,
+.Dq aes128-gcm@openssh.com ,
+.Dq aes256-gcm@openssh.com ,
 .Dq arcfour128 ,
 .Dq arcfour256 ,
 .Dq arcfour ,
@@ -218,6 +220,7 @@ A pattern entry may be negated by prefixing it with an exclamation mark
 デフォルトは:
 .Bd -literal -offset 3n
 aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,
+aes128-gcm@openssh.com,aes256-gcm@openssh.com,
 aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,aes192-cbc,
 aes256-cbc,arcfour
 .Ed
@@ -622,6 +625,8 @@ If the hostname contains the character sequence
 .It Cm IdentitiesOnly (ファイルに格納された秘密鍵のみを使用)
 認証の際に、たとえ認証エージェント
 .Xr ssh-agent 1
+または
+.Cm PKCS11Provider
 が複数の秘密鍵を持っていた場合でも、
 .Nm
 ファイルで指定された秘密鍵のみを使用するよう指定します。
@@ -681,7 +686,7 @@ If the hostname contains the character sequence
 .Dq af11 ,
 .Dq af12 ,
 .Dq af13 ,
-.Dq af14 ,
+.Dq af21 ,
 .Dq af22 ,
 .Dq af23 ,
 .Dq af31 ,
@@ -810,12 +815,20 @@ DEBUG2、DEBUG3 はそれぞれさらに冗長なログになります。
 MAC 方式はプロトコル バージョン 2 で使われる、
 データの改竄を防ぐ機構 (data integrity protection) です。
 複数の方式をカンマで区切って指定します。
+名前に
+.Dq -etm
+を含む方式では、MAC 値を暗号化のあとに計算します (encrypt-then-mac)。
+こちらのほうが安全であると考えられており、推奨されています。
 デフォルトは:
 .Bd -literal -offset indent
-hmac-md5,hmac-sha1,umac-64@openssh.com,
-hmac-ripemd160,hmac-sha1-96,hmac-md5-96,
-hmac-sha2-256,hmac-sha2-256-96,hmac-sha2-512,
-hmac-sha2-512-96
+hmac-md5-etm@openssh.com,hmac-sha1-etm@openssh.com,
+umac-64-etm@openssh.com,umac-128-etm@openssh.com,
+hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,
+hmac-ripemd160-etm@openssh.com,hmac-sha1-96-etm@openssh.com,
+hmac-md5-96-etm@openssh.com,
+hmac-md5,hmac-sha1,umac-64@openssh.com,umac-128@openssh.com,
+hmac-sha2-256,hmac-sha2-512,hmac-ripemd160,
+hmac-sha1-96,hmac-md5-96
 .Ed
 の順になっています。
 .It Cm NoHostAuthenticationForLocalhost (localhostでのホスト認証を抑制)

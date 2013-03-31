@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: sshd.8,v 1.263 2011/08/02 01:22:11 djm Exp $
-.Dd $Mdocdate: August 2 2011 $
+.\" $OpenBSD: sshd.8,v 1.267 2012/10/04 13:21:50 markus Exp $
+.Dd $Mdocdate: October 4 2012 $
 .Dt SSHD 8
 .Os
 .Sh 名前
@@ -118,6 +118,10 @@ fork したデーモンは、鍵の交換、暗号化、認証、コマンド実行、
 .Dq user
 、
 .Dq host 
+、
+.Dq laddr 
+、
+.Dq lport 
 および
 .Dq addr 
 です。これらは順序は関係ありませんが、すべてを指定する必要があります。
@@ -316,7 +320,7 @@ Diffie-Hellman 鍵交換によって提供されます。
 さらに、通信の正真性 (integrity、訳注: 内容が改ざんされていないこと) が
 メッセージ認証コード (MAC) によって提供されます。
 これには 
-hmac-md5, hmac-sha1, umac-64, hmac-ripemd160,
+hmac-md5, hmac-sha1, umac-64, umac-128, hmac-ripemd160,
 hmac-sha2-256 あるいは hmac-sha2-512 が使われます。
 .Pp
 最後にサーバとクライアントは認証をおこないます。
@@ -626,6 +630,8 @@ IPv6 アドレスは、ブラケット [ ] で区切って指定できます。
 パターンマッチングはおこなわれません。
 ホスト名にはドメイン名かアドレスを
 そのまま書く必要があります。
+.Cm *
+のようなポート指定は、どのポートにもマッチします。
 .It Cm principals="principals"
 .Cm cert-authority
 行で、証明書による認証が許可されている principal の一覧を
@@ -925,7 +931,7 @@ Diffie-Hellman 鍵交換 (Diffie-Hellman Group Exchange) で
 .It Pa /etc/ssh/ssh_host_dsa_key
 .It Pa /etc/ssh/ssh_host_ecdsa_key
 .It Pa /etc/ssh/ssh_host_rsa_key
-これら 3 つのファイルはホストの秘密鍵を格納します。
+これらのファイルはホストの秘密鍵を格納します。
 このファイルは root が所有し、
 root だけが読み込み可能にすべきであり、
 これ以外の誰にも読ませてはいけません。
@@ -937,7 +943,7 @@ root だけが読み込み可能にすべきであり、
 .It Pa /etc/ssh/ssh_host_dsa_key.pub
 .It Pa /etc/ssh/ssh_host_ecdsa_key.pub
 .It Pa /ssh/etc/ssh_host_rsa_key.pub
-これら 3 つのファイルはホスト鍵の公開鍵部分を格納します。
+これらのファイルはホスト鍵の公開鍵部分を格納します。
 このファイルは誰にでも読めるようになっている
 必要がありますが、
 書き込めるのは root だけにしてください。

@@ -10,4 +10,3 @@ OpenSSH 本体と同じ (BSD) ライセンスで利用できます。
 
 最新版入手先:
 http://www.unixuser.org/~euske/doc/openssh/jman/index.html
-

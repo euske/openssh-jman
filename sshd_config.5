@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: sshd_config.5,v 1.135 2011/08/02 01:22:11 djm Exp $
-.Dd $Mdocdate: August 2 2011 $
+.\" $OpenBSD: sshd_config.5,v 1.157 2013/03/07 19:27:25 markus Exp $
+.Dd $Mdocdate: March 7 2013 $
 .Dt SSHD_CONFIG 5
 .Os
 .Sh 名前
@@ -129,7 +129,23 @@ allow/deny 関連の項目は以下の順に処理されます:
 .Sx パターン
 の項を参照してください。
 .It Cm AllowTcpForwarding (TCP 転送の許可)
-TCP 転送を許可するかどうか指定します。デフォルトは
+TCP 転送を許可するかどうか指定します。
+とりうる値として、
+TCP 転送を許可する場合は
+.Dq yes
+または
+.Dq all
+を指定し、TCP転送を禁止する場合は
+.Dq no
+を指定します。
+ローカルな (
+.Xr ssh 1
+にとって) 転送のみを許可する場合は、
+.Dq local
+を、リモートの転送のみを許可する場合は、
+.Dq remote
+を指定します。
+デフォルトは
 .Dq yes
 です。TCP 転送を禁止しても、ユーザにシェルのアクセスを禁止しない
 かぎりセキュリティの向上にはならないことに注意してください。
@@ -157,6 +173,57 @@ allow/deny 関連の項目は以下の順に処理されます:
 の
 .Sx パターン
 の項を参照してください。
+.It Cm AuthenticationMethods (認証方式)
+ユーザがアクセスの許可を得るために完了しなければならない認証方式を指定します。
+このオプションはひとつ以上の認証方式名をカンマで区切ったものの
+一覧として与えられます。認証を成功させるためには、
+ユーザはこのリスト中に含まれているいずれかの項目に対して、
+指定されているすべての方式を完了する必要があります。
+.Pp
+たとえば、
+.Dq publickey,password publickey,keyboard-interactive
+という指定は、ユーザが公開鍵認証 (publickey) のあとに
+パスワード認証 (password) あるいはキーボード対話的認証 (keyboard-interactive) を
+完了させる必要があることを示しています。
+各段階で指定されている認証方式で成功しなければ次へは進めません。
+したがって上の例では、公開鍵認証を終えるまではパスワードあるいは
+キーボード対話的認証を試みることはできません。
+.Pp
+キーボード対話的認証の場合は、コロンのあとにデバイス識別子を指定することで、
+認証をおこなうデバイスを制限することもできます。
+これらは、サーバの設定にもよりますが
+.Dq bsdauth ,
+.Dq pam ,
+または
+.Dq skey 
+のいずれかが使えます。たとえば
+.Dq keyboard-interactive:bsdauth
+は、キーボード対話的認証を
+.Dq bsdauth
+デバイスからのみに制限します。
+.Pp
+このオプションは SSH プロトコル バージョン 2 でのみ有効です。
+同時に SSH 1 も許可されている場合に使用すると致命的なエラーが発生します。
+また、ここで使う各認証方式は設定ファイル中でそれぞれ許可されている必要があります。
+デフォルトでは、複数の認証方式は使用しません。
+単一の認証方式で成功すれば、認証は成功したとみなされます。
+.It Cm AuthorizedKeysCommand (認証鍵コマンド)
+ユーザの特定の公開鍵を検索するのに使うコマンドを指定します。
+このコマンドは認証されるユーザ名を単一の引数として受けとり、
+authorized_keys 形式の鍵を各行ごとに標準出力に表示する必要があります
+(詳しくは
+の
+.Sx AUTHORIZED_KEYS ファイルの形式
+セクションを参照してください)。
+ユーザが AuthorizedKeysCommand から供給された鍵で認証できなかった場合、
+そのユーザは通常の
+.Cm AuthorizedKeysFile
+による指定を使って認証が行われます。
+デフォルトでは、 AuthorizedKeysCommand は使われません。
+.It Cm AuthorizedKeysCommandUser (認証鍵コマンドのユーザ)
+AuthorizedKeysCommand コマンドを実行するユーザ名を指定します。
+ここでは認証鍵コマンドを走らせる専用のユーザを作成して
+使うことが推奨されます。
 .It Cm AuthorizedKeysFile (authorized_keys ファイル)
 ユーザ認証の際に使われる公開鍵を格納しているファイル名を
 指定します。
@@ -201,7 +268,10 @@ allow/deny 関連の項目は以下の順に処理されます:
 の値は、絶対パスあるいはユーザのホームディレクトリからの相対パスとして
 解釈されます。
 .Pp
-デフォルトでは、principal名の一覧を記したファイルは使いません。 \(en
+デフォルトでは、この値は
+.Dq none 
+になっています。
+つまり、principal名の一覧を記したファイルは使いません。 \(en
 この場合、認証が受け入れられるには、そのユーザ名が
 証明書の principal 一覧に記されている必要があります。
 注意:
@@ -290,6 +360,8 @@ chroot したあとに、
 .Dq aes128-ctr ,
 .Dq aes192-ctr ,
 .Dq aes256-ctr ,
+.Dq aes128-gcm@openssh.com ,
+.Dq aes256-gcm@openssh.com ,
 .Dq arcfour128 ,
 .Dq arcfour256 ,
 .Dq arcfour ,
@@ -299,6 +371,7 @@ chroot したあとに、
 デフォルトは、
 .Bd -literal -offset 3n
 aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,
+aes128-gcm@openssh.com,aes256-gcm@openssh.com,
 aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,aes192-cbc,
 aes256-cbc,arcfour
 .Ed
@@ -532,7 +605,7 @@ SSH で使われる、ホスト秘密鍵が格納されているファイルを指定します。
 .Dq af11 ,
 .Dq af12 ,
 .Dq af13 ,
-.Dq af14 ,
+.Dq af21 ,
 .Dq af22 ,
 .Dq af23 ,
 .Dq af31 ,
@@ -661,12 +734,21 @@ DEBUG レベル以上のログはユーザのプライバシーを侵害するので、
 使用する MAC (メッセージ認証コード) 方式の優先順位を指定します。
 MAC 方式はプロトコル バージョン 2 で使われる、
 データの改ざんを防ぐ機構 (data integrity protection) です。
-複数の方式をカンマで区切って指定します。デフォルトは
+複数の方式をカンマで区切って指定します。
+名前に
+.Dq -etm
+を含む方式では、MAC 値を暗号化のあとに計算します (encrypt-then-mac)。
+こちらのほうが安全であると考えられており、推奨されています。
+デフォルトは
 .Bd -literal -offset indent
-hmac-md5,hmac-sha1,umac-64@openssh.com,
-hmac-ripemd160,hmac-sha1-96,hmac-md5-96,
-hmac-sha2-256,hmac-sha256-96,hmac-sha2-512,
-hmac-sha2-512-96
+hmac-md5-etm@openssh.com,hmac-sha1-etm@openssh.com,
+umac-64-etm@openssh.com,umac-128-etm@openssh.com,
+hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,
+hmac-ripemd160-etm@openssh.com,hmac-sha1-96-etm@openssh.com,
+hmac-md5-96-etm@openssh.com,
+hmac-md5,hmac-sha1,umac-64@openssh.com,umac-128@openssh.com,
+hmac-sha2-256,hmac-sha2-512,hmac-ripemd160,
+hmac-sha1-96,hmac-md5-96
 .Ed
 の順になっています。
 .It Cm Match (条件分岐)
@@ -685,7 +767,11 @@ hmac-sha2-512-96
 .Cm Group
 (グループ名)、
 .Cm Host
-(ホスト名) および
+(ホスト名)、
+.Cm LocalAddress
+(ローカルアドレス)、
+.Cm LocalPort
+(ローカルポート) および
 .Cm Address
 (アドレス) です。
 一致するパターンとしては単一のエントリか、あるいはカンマで区切られた
@@ -716,12 +802,20 @@ hmac-sha2-512-96
 .Cm Match
 指令が適用されるわけではありません。
 使用できる項目は、
+.Cm AcceptEnv ,
 .Cm AllowAgentForwarding ,
+.Cm AllowGroups ,
 .Cm AllowTcpForwarding ,
+.Cm AllowUsers ,
+.Cm AuthenticationMethods ,
+.Cm AuthorizedKeysCommand ,
+.Cm AuthorizedKeysCommandUser ,
 .Cm AuthorizedKeysFile ,
 .Cm AuthorizedPrincipalsFile ,
 .Cm Banner ,
 .Cm ChrootDirectory ,
+.Cm DenyGroups ,
+.Cm DenyUsers ,
 .Cm ForceCommand ,
 .Cm GatewayPorts ,
 .Cm GSSAPIAuthentication ,
@@ -758,7 +852,7 @@ SSH デーモンが最大でどれだけ受けつけるかを指定します。
 この状態は (すでに接続したクライアントの) 認証が成功するか、その
 .Cm LoginGraceTime
 (ログイン猶予時間) が切れるまで続きます。
-デフォルトではこの数は 10 です。
+デフォルトではこの数は 10:30:100 です。
 .Pp
 もうひとつの方法は、早いうちからランダムに接続を拒否するよう
 指定することです。これはこの設定項目にコロンで区切った 3 つの値を
@@ -810,6 +904,9 @@ SSH デーモンが最大でどれだけ受けつけるかを指定します。
 引数として
 .Dq any
 を使うと、一切の制限なくすべてのポート転送要求を許可するようになります。
+引数として
+.Dq none
+を使うと、すべてのポート転送要求を禁止します。
 デフォルトでは、すべてのポート転送が許可されています。
 .It Cm PermitRootLogin (root ログイン許可)
 .Xr ssh 1
@@ -927,10 +1024,19 @@ SSH デーモンのプロセス ID を格納するファイルを指定します。
 この設定項目は プロトコル バージョン 2 にのみ適用されることに
 注意してください。
 .It Cm RevokedKeys (廃止された鍵)
-廃止された公開鍵のリストを指定します。
+廃止された公開鍵を指定します。
 このファイルに含まれている鍵では、公開鍵認証が拒否されます。
 注意: このファイルが読み込み可能になっていない場合、
 すべてのユーザの公開鍵認証が拒否されます。
+鍵は1行にひとつずつの公開鍵が書かれたテキストファイルか、
+あるいは
+.Xr ssh-keygen 1 
+で生成される OpenSSH 鍵失効リスト (Key Revocation List, KRL) 
+によって指定できます。KRL に関するより詳しい情報は、
+.Xr ssh-keygen 1
+の中の
+.Sx 鍵失効リスト
+セクションを参照してください。
 .It Cm RhostsRSAAuthentication (rhosts-RSA 認証)
 RSA ホスト間認証が成功しているとき、rhosts や /etc/hosts.equiv
 を使った認証をおこなってよいかどうか指定します。デフォルトは
@@ -1091,6 +1197,12 @@ root 権限による被害の拡大を防ぐためです。
 .Dq sandbox
 に指定されている場合、認証前の特権をもたないプロセスは
 さらなる制限の対象となります。
+.It Cm VersionAddendum (バージョン番号追加文字列)
+接続時にサーバから送られてきた SSH プロトコルバナーに
+追加する文字列を指定します。
+デフォルトでは
+.Dq none 
+になっています。
 .It Cm X11DisplayOffset (X11 ディスプレイ番号のオフセット値)
 .Xr sshd 8
 が X11 転送をするときに最初に使われるディスプレイ番号を指定します。
