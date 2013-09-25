@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: sshd_config.5,v 1.157 2013/03/07 19:27:25 markus Exp $
-.Dd $Mdocdate: March 7 2013 $
+.\" $OpenBSD: sshd_config.5,v 1.162 2013/07/19 07:37:48 markus Exp $
+.Dd $Mdocdate: July 19 2013 $
 .Dt SSHD_CONFIG 5
 .Os
 .Sh 名前
@@ -126,8 +126,7 @@ allow/deny 関連の項目は以下の順に処理されます:
 パターンに関する詳細は
 .Xr ssh_config 5
 の
-.Sx パターン
-の項を参照してください。
+「パターン」の項を参照してください。
 .It Cm AllowTcpForwarding (TCP 転送の許可)
 TCP 転送を許可するかどうか指定します。
 とりうる値として、
@@ -171,8 +170,7 @@ allow/deny 関連の項目は以下の順に処理されます:
 パターンに関する詳細は
 .Xr ssh_config 5
 の
-.Sx パターン
-の項を参照してください。
+「パターン」の項を参照してください。
 .It Cm AuthenticationMethods (認証方式)
 ユーザがアクセスの許可を得るために完了しなければならない認証方式を指定します。
 このオプションはひとつ以上の認証方式名をカンマで区切ったものの
@@ -209,12 +207,13 @@ allow/deny 関連の項目は以下の順に処理されます:
 単一の認証方式で成功すれば、認証は成功したとみなされます。
 .It Cm AuthorizedKeysCommand (認証鍵コマンド)
 ユーザの特定の公開鍵を検索するのに使うコマンドを指定します。
+このコマンドは root が所有しており、
+他のグループやユーザによって書き込み可能であってはいけません。
 このコマンドは認証されるユーザ名を単一の引数として受けとり、
 authorized_keys 形式の鍵を各行ごとに標準出力に表示する必要があります
 (詳しくは
 の
-.Sx AUTHORIZED_KEYS ファイルの形式
-セクションを参照してください)。
+「AUTHORIZED_KEYS ファイルの形式」セクションを参照してください)。
 ユーザが AuthorizedKeysCommand から供給された鍵で認証できなかった場合、
 そのユーザは通常の
 .Cm AuthorizedKeysFile
@@ -230,8 +229,7 @@ AuthorizedKeysCommand コマンドを実行するユーザ名を指定します。
 ファイル形式については、
 .Xr sshd 8
 の
-.Sx AUTHORIZED_KEYS ファイルの形式
-セクションで説明しています。
+「AUTHORIZED_KEYS ファイルの形式」セクションで説明しています。
 .Cm AuthorizedKeysFile
 のファイル名中に %T が含まれている場合、その部分は接続の間
 別のものに置換されます。%% は「%」1文字に置換されます。
@@ -253,8 +251,7 @@ AuthorizedKeysCommand コマンドを実行するユーザ名を指定します。
 (
 .Xr sshd 8
 の
-.Sx AUTHORIZED_KEYS ファイルの形式
-で説明されているもの) を書きます。
+「AUTHORIZED_KEYS ファイルの形式」で説明されているもの) を書きます。
 空行、あるいは
 .Ql #
 で始まる行は無視されます。
@@ -437,8 +434,7 @@ allow/deny 関連の項目は以下の順に処理されます:
 パターンに関する詳細は
 .Xr ssh_config 5
 の
-.Sx パターン
-の項を参照してください。
+「パターン」の項を参照してください。
 .It Cm DenyUsers (拒否するユーザ)
 このキーワードにはいくつかのユーザ名パターンをスペースで区切って
 指定します。これが指定されると、
@@ -458,8 +454,7 @@ allow/deny 関連の項目は以下の順に処理されます:
 パターンに関する詳細は
 .Xr ssh_config 5
 の
-.Sx パターン
-の項を参照してください。
+「パターン」の項を参照してください。
 .It Cm ForceCommand (強制コマンド実行)
 クライアントが指定したコマンドを無視し、
 .Cm ForceCommand 
@@ -572,6 +567,17 @@ SSH で使われる、ホスト秘密鍵が格納されているファイルを指定します。
 または
 .Dq rsa
 はバージョン 2 の SSH プロトコルに使われます。
+ここではホスト公開鍵を指定することも可能です。
+その場合、秘密鍵のかかわる操作は
+.Xr ssh-agent 1 
+によって代行されます。
+.It Cm HostKeyAgent (ホスト鍵エージェント)
+ホスト秘密鍵にアクセスできる認証エージェントと通信するさいの
+UNIXドメインソケットを指定します。
+.Dq SSH_AUTH_SOCK
+が指定されている場合、ソケットの位置は
+.Ev SSH_AUTH_SOCK
+環境変数で指定されます。
 .It Cm IgnoreRhosts (rhosts の無視)
 .Cm RhostsRSAAuthentication
 または
@@ -778,8 +784,7 @@ hmac-sha1-96,hmac-md5-96
 複数のエントリのリストを使うことができ、
 .Xr ssh_config 5 
 の
-.Sx PATTERNS
-セクションで説明されているワイルドカードや否定のための表記が使用できます。
+「パターン」セクションで説明されているワイルドカードや否定のための表記が使用できます。
 .Pp
 また、
 .Cm Address
@@ -831,6 +836,7 @@ hmac-sha1-96,hmac-md5-96
 .Cm PermitRootLogin ,
 .Cm PermitTunnel ,
 .Cm PubkeyAuthentication ,
+.Cm RekeyLimit ,
 .Cm RhostsRSAAuthentication ,
 .Cm RSAAuthentication ,
 .Cm X11DisplayOffset ,
@@ -842,7 +848,7 @@ hmac-sha1-96,hmac-md5-96
 ネットワーク接続 1つあたりの認証を最大で何回まで試みることができるかを指定します。
 ここで指定された半数以上の認証が失敗すると、それ以降の失敗はログに記録されます。
 デフォルトの値は 6 です。
-.It Cm MaxSessions
+.It Cm MaxSessions (最大セッション数)
 ネットワーク接続 1つあたりに許される最大のセッション数を指定します。
 デフォルトは 10 です。
 .It Cm MaxStartups (最大起動数)
@@ -1023,6 +1029,33 @@ SSH デーモンのプロセス ID を格納するファイルを指定します。
 です。
 この設定項目は プロトコル バージョン 2 にのみ適用されることに
 注意してください。
+.It Cm RekeyLimit (rekey の制限)
+セッション鍵が再生成される (rekey) までに
+許される最大のデータ量を指定します。
+また、鍵が再生成されるまでの最大の時間も指定できます。
+第1引数の値はバイト数で指定し、サフィックスとして
+.Sq K
+、
+.Sq M
+、あるいは
+.Sq G
+を使うことができます。
+それぞれ、キロバイト(K)、メガバイト(M)、ギガバイト(G) を表します。
+デフォルトは暗号方式によりますが
+.Sq 1G
+から
+.Sq 4G
+までの間です。
+第2引数はオプションで、ここには再生成までの時間を
+.Sx 時間の表現
+セクションにある形式で指定できます。
+.Cm RekeyLimit
+のデフォルト値は
+.Dq default none 
+で、これは鍵の再生成がその暗号アルゴリズムのデフォルト値で
+許されるデータ量だけ送信または受信したときにおこなわれることを示し、
+時間による再生成はおこなわないことを意味します。
+この設定項目はプロトコル バージョン 2 にのみ適用されます。
 .It Cm RevokedKeys (廃止された鍵)
 廃止された公開鍵を指定します。
 このファイルに含まれている鍵では、公開鍵認証が拒否されます。
@@ -1035,8 +1068,7 @@ SSH デーモンのプロセス ID を格納するファイルを指定します。
 によって指定できます。KRL に関するより詳しい情報は、
 .Xr ssh-keygen 1
 の中の
-.Sx 鍵失効リスト
-セクションを参照してください。
+「鍵失効リスト」セクションを参照してください。
 .It Cm RhostsRSAAuthentication (rhosts-RSA 認証)
 RSA ホスト間認証が成功しているとき、rhosts や /etc/hosts.equiv
 を使った認証をおこなってよいかどうか指定します。デフォルトは
@@ -1131,8 +1163,7 @@ TCP Keepalive を禁止するには、この値を
 証明書に関する詳細は、
 .Xr ssh-keygen 1 
 の
-.Sx 証明書
-のセクションをごらんください。
+「証明書」のセクションをごらんください。
 .It Cm UseDNS (リモートホスト名の確認)
 .Xr sshd 8
 が IP アドレスからリモートホスト名を逆引き検索して得た名前を

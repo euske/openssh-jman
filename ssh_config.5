@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: ssh_config.5,v 1.161 2013/01/08 18:49:04 markus Exp $
-.Dd $Mdocdate: January 8 2013 $
+.\" $OpenBSD: ssh_config.5,v 1.168 2013/08/20 06:56:07 jmc Exp $
+.Dd $Mdocdate: August 20 2013 $
 .Dt SSH_CONFIG 5
 .Os
 .Sh 名前
@@ -486,8 +486,7 @@ X11 ディスプレイにアクセスできてしまうことになります。もし、
 時間の指定方法は、
 .Xr sshd_config 5 
 にある
-.Sx 時間の表現
-セクションに書かれています。
+「時間の表現」セクションに書かれています。
 .Xr ssh 1
 が受けつける X11 接続は、この時間が過ぎたあとは拒否されます。
 デフォルトでは、20分が経過すると信頼されていない X11接続は
@@ -652,7 +651,9 @@ If the hostname contains the character sequence
 および
 .Pa ~/.ssh/id_rsa
 が使われます。
-これに加えて、認証エージェントによって現れる identity も使われます。
+.Cm IdentitiesOnly
+が設定されていない場合は、
+これに加えて認証エージェントによって現れる identity も使われます。
 .Xr ssh 1
 は、
 .Cm IdentityFile
@@ -680,6 +681,23 @@ If the hostname contains the character sequence
 .Cm IdentityFile
 が指定された場合、これは試す identity の一覧に追加されます
 (このふるまいは他の設定項目とは異なるものです)。
+.Pp
+.Cm IdentityFile
+は
+.Cm IdentitiesOnly
+と組み合わせることによって、エージェントが認証時に
+どの identity を提供するかを選択することができます。
+.It Cm IgnoreUnknown (不明な項目を無視)
+設定ファイルを解析する際に不明な項目がある場合、
+それらを無視するパターンのリストを指定します。
+この項目は、
+.Nm
+に
+.Xr ssh 1
+によって認識されない項目がある場合のエラーを防ぐのに使われます。
+.Cm IgnoreUnknown
+項目は、これ以前に現れた項目には反応しないため、
+この項目は設定ファイルの最初に書いておくことを推奨します。
 .It Cm IPQoS (QoS指定)
 接続における IPv4 type-of-service または DSCP クラスを指定します。
 可能な値は
@@ -951,6 +969,15 @@ HostName を使っておこなわれます (デフォルトでは、これはユーザが
 .Bd -literal -offset 3n
 ProxyCommand /usr/bin/nc -X connect -x 192.0.2.0:8080 %h %p
 .Ed
+.It Cm ProxyUseFdpass (プロキシでファイル記述子を使用)
+接続中のファイル記述子を
+.Cm ProxyCommand
+がそのまま実行を続けて渡すのではなく、
+.Xr ssh 1
+に戻すよう指示します。
+デフォルトは
+.Dq no 
+になっています。
 .It Cm PubkeyAuthentication (公開鍵認証)
 公開鍵認証をおこなうかどうかを指定します。
 このキーワードの引数は
@@ -965,7 +992,8 @@ ProxyCommand /usr/bin/nc -X connect -x 192.0.2.0:8080 %h %p
 .It Cm RekeyLimit (rekey の制限)
 セッション鍵が再生成される (rekey) までに
 許される最大のデータ量を指定します。
-この引数の値はバイト数で指定し、サフィックスとして
+また、鍵が再生成されるまでの最大の時間も指定できます。
+第1引数の値はバイト数で指定し、サフィックスとして
 .Sq K
 、
 .Sq M
@@ -978,6 +1006,15 @@ ProxyCommand /usr/bin/nc -X connect -x 192.0.2.0:8080 %h %p
 から
 .Sq 4G
 までの間です。
+第2引数はオプションで、ここには再生成までの時間を
+.Xr sshd_config 5 
+「時間の表現」セクションにある形式で指定できます。
+.Cm RekeyLimit
+のデフォルト値は
+.Dq default none 
+で、これは鍵の再生成がその暗号アルゴリズムのデフォルト値で
+許されるデータ量だけ送信または受信したときにおこなわれることを示し、
+時間による再生成はおこなわないことを意味します。
 この設定項目はプロトコル バージョン 2 にのみ適用されます。
 .It Cm RemoteForward (リモート→ローカル転送)
 リモートマシン上の TCP ポートを、安全な通信路を経由して
@@ -1275,8 +1312,7 @@ DNS 上の安全な指紋に一致する鍵を信頼するようになります。
 .Pp
 .Xr ssh 1
 の
-.Sx ホスト鍵の検証
-も参照してください。
+「ホスト鍵の検証」も参照してください。
 .It Cm VisualHostKey
 この項目が
 .Dq yes 

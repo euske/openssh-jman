@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: sshd.8,v 1.267 2012/10/04 13:21:50 markus Exp $
-.Dd $Mdocdate: October 4 2012 $
+.\" $OpenBSD: sshd.8,v 1.270 2013/06/27 14:05:37 jmc Exp $
+.Dd $Mdocdate: June 27 2013 $
 .Dt SSHD 8
 .Os
 .Sh 名前
@@ -49,6 +49,7 @@
 .Op Fl b Ar ビット数
 .Op Fl C Ar 接続指定
 .Op Fl c Ar ホスト証明書ファイル
+.Op Fl E Ar ログファイル
 .Op Fl f Ar 設定ファイル
 .Op Fl g Ar ログイン制限時間
 .Op Fl h Ar ホスト鍵ファイル
@@ -153,10 +154,12 @@ fork したデーモンは、鍵の交換、暗号化、認証、コマンド実行、
 .Fl d
 オプションをつけるとデバッグレベルが上がります。
 最高は 3 です。
+.It Fl E Ar ログファイル
+デバッグ用ログを syslog 出力ではなく、
+.Ar ログファイル
+に追加します。
 .It Fl e
-このオプションが指定されると、
-.Nm
-は出力を syslog のかわりに標準エラー出力に送ります。
+デバッグ用ログを syslog のかわりに標準エラー出力に送ります。
 .It Fl f Ar 設定ファイル
 設定ファイルの名前を指定します。デフォルトは
 .Pa /etc/ssh/sshd_config
@@ -586,8 +589,7 @@ CA はユーザ認証のための署名された証明書を確認するときに使われます。
 パターンに関する詳細は、
 .Xr ssh_config 5
 の
-.Sx パターン
-の項を参照してください。
+「パターン」の項を参照してください。
 .Pp
 ホスト名やIPアドレスにはワイルドカード指定が使用できますが、
 .Cm from
