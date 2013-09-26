@@ -439,6 +439,10 @@ class Roff2HTML(RoffParser):
     self.write('Unix')
     return
   
+  def do_command_bx(self, args):
+    self.write('BSD')
+    return
+  
   def do_command_sq(self, args):
     self.write(' `<kbd>%s</kbd>\' ' % ' '.join(args))
     return
