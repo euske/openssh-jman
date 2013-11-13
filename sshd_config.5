@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: sshd_config.5,v 1.162 2013/07/19 07:37:48 markus Exp $
-.Dd $Mdocdate: July 19 2013 $
+.\" $OpenBSD: sshd_config.5,v 1.166 2013/11/02 22:39:19 markus Exp $
+.Dd $Mdocdate: November 2 2013 $
 .Dt SSHD_CONFIG 5
 .Os
 .Sh 名前
@@ -672,6 +672,7 @@ Kerberos 経由のパスワード認証が失敗すると、そのパスワードは
 利用可能な KEX (Key Exchange、鍵交換) アルゴリズムを指定します。
 複数のアルゴリズムはカンマで区切ってください。
 デフォルトは:
+.Dq curve25519-sha256@libssh.org ,
 .Dq ecdh-sha2-nistp256 ,
 .Dq ecdh-sha2-nistp384 ,
 .Dq ecdh-sha2-nistp521 ,
@@ -766,7 +767,10 @@ hmac-sha1-96,hmac-md5-96
 指令が現れるまでグローバルな設定よりも優先されます。
 .Pp
 .Cm Match
-指令の引数は、ひとつ以上の「種類  パターン」の組によって与えられます。
+指令の引数は、ひとつ以上の「種類  パターン」の組か、
+あるいはすべてにマッチする単一の引数
+.Cm All
+によって与えられます。
 使用可能な種類は
 .Cm User
 (ユーザ名)、
@@ -834,6 +838,7 @@ hmac-sha1-96,hmac-md5-96
 .Cm PermitEmptyPasswords ,
 .Cm PermitOpen ,
 .Cm PermitRootLogin ,
+.Cm PermitTTY ,
 .Cm PermitTunnel ,
 .Cm PubkeyAuthentication ,
 .Cm RekeyLimit ,
@@ -962,6 +967,12 @@ root に対してはこれ以外の認証方法はすべて禁止になります。
 デフォルトは
 .Dq no 
 になっています。
+.It Cm PermitTTY
+.Xr pty 4
+割り当てを許可するかどうかを指定します。
+デフォルトは
+.Dq yes 
+です。
 .It Cm PermitUserEnvironment (ユーザの環境変数変更を許可する)
 .Xr sshd 8 
 が

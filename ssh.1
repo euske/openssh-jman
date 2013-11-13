@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: ssh.1,v 1.336 2013/08/20 06:56:07 jmc Exp $
-.Dd $Mdocdate: August 20 2013 $
+.\" $OpenBSD: ssh.1,v 1.339 2013/10/16 22:49:38 djm Exp $
+.Dd $Mdocdate: October 16 2013 $
 .Dt SSH 1
 .Os
 .Sh 名前
@@ -415,6 +415,11 @@ MAC についての詳しい情報は
 .It AddressFamily
 .It BatchMode
 .It BindAddress
+.It CanonicalDomains
+.It CanonicalizeFallbackLocal
+.It CanonicalizeHostname
+.It CanonicalizeMaxDots
+.It CanonicalizePermittedCNAMEs
 .It ChallengeResponseAuthentication
 .It CheckHostIP
 .It Cipher
@@ -454,6 +459,7 @@ MAC についての詳しい情報は
 .It LocalForward
 .It LogLevel
 .It MACs
+.It Match
 .It NoHostAuthenticationForLocalhost
 .It NumberOfPasswordPrompts
 .It PasswordAuthentication

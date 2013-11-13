@@ -1,4 +1,4 @@
-.\" $OpenBSD: sftp.1,v 1.94 2013/08/07 06:24:51 jmc Exp $
+.\" $OpenBSD: sftp.1,v 1.97 2013/10/20 09:51:26 djm Exp $
 .\"
 .\" Copyright (c) 2001 Damien Miller.  All rights reserved.
 .\"
@@ -24,7 +24,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: August 7 2013 $
+.Dd $Mdocdate: October 20 2013 $
 .Dt SFTP 1
 .Os
 .Sh 名前
@@ -33,7 +33,7 @@
 .Sh 書式
 .Nm sftp
 .Bk -words
-.Op Fl 1246aCpqrv
+.Op Fl 1246aCfpqrv
 .Op Fl B Ar バッファサイズ
 .Op Fl b Ar バッチファイル
 .Op Fl c Ar 暗号
@@ -170,6 +170,11 @@ This option is directly passed to
 このオプションは
 .Xr ssh 1
 に直接渡されます。
+.It Fl f
+ファイル転送が完了した後に、そのファイルを即座にディスクに
+書き込む(flushする)よう要求します。ファイルをアップロードする際には、
+注意: この機能は、サーバ側が 
+"fsync@openssh.com" 機能拡張を実装しているときのみ有効です。
 .It Fl i Ar identityファイル
 公開鍵認証のさいに identity (秘密鍵) を読むファイルを指定します。
 このオプションは
@@ -194,6 +199,11 @@ This option is directly passed to
 .It AddressFamily
 .It BatchMode
 .It BindAddress
+.It CanonicalDomains
+.It CanonicalizeFallbackLocal
+.It CanonicalizeHostname
+.It CanonicalizeMaxDots
+.It CanonicalizePermittedCNAMEs
 .It ChallengeResponseAuthentication
 .It CheckHostIP
 .It Cipher
@@ -350,7 +360,7 @@ SSH2 のサブシステム、またはリモートホスト上にある sftp サーバへの
 .Nm sftp 
 を終了します。
 .It Xo Ic get
-.Op Fl aPpr
+.Op Fl afPpr
 .Ar リモートパス名
 .Op Ar ローカルパス名
 .Xc
@@ -372,6 +382,12 @@ SSH2 のサブシステム、またはリモートホスト上にある sftp サーバへの
 注意: 転送の再開をする場合は、すでに存在するローカルなファイルの内容と
 リモートの内容が一致する必要があります。これらの内容が異なる場合、
 結果として生じるファイルは正しくないことがあります。
+.Pp
+.Fl f
+フラグが指定された場合、
+ファイル転送が完了した後に、ファイル内容をディスクに flush するため
+.Xr fsync 2
+が呼ばれます。
 .Pp
 .Fl P
 または
@@ -478,7 +494,7 @@ Megabyte, Gigabyte, Terabyte, Petabyte および Exabyte。
 .It Ic progress
 プログレスバーの表示/非表示を切り換えます。
 .It Xo Ic put
-.Op Fl Ppr
+.Op Fl fPpr
 .Ar ローカルパス名
 .Op Ar リモートパス名
 .Xc
@@ -494,6 +510,14 @@ Megabyte, Gigabyte, Terabyte, Petabyte および Exabyte。
 その場合、
 .Ar リモートパス名
 を指定しているときは、それがディレクトリ名である必要があります。
+.Pp
+.Fl f
+フラグが指定された場合、ファイル転送が完了した後に、
+サーバに対して
+.Xr fsync 2
+を呼ぶよう要求が送られます。
+注意: この機能は、サーバ側が 
+"fsync@openssh.com" 機能拡張を実装しているときのみ有効です。
 .Pp
 .Fl P
 または
