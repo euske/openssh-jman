@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: ssh_config.5,v 1.168 2013/08/20 06:56:07 jmc Exp $
-.Dd $Mdocdate: August 20 2013 $
+.\" $OpenBSD: ssh_config.5,v 1.179 2013/11/02 22:39:19 markus Exp $
+.Dd $Mdocdate: November 2 2013 $
 .Dt SSH_CONFIG 5
 .Os
 .Sh 名前
@@ -102,6 +102,8 @@
 .It Cm Host (ホスト)
 これ以後の (次の
 .Cm Host
+または
+.Cm Match
 キーワードが現れるまでの) 設定項目を、ここで
 指定されたパターンのどれかにマッチするホストだけに制限します。
 複数のパターンを与える場合は、それらを空白で区切ってください。
@@ -113,8 +115,6 @@
 (つまり、ホスト名はマッチングの前に正規化されたりしません)。
 .Pp
 パターンの前に感嘆符
-
-A pattern entry may be negated by prefixing it with an exclamation mark
 .Pq Sq !\&
 をつけると否定の意味になります。
 否定されたパターンにマッチした場合、行中のほかのパターンが
@@ -127,10 +127,74 @@ A pattern entry may be negated by prefixing it with an exclamation mark
 パターン (ワイルドカード文字) についての詳細は
 .Sx パターン
 の項を参照してください。
+.It Cm Match (マッチ)
+このキーワードに続いて現れる条件が満たされた時のみ、
+(次の
+.Cm Host
+または
+.Cm Match
+キーワードが現れるまで) 
+以下の宣言を有効にします。
+Match 指令の引数は、ひとつ以上の「種類  パターン」の組か、
+あるいはすべてにマッチする単一の引数
+.Cm All
+によって与えられます。
+使用可能なキーワードとしては:
+.Cm exec ,
+.Cm host ,
+.Cm originalhost ,
+.Cm user ,
+および
++.Cm localuser 
+があります。
+.Pp
+.Cm exec
+キーワードは、指定されたコマンドをそのユーザのシェルで実行します。
+このコマンドが終了状態ゼロを返した場合、この条件は真であるとみなされます。
+コマンド名が空白文字を含む場合はクォートする必要があります。
+コマンド中に現れる以下の文字列シーケンスは、
+コマンドの実行前に展開されます:
+.Ql %L
+はローカルのホスト名の最初の部分に、
+.Ql %l
+はローカルのホスト名 (ドメイン名がある場合はそれも含む) に、
+.Ql %h
+は対象のリモートホスト名に、
+.Ql %n
+はもとのコマンドラインで指定されたホスト名に、
+.Ql %p
+はポートに、
+.Ql %r
+はリモート側のログイン名に、
+そして
+.Ql %u
+は
+.Xr ssh 1 
+を実行するユーザのログイン名に変換されます。
+.Pp
+これ以外のキーワードは、単一の引数かカンマで区切られたリストであり、
+.Sx パターン
+の項にあるワイルドカードまたは否定演算子を使うことができます。
+.Cm host
+キーワードの引数は
+.Cm Hostname
+オプションによる置換後の対象ホスト名と比較されます。
+.Cm originalhost
+キーワードは、コマンドラインで指定されたホスト名と比較されます。
+.Cm user
+キーワードは、リモートホスト上の対象ユーザ名と比較されます。
+.Cm localuser
+キーワードは、ローカルホスト上で
+.Xr ssh 1
+を走らせているユーザ名と比較されます。
+(このキーワードは、システム全体で
+.Nm
+ファイルを使用するときに有用です)
 .It Cm AddressFamily (アドレスファミリ)
 接続時にどのアドレスファミリを利用するかを指定します。
 指定できる値は
-.Dq any 、
+.Dq any
+、
 .Dq inet
 (IPv4 のみを使用する) または
 .Dq inet6
@@ -157,6 +221,74 @@ A pattern entry may be negated by prefixing it with an exclamation mark
 項目が
 .Dq yes
 になってるときは機能しないので注意してください。
+.It Cm CanonicalDomains (正規ドメイン)
+.Cm CanonicalizeHostname
+が有効な場合、この設定項目は特定の対象ホストを検索するさいに
+付加されるドメインのリストを指定します。
+.It Cm CanonicalizeFallbackLocal (正規化失敗時のふるまい)
+ホスト名の正規化に失敗した場合、エラーとみなすかどうかを指定します。
+デフォルトではこれは
+.Dq no 
+であり、失敗時にシステムのリゾルバを使用して
+qualifyされていないホスト名で接続しようとします。
+この値を
+.Dq yes
+に指定すると、
+.Cm CanonicalizeHostname
+が有効な場合、対象となるホストが
+.Cm CanonicalDomains 
+で指定されたドメイン内に見つからなければ
+.Xr ssh 1
+は即座にエラーとなります。
+.It Cm CanonicalizeHostname (ホスト名正規化)
+明示的なホスト名の正規化をおこなうかどうかを指定します。
+デフォルトでは
+.Dq no 
+であり、ホスト名の書き換えはおこなわず、
+システムのリゾルバにすべてのホスト名解決を一任します。
+この項目で
+.Dq yes
+を指定すると、
+.Cm ProxyCommand 
+を使わない接続では
+.Xr ssh 1
+はコマンドラインで指定されたホスト名を
+.Cm CanonicalDomains
+項目のサフィックスおよび
+.Cm CanonicalizePermittedCNAMEs
+の規則にもとづいて正規化しようとします。
+.Cm CanonicalizeHostname
+が
+.Dq always 
+に指定されている場合、ホスト名の正規化は
+プロキシ経由の接続に対してもおこなわれます。
+.It Cm CanonicalizeMaxDots (正規化時の最大ドット数)
+正規化が禁止されるまでホスト名の前に
+許される最大のドット数を指定します。
+デフォルトは
+.Dq 1 
+であり、単一のドットしか許しません (例: hostname.subdomain)。
+.It Cm CanonicalizePermittedCNAMEs (正規化時のCNAMEの使用)
+ホスト名を正規化する際に、CNAME に従う場合の規則を指定します。
+ここでの規則は
+.Ar source_domain_list : Ns Ar target_domain_list
+からなるひとつ以上の引数で表されます。
+.Ar source_domain_list
+(もとのドメイン名のリスト) は
+正規化時に CNAME に従うドメイン名のパターンのリストであり、
+.Ar target_domain_list
+(対象となるドメイン名のリスト) は
+それが解決される先のドメイン名のパターンのリストです。
+.Pp
+たとえば、
+.Dq *.a.example.com:*.b.example.com,*.c.example.com
+は以下のホスト名マッチング
+.Dq *.a.example.com
+が
+.Dq *.b.example.com
+または
+.Dq *.c.example.com
+ドメインの名前に正規化できることを意味します。
 .It Cm ChallengeResponseAuthentication (チャレンジ・レスポンス認証)
 チャレンジ・レスポンス認証をおこなうかどうかを指定します。
 この引数がとりうる値は
@@ -339,7 +471,7 @@ X11 および
 .Ql %n
 はもとのコマンドラインで指定されたホスト名に、
 .Ql %p
-はポートに、
+は宛先のポートに、
 .Ql %r
 はリモート側のログイン名に、
 そして
@@ -759,6 +891,7 @@ OpenSSH サーバの場合、これは以下の組み合わせになります:
 複数のアルゴリズムはカンマで区切ってください。
 デフォルトは:
 .Bd -literal -offset indent
+curve25519-sha256@libssh.org,
 ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,
 diffie-hellman-group-exchange-sha256,
 diffie-hellman-group-exchange-sha1,
