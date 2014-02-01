@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: sshd_config.5,v 1.166 2013/11/02 22:39:19 markus Exp $
-.Dd $Mdocdate: November 2 2013 $
+.\" $OpenBSD: sshd_config.5,v 1.171 2014/01/29 14:04:51 jmc Exp $
+.Dd $Mdocdate: January 29 2014 $
 .Dt SSHD_CONFIG 5
 .Os
 .Sh 名前
@@ -363,16 +363,25 @@ chroot したあとに、
 .Dq arcfour256 ,
 .Dq arcfour ,
 .Dq blowfish-cbc ,
+.Dq cast128-cbc ,
 そして
-.Dq cast128-cbc 。
+.Dq chacha20-poly1305@openssh.com 。
+.Pp
 デフォルトは、
 .Bd -literal -offset 3n
 aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,
 aes128-gcm@openssh.com,aes256-gcm@openssh.com,
+chacha20-poly1305@openssh.com,
 aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,aes192-cbc,
 aes256-cbc,arcfour
 .Ed
 です。
+.Pp
+使用可能な暗号方式の一覧は、
+.Xr ssh 1
+に対して 
+.Fl Q
+オプションを使用しても見ることができます。
 .It Cm ClientAliveCountMax (クライアントの生存チェック最大カウント数)
 .Xr sshd 8
 が無反応のクライアントに対して
@@ -552,7 +561,8 @@ SSH で使われる、ホスト秘密鍵が格納されているファイルを指定します。
 .Pa /etc/ssh/ssh_host_key
 であり、プロトコル バージョン 2 用の鍵が
 .Pa /etc/ssh/ssh_host_dsa_key ,
-.Pa /etc/ssh/ssh_host_ecdsa_key
+.Pa /etc/ssh/ssh_host_ecdsa_key ,
+.Pa /etc/ssh/ssh_host_ed25519_key
 および
 .Pa /etc/ssh/ssh_host_rsa_key
 です。
@@ -563,7 +573,8 @@ SSH で使われる、ホスト秘密鍵が格納されているファイルを指定します。
 .Dq rsa1
 鍵はバージョン 1 に使われ、
 .Dq dsa ,
-.Dq ecdsa
+.Dq ecdsa ,
+.Dq ed25519
 または
 .Dq rsa
 はバージョン 2 の SSH プロトコルに使われます。
@@ -642,6 +653,19 @@ UNIXドメインソケットを指定します。
 であり、非対話的セッションのときは
 .Dq throughput
 となっています。
+.It Cm KbdInteractiveAuthentication (キーボード対話的認証)
+キーボード対話的認証を許可するかどうかを指定します。
+この項目に対する値は
+.Dq yes
+または
+.Dq no 
+です。
+デフォルトでは
+.Cm ChallengeResponseAuthentication
+と同じ値に従います
+(これはデフォルトで
+.Dq yes 
+です)。
 .It Cm KerberosAuthentication (Kerberos 認証)
 ユーザが
 .Cm PasswordAuthentication
@@ -672,14 +696,14 @@ Kerberos 経由のパスワード認証が失敗すると、そのパスワードは
 利用可能な KEX (Key Exchange、鍵交換) アルゴリズムを指定します。
 複数のアルゴリズムはカンマで区切ってください。
 デフォルトは:
-.Dq curve25519-sha256@libssh.org ,
-.Dq ecdh-sha2-nistp256 ,
-.Dq ecdh-sha2-nistp384 ,
-.Dq ecdh-sha2-nistp521 ,
-.Dq diffie-hellman-group-exchange-sha256 ,
-.Dq diffie-hellman-group-exchange-sha1 ,
-.Dq diffie-hellman-group14-sha1 ,
-.Dq diffie-hellman-group1-sha1
+.Bd -literal -offset indent
+curve25519-sha256@libssh.org,
+ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,
+diffie-hellman-group-exchange-sha256,
+diffie-hellman-group-exchange-sha1,
+diffie-hellman-group14-sha1,
+diffie-hellman-group1-sha1
+.Ed
 です。
 .It Cm KeyRegenerationInterval (鍵の再生成間隔)
 プロトコル バージョン 1 では、サーバ鍵は (一度でも使われると) ここで

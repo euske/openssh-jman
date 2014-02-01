@@ -1,4 +1,4 @@
-.\" $OpenBSD: ssh-agent.1,v 1.53 2010/11/21 01:01:13 djm Exp $
+.\" $OpenBSD: ssh-agent.1,v 1.54 2013/12/07 11:58:46 naddy Exp $
 .\"
 .\" Author: Tatu Ylonen <ylo@cs.hut.fi>
 .\" Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
@@ -36,7 +36,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: November 21 2010 $
+.Dd $Mdocdate: December 7 2013 $
 .Dt SSH-AGENT 1
 .Os
 .Sh 名前
@@ -55,7 +55,7 @@
 .Fl k
 .Sh 説明
 .Nm
-は (RSA や DSA、ECDSA の) 公開鍵認証で使われる認証鍵を保持する
+は (RSA や DSA、ECDSA、ED25519 の) 公開鍵認証で使われる認証鍵を保持する
 プログラムです。基本的には、まず
 .Nm
 を X セッションあるいはログインセッションの始めに起動させ、
@@ -120,7 +120,8 @@ ssh-agent プログラムのクライアントとして起動するようにします。
 は
 .Pa ~/.ssh/id_rsa ,
 .Pa ~/.ssh/id_dsa ,
-.Pa ~/.ssh/id_ecdsa
+.Pa ~/.ssh/id_ecdsa ,
+.Pa ~/.ssh/id_ed25519
 および
 .Pa ~/.ssh/identity
 の各ファイルを追加します。
@@ -202,6 +203,9 @@ X11 を使っているときは、
 入っています。
 .It Pa ~/.ssh/id_ecdsa
 そのユーザがプロトコル バージョン 2 で使う ECDSA 秘密鍵が
+入っています。
+.It Pa ~/.ssh/id_ed25519
+そのユーザがプロトコル バージョン 2 で使う ED25519 秘密鍵が
 入っています。
 .It Pa ~/.ssh/id_rsa
 そのユーザがプロトコル バージョン 2 で使う RSA 秘密鍵が
