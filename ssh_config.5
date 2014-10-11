@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: ssh_config.5,v 1.184 2014/01/19 04:48:08 djm Exp $
-.Dd $Mdocdate: January 19 2014 $
+.\" $OpenBSD: ssh_config.5,v 1.185 2014/02/23 20:11:36 djm Exp $
+.Dd $Mdocdate: February 23 2014 $
 .Dt SSH_CONFIG 5
 .Os
 .Sh 名前
@@ -262,6 +262,11 @@ qualifyされていないホスト名で接続しようとします。
 .Dq always 
 に指定されている場合、ホスト名の正規化は
 プロキシ経由の接続に対してもおこなわれます。
+.Pp
+この設定が許可されており、正規化の結果、対象となるホスト名が変わった場合には
+ふたたび設定ファイルが読み込まれ、新しい対象ホスト名に対する
+.Cm Host
+節の設定が使われます。
 .It Cm CanonicalizeMaxDots (正規化時の最大ドット数)
 正規化が禁止されるまでホスト名の前に
 許される最大のドット数を指定します。

@@ -1,4 +1,4 @@
-.\"	$OpenBSD: ssh-keygen.1,v 1.119 2013/12/21 07:10:47 tedu Exp $
+.\"	$OpenBSD: ssh-keygen.1,v 1.121 2014/03/15 17:28:26 deraadt Exp $
 .\"
 .\" Author: Tatu Ylonen <ylo@cs.hut.fi>
 .\" Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
@@ -37,7 +37,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: December 21 2013 $
+.Dd $Mdocdate: March 15 2014 $
 .Dt SSH-KEYGEN 1
 .Os
 .Sh 名前
@@ -48,7 +48,7 @@
 .Nm ssh-keygen
 .Op Fl q
 .Op Fl b Ar ビット数
-.Fl t Ar 鍵の種類
+.Op Fl t Cm dsa | ecdsa | ed25519 | rsa | rsa1
 .Op Fl N Ar 新しいパスフレーズ
 .Op Fl C Ar コメント (訳注: SSH1 のみ)
 .Op Fl f Ar 出力先identityファイル
@@ -535,7 +535,7 @@ KRL を生成する場合、
 .Fl G
 オプションで生成された) DH 群交換のための素数候補に対して、
 安全性の試験をおこないます。
-.It Fl t Ar 鍵の種類
+.It Fl t Cm dsa | ecdsa | ed25519 | rsa | rsa1
 生成する鍵の種類を指定します。
 とりうる値として、プロトコル バージョン 1 で使う
 .Dq rsa1

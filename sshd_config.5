@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: sshd_config.5,v 1.171 2014/01/29 14:04:51 jmc Exp $
-.Dd $Mdocdate: January 29 2014 $
+.\" $OpenBSD: sshd_config.5,v 1.172 2014/02/27 22:47:07 djm Exp $
+.Dd $Mdocdate: February 27 2014 $
 .Dt SSHD_CONFIG 5
 .Os
 .Sh 名前
@@ -789,6 +789,9 @@ hmac-sha1-96,hmac-md5-96
 次の
 .Cm Match
 指令が現れるまでグローバルな設定よりも優先されます。
+もしキーワードが複数の該当する
+.Cm Match
+ブロックで指定されていた場合、最初のキーワードだけが適用されます。
 .Pp
 .Cm Match
 指令の引数は、ひとつ以上の「種類  パターン」の組か、
