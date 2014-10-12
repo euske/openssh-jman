@@ -4,8 +4,8 @@
 # by Yusuke Shinyama <yusuke at cs . nyu . edu>
 
 PACKAGE=openssh-jman
-VERSION=6.5p1
-VERSION2=650p1
+VERSION=6.7p1
+VERSION2=670p1
 
 RM=rm -f
 CP=cp -f
