@@ -1,4 +1,4 @@
-.\" $OpenBSD: sftp-server.8,v 1.25 2013/10/14 14:18:56 jmc Exp $
+.\" $OpenBSD: sftp-server.8,v 1.26 2014/07/28 15:40:08 schwarze Exp $
 .\"
 .\" Copyright (c) 2000 Markus Friedl.  All rights reserved.
 .\"
@@ -24,7 +24,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: October 14 2013 $
+.Dd $Mdocdate: July 28 2014 $
 .Dt SFTP-SERVER 8
 .Os
 .Sh 名前
@@ -138,12 +138,12 @@ DEBUG2 および DEBUG3 はそれぞれさらに高いレベルのデバッグ情報を残します。
 の値を指定します。これはユーザのデフォルト umask 値のかわりに使われます。
 .El
 .Pp
-ログをとるためには、
+システムによっては、ログをとるためには
 .Nm
 が
 .Pa /dev/log 
 にアクセスできるようになっている必要があります。
-したがって、chroot 環境下で
+そのような場合、chroot 環境下で
 .Nm
 を使うには
 .Xr syslogd 8

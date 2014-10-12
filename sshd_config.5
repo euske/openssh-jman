@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: sshd_config.5,v 1.172 2014/02/27 22:47:07 djm Exp $
-.Dd $Mdocdate: February 27 2014 $
+.\" $OpenBSD: sshd_config.5,v 1.178 2014/09/09 09:45:36 djm Exp $
+.Dd $Mdocdate: September 9 2014 $
 .Dt SSHD_CONFIG 5
 .Os
 .Sh 名前
@@ -100,7 +100,7 @@
 デフォルトでは、
 .Dq any
 になっています。
-.It Cm AllowAgentForwarding
+.It Cm AllowAgentForwarding (エージェント転送を許可する)
 .Xr ssh-agent 1
 によるエージェント転送を許可するかどうかを指定します。
 デフォルトは
@@ -147,6 +147,29 @@ TCP 転送を許可する場合は
 デフォルトは
 .Dq yes
 です。TCP 転送を禁止しても、ユーザにシェルのアクセスを禁止しない
+かぎりセキュリティの向上にはならないことに注意してください。
+なぜならユーザはいつでも自前の転送プログラムをインストールして
+使うことができるからです。
+.It Cm AllowStreamLocalForwarding (Unixドメインソケットの転送を許可する)
+StreamLocal (Unixドメインソケット) 転送を許可するかどうかを指定します。
+とりうる値は、
+すべての StreamLocal 転送を許可する場合
+.Dq yes
+または
+.Dq all
+、すべての StreamLocal 転送を禁止する場合
+.Dq no
+、ローカルな転送 (
+.Xr ssh 1 
+の定義による) のみを許可する場合は
+.Dq local
+、リモートの転送のみを許可する場合は
+.Dq remote
+を指定します。
+デフォルトでは
+.Dq yes 
+になっています。
+StreamLocal 転送を禁止しても、ユーザにシェルのアクセスを禁止しない
 かぎりセキュリティの向上にはならないことに注意してください。
 なぜならユーザはいつでも自前の転送プログラムをインストールして
 使うことができるからです。
@@ -336,9 +359,10 @@ chroot したあとに、
 .Dq sftp
 を使ったファイル転送をおこなうセッションでは、
 内蔵の sftp サーバを使うとサポート環境のための設定は
-必要ありませんが、chroot されたディレクトリ内に、ログ出力のための
+必要ありませんが、オペレーティングシステムによっては
+chroot されたディレクトリ内に、ログ出力のための
 .Pa /dev/log
-を必要とします (詳しくは
+を必要とする場合があります (詳しくは
 .Xr sftp-server 8
 を参照してください)。
 .Pp
@@ -350,30 +374,45 @@ chroot したあとに、
 指定します。複数の暗号方式を指定する場合は、
 カンマで区切ってください。
 現在サポートされている暗号方式は以下のとおりです:
-.Dq 3des-cbc ,
-.Dq aes128-cbc ,
-.Dq aes192-cbc ,
-.Dq aes256-cbc ,
-.Dq aes128-ctr ,
-.Dq aes192-ctr ,
-.Dq aes256-ctr ,
-.Dq aes128-gcm@openssh.com ,
-.Dq aes256-gcm@openssh.com ,
-.Dq arcfour128 ,
-.Dq arcfour256 ,
-.Dq arcfour ,
-.Dq blowfish-cbc ,
-.Dq cast128-cbc ,
-そして
-.Dq chacha20-poly1305@openssh.com 。
+.Pp
+.Bl -item -compact -offset indent
+.It
+3des-cbc
+.It
+aes128-cbc
+.It
+aes192-cbc
+.It
+aes256-cbc
+.It
+aes128-ctr
+.It
+aes192-ctr
+.It
+aes256-ctr
+.It
+aes128-gcm@openssh.com
+.It
+aes256-gcm@openssh.com
+.It
+arcfour
+.It
+arcfour128
+.It
+arcfour256
+.It
+blowfish-cbc
+.It
+cast128-cbc
+.It
+chacha20-poly1305@openssh.com
+.El
 .Pp
 デフォルトは、
-.Bd -literal -offset 3n
-aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,
+.Bd -literal -offset indent
+aes128-ctr,aes192-ctr,aes256-ctr,
 aes128-gcm@openssh.com,aes256-gcm@openssh.com,
-chacha20-poly1305@openssh.com,
-aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,aes192-cbc,
-aes256-cbc,arcfour
+chacha20-poly1305@openssh.com
 .Ed
 です。
 .Pp
@@ -695,14 +734,33 @@ Kerberos 経由のパスワード認証が失敗すると、そのパスワードは
 .It Cm KexAlgorithms (鍵交換アルゴリズム)
 利用可能な KEX (Key Exchange、鍵交換) アルゴリズムを指定します。
 複数のアルゴリズムはカンマで区切ってください。
+サポートされているアルゴリズムは:
+.Pp
+.Bl -item -compact -offset indent
+.It
+curve25519-sha256@libssh.org
+.It
+diffie-hellman-group1-sha1
+.It
+diffie-hellman-group14-sha1
+.It
+diffie-hellman-group-exchange-sha1
+.It
+diffie-hellman-group-exchange-sha256
+.It
+ecdh-sha2-nistp256
+.It
+ecdh-sha2-nistp384
+.It
+ecdh-sha2-nistp521
+.El
+.Pp
 デフォルトは:
 .Bd -literal -offset indent
 curve25519-sha256@libssh.org,
 ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,
 diffie-hellman-group-exchange-sha256,
-diffie-hellman-group-exchange-sha1,
-diffie-hellman-group14-sha1,
-diffie-hellman-group1-sha1
+diffie-hellman-group14-sha1
 .Ed
 です。
 .It Cm KeyRegenerationInterval (鍵の再生成間隔)
@@ -770,16 +828,53 @@ MAC 方式はプロトコル バージョン 2 で使われる、
 .Dq -etm
 を含む方式では、MAC 値を暗号化のあとに計算します (encrypt-then-mac)。
 こちらのほうが安全であると考えられており、推奨されています。
+サポートされている MACは:
+.Pp
+.Bl -item -compact -offset indent
+.It
+hmac-md5
+.It
+hmac-md5-96
+.It
+hmac-ripemd160
+.It
+hmac-sha1
+.It
+hmac-sha1-96
+.It
+hmac-sha2-256
+.It
+hmac-sha2-512
+.It
+umac-64@openssh.com
+.It
+umac-128@openssh.com
+.It
+hmac-md5-etm@openssh.com
+.It
+hmac-md5-96-etm@openssh.com
+.It
+hmac-ripemd160-etm@openssh.com
+.It
+hmac-sha1-etm@openssh.com
+.It
+hmac-sha1-96-etm@openssh.com
+.It
+hmac-sha2-256-etm@openssh.com
+.It
+hmac-sha2-512-etm@openssh.com
+.It
+umac-64-etm@openssh.com
+.It
+umac-128-etm@openssh.com
+.El
+.Pp
 デフォルトは
 .Bd -literal -offset indent
-hmac-md5-etm@openssh.com,hmac-sha1-etm@openssh.com,
 umac-64-etm@openssh.com,umac-128-etm@openssh.com,
 hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,
-hmac-ripemd160-etm@openssh.com,hmac-sha1-96-etm@openssh.com,
-hmac-md5-96-etm@openssh.com,
-hmac-md5,hmac-sha1,umac-64@openssh.com,umac-128@openssh.com,
-hmac-sha2-256,hmac-sha2-512,hmac-ripemd160,
-hmac-sha1-96,hmac-md5-96
+umac-64@openssh.com,umac-128@openssh.com,
+hmac-sha2-256,hmac-sha2-512
 .Ed
 の順になっています。
 .It Cm Match (条件分岐)
@@ -867,6 +962,7 @@ hmac-sha1-96,hmac-md5-96
 .Cm PermitRootLogin ,
 .Cm PermitTTY ,
 .Cm PermitTunnel ,
+.Cm PermitUserRC ,
 .Cm PubkeyAuthentication ,
 .Cm RekeyLimit ,
 .Cm RhostsRSAAuthentication ,
@@ -994,7 +1090,13 @@ root に対してはこれ以外の認証方法はすべて禁止になります。
 デフォルトは
 .Dq no 
 になっています。
-.It Cm PermitTTY
+.Pp
+この項目とは別に、選択された
+.Xr tun 4
+デバイスのパーミッションは、
+このユーザのアクセスを許可するように
+なっている必要があります。
+.It Cm PermitTTY (TTYを許可する)
 .Xr pty 4
 割り当てを許可するかどうかを指定します。
 デフォルトは
@@ -1016,6 +1118,13 @@ root に対してはこれ以外の認証方法はすべて禁止になります。
 .Ev LD_PRELOAD
 などの設定を使った
 ある種のアクセス制限を回避させてしまう可能性があります。
+.It Cm PermitUserRC (ユーザのrcを許可する)
+各ユーザの
+.Pa ~/.ssh/rc
+ファイルを実行するか否かを指定します。
+デフォルトでは
+.Dq yes 
+になっています。
 .It Cm PidFile (pid ファイル)
 SSH デーモンのプロセス ID を格納するファイルを指定します。
 デフォルトでは
@@ -1123,6 +1232,37 @@ RSA ホスト間認証が成功しているとき、rhosts や /etc/hosts.equiv
 プロトコル バージョン 1 で短期的に使われるサーバ鍵の
 ビット数を指定します。
 最小値は 512 で、デフォルトは 1024 です。
+.It Cm StreamLocalBindMask (Unixドメインソケット作成時のマスク)
+ローカルまたはリモートのポート転送のさいに、
+Unixドメインソケットファイルを作成する時の
+.Pq umask
+値を指定します。
+この設定項目は Unixドメインソケットファイルに対して
+ポート転送をおこなう時にのみ有効です。
+.Pp
+デフォルトの値は 0177 であり、これは作成された Unixドメインソケットが
+所有者にのみ読み書き可能であることを示しています。
+注意: すべてのオペレーティングシステムが Unixドメインソケットの
+ファイルモードに従うわけではありません。
+.It Cm StreamLocalBindUnlink (Unixドメインソケットを削除する)
+ローカルまたはリモートのポート転送で、
+新しい Unixドメインソケットファイルを作成するさいに
+既存のソケットファイルを削除するかどうかを指定します。
+もしソケットファイルがすでに存在し、
+.Cm StreamLocalBindUnlink
+が有効となっていない場合、
+.Nm sshd
+はその Unixドメインソケットに対してポート転送をおこなうことができません。
+この設定項目は Unixドメインソケットファイルに対して
+ポート転送をおこなう時にのみ有効です。
+.Pp
+とりうる引数は
+.Dq yes
+または
+.Dq no 
+で、デフォルトは
+.Dq no 
+になっています。
 .It Cm StrictModes (厳格なモード)
 .Xr sshd 8
 がログインを許可する前に、ユーザのファイルおよび

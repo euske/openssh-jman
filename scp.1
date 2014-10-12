@@ -8,11 +8,11 @@
 .\"
 .\" Created: Sun May  7 00:14:37 1995 ylo
 .\"
-.\" $OpenBSD: scp.1,v 1.61 2013/10/20 09:51:26 djm Exp $
+.\" $OpenBSD: scp.1,v 1.62 2014/03/19 14:42:44 tedu Exp $
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: October 20 2013 $
+.Dd $Mdocdate: March 19 2014 $
 .Dt SCP 1
 .Os
 .Sh 名前
@@ -51,8 +51,6 @@
 を使い、これと同様の認証をおこないます。これによって、
 .Xr ssh 1
 と同様のセキュリティを提供します。
-.Xr rcp 1
-とは違って、
 .Nm
 は認証に必要な場合、パスワードまたはパスフレーズを尋ねてきます。
 .Pp
@@ -189,8 +187,7 @@
 であることに注意してください。これは小文字の
 .Fl p
 が、時刻やパーミッションを保つオプションとして
-.Xr rcp 1
-によってすでに使われているためです。
+すでに使われているためです。
 .It Fl p
 コピー元ファイルの最終修正時刻、最終アクセス時刻、および
 パーミッションを保つようにします。
@@ -220,7 +217,6 @@
 .Sh 終了状態
 .Ex -std scp
 .Sh 関連項目
-.Xr rcp 1 ,
 .Xr sftp 1 ,
 .Xr ssh 1 ,
 .Xr ssh-add 1 ,
@@ -233,9 +229,7 @@
 は、カリフォルニア州立大学評議会 (the Regents of the University of
 California) による
 .Bx
-ソースコードの
-.Xr rcp 1
-を基にしています。
+ソースコードの rcp を基にしています。
 .Sh 作者
 .An Timo Rinne Aq Mt tri@iki.fi
 .An Tatu Ylonen Aq Mt ylo@cs.hut.fi

@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: sshd.8,v 1.273 2013/12/07 11:58:46 naddy Exp $
-.Dd $Mdocdate: December 7 2013 $
+.\" $OpenBSD: sshd.8,v 1.277 2014/08/30 15:33:50 sobrado Exp $
+.Dd $Mdocdate: August 30 2014 $
 .Dt SSHD 8
 .Os
 .Sh 名前
@@ -63,11 +63,7 @@
 (OpenSSH デーモン) は
 .Xr ssh 1
 のためのデーモンプログラムです。
-これらのプログラムはともに 
-.Xr rlogin 
-と 
-.Xr rsh
-を置き換えるもので、
+これらのプログラムはともに rlogin と rsh を置き換えるもので、
 安全でないネットワーク上にある、2つの信頼されていないホスト間で、
 暗号化された安全な通信を提供します。
 .Pp
@@ -286,7 +282,7 @@ SSH プロトコルバージョン 2 のみをサポートしていますが、
 の
 .Cm Protocol
 オプションで変更できます。
-プロトコルバージョン 2 は DSA, ECDSA, ED25519 および RSA鍵をサポートしています。
+プロトコルバージョン 2 は DSA, ECDSA, Ed25519 および RSA鍵をサポートしています。
 プロトコルバージョン 1 がサポートするのは RSA 鍵だけです。
 どちらのプロトコルでも、各ホストは識別のためのホストごとの鍵を持っており、
 これは通常 2048ビットからなります。
@@ -418,7 +414,10 @@ TCP 接続の転送、あるいは認証エージェントの転送などを
 ユーザのホームディレクトリに移動する。
 .It
 .Pa ~/.ssh/rc
-が存在する場合、それを実行する。そうでなければ、もし
+が存在し、なおかつ
+.Xr sshd_config 5
+.Cm PermitUserRC
+が許可されている場合、それを実行する。そうでなければ、もし
 .Pa /etc/ssh/sshrc
 が存在しているなら、それを実行する。
 これ以外の場合は xauth を実行する。この
@@ -843,7 +842,7 @@ AAAA1234.....=
 .Pp
 .It Pa ~/.ssh/authorized_keys
 そのユーザのアカウントでログインするときに
-使われる公開鍵 (DSA, ECDSA, ED25519, RSA) の一覧が入っています。
+使われる公開鍵 (DSA, ECDSA, Ed25519, RSA) の一覧が入っています。
 このファイルの形式は上で説明されています。
 このファイルの内容はそれほど秘密にする必要はありませんが、
 推奨されるパーミッションは、その所有者のみが読み書き可能で、
@@ -891,13 +890,6 @@ AAAA1234.....=
 このファイルの形式は上で説明されています。
 これらのファイルは所有者にのみ書き込み可能にしておくべきです。
 誰にでも読めるようにしておく必要はありません。
-.Pp
-.It Pa /etc/hosts.allow
-.It Pa /etc/hosts.deny
-このファイルは tcp-wrappers による
-アクセス制限を定義しています。詳しい説明は
-.Xr hosts_access 5
-を参照してください。
 .Pp
 .It Pa /etc/hosts.equiv
 このファイルはホストベースド認証 (host-based authentication
@@ -1013,7 +1005,6 @@ root のみ書き込み可能にしておき、
 .Xr ssh-keygen 1 ,
 .Xr ssh-keyscan 1 ,
 .Xr chroot 2 ,
-.Xr hosts_access 5 ,
 .Xr login.conf 5 ,
 .Xr moduli 5 ,
 .Xr sshd_config 5 ,
@@ -1029,17 +1020,3 @@ SSH プロトコル バージョン 1.5 および 2.0 のサポートは
 Markus Friedl の貢献によるものです。
 Niels Provos および Markus Friedl が特権分離のサポートに
 貢献しました。
-.Sh 警告
-.Nm rshd 、
-.Nm rlogind 、
-および
-.Nm rexecd
-を禁止しないかぎり
-(つまりこれは
-.Xr rlogin
-および
-.Xr rsh
-でそのマシンにログインすることを
-完全に禁止することになります)、
-システムのセキュリティは改善されませんので
-注意してください。
