@@ -1,12 +1,12 @@
--*- coding: euc-jp -*-
+-*- coding: utf-8 -*-
 README.txt
 
-OpenSSH ¤ÎÆüËÜ¸ì¥Ş¥Ë¥å¥¢¥ë¤Ç¤¹¡£
+OpenSSH ã®æ—¥æœ¬èªãƒãƒ‹ãƒ¥ã‚¢ãƒ«ã§ã™ã€‚
 
-¤³¤Î¥Ç¥£¥ì¥¯¥È¥ê¤Ë´Ş¤Ş¤ì¤Æ¤¤¤ë¤¹¤Ù¤Æ¤Î¥Õ¥¡¥¤¥ë¤Ï¡¢
-OpenSSH ËÜÂÎ¤ÈÆ±¤¸ (BSD) ¥é¥¤¥»¥ó¥¹¤ÇÍøÍÑ¤Ç¤­¤Ş¤¹¡£
+ã“ã®ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã«å«ã¾ã‚Œã¦ã„ã‚‹ã™ã¹ã¦ã®ãƒ•ã‚¡ã‚¤ãƒ«ã¯ã€
+OpenSSH æœ¬ä½“ã¨åŒã˜ (BSD) ãƒ©ã‚¤ã‚»ãƒ³ã‚¹ã§åˆ©ç”¨ã§ãã¾ã™ã€‚
 
-ËİÌõ: (¤Û¤È¤ó¤É¤Ï) ¿·»³Í´²ğ yusuke at cs dot nyu. dot edu
+ç¿»è¨³: (ã»ã¨ã‚“ã©ã¯) æ–°å±±ç¥ä»‹ yusuke at cs dot nyu. dot edu
 
-ºÇ¿·ÈÇÆş¼êÀè:
-http://www.unixuser.org/~euske/doc/openssh/jman/index.html
+æœ€æ–°ç‰ˆå…¥æ‰‹å…ˆ:
+http://euske.github.io/openssh-jman/index.html
