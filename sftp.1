@@ -1,4 +1,4 @@
-.\" $OpenBSD: sftp.1,v 1.99 2014/04/22 14:16:30 jmc Exp $
+.\" $OpenBSD: sftp.1,v 1.101 2015/01/30 11:43:14 djm Exp $
 .\"
 .\" Copyright (c) 2001 Damien Miller.  All rights reserved.
 .\"
@@ -24,7 +24,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: April 22 2014 $
+.Dd $Mdocdate: January 30 2015 $
 .Dt SFTP 1
 .Os
 .Sh Ì¾Á°
@@ -221,6 +221,7 @@ This option is directly passed to
 .It HashKnownHosts
 .It Host
 .It HostbasedAuthentication
+.It HostbasedKeyTypes
 .It HostKeyAlgorithms
 .It HostKeyAlias
 .It HostName
@@ -249,6 +250,7 @@ This option is directly passed to
 .It ServerAliveCountMax
 .It StrictHostKeyChecking
 .It TCPKeepAlive
+.It UpdateHostKeys
 .It UsePrivilegedPort
 .It User
 .It UserKnownHostsFile

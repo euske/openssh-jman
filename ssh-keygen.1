@@ -1,4 +1,4 @@
-.\"	$OpenBSD: ssh-keygen.1,v 1.123 2014/08/30 15:33:50 sobrado Exp $
+.\"	$OpenBSD: ssh-keygen.1,v 1.125 2015/02/24 15:24:05 naddy Exp $
 .\"
 .\" Author: Tatu Ylonen <ylo@cs.hut.fi>
 .\" Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
@@ -37,7 +37,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: August 30 2014 $
+.Dd $Mdocdate: February 24 2015 $
 .Dt SSH-KEYGEN 1
 .Os
 .Sh 名前
@@ -81,6 +81,8 @@
 .Pp
 .Nm ssh-keygen
 .Fl l
+.Op Fl v
+.Op Fl E Ar 鍵の指紋ハッシュ
 .Op Fl f Ar 指紋を表示するidentityファイル
 .Pp
 .Nm ssh-keygen
@@ -287,6 +289,15 @@ Ed25519 鍵は固定長であり、
 (詳しくは
 .Sx 証明書
 のセクションをごらんください)
+.It Fl E Ar 鍵の指紋ハッシュ
+鍵の指紋を表示するさいに使われるハッシュ関数のアルゴリズムを指定します。
+とりうる値は:
+.Dq md5
+または
+.Dq sha256
+です。デフォルトでは
+.Dq sha256
+になっています。
 .It Fl e
 このオプションは OpenSSH 形式の秘密鍵あるいは公開鍵ファイルを
 読み、

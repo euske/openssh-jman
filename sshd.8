@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: sshd.8,v 1.277 2014/08/30 15:33:50 sobrado Exp $
-.Dd $Mdocdate: August 30 2014 $
+.\" $OpenBSD: sshd.8,v 1.279 2015/05/01 07:11:47 djm Exp $
+.Dd $Mdocdate: May 1 2015 $
 .Dt SSHD 8
 .Os
 .Sh 名前
@@ -428,6 +428,8 @@ TCP 接続の転送、あるいは認証エージェントの転送などを
 を参照してください。)
 .It
 ユーザのシェルまたはコマンドを実行する。
+すべてのコマンドは、システムパスワードデータベースで
+指定されたそのユーザのログインシェル上で実行されます。
 .El
 .Sh SSHRC
 .Pa ~/.ssh/rc
@@ -625,7 +627,8 @@ CA はユーザ認証のための署名された証明書を確認するときに使われます。
 クライアントが X11 転送を要求しても、すべてエラーになります。
 .It Cm permitopen="host:port"
 ローカルな
-.Li ``ssh -L''
+.Xr ssh 1
+.Fl L
 のポート転送先を、
 指定されたホストの指定されたポートのみに限定します。
 IPv6 アドレスは、ブラケット [ ] で区切って指定できます。

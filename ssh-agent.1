@@ -1,4 +1,4 @@
-.\" $OpenBSD: ssh-agent.1,v 1.56 2014/08/30 15:33:50 sobrado Exp $
+.\" $OpenBSD: ssh-agent.1,v 1.59 2015/04/24 06:26:49 jmc Exp $
 .\"
 .\" Author: Tatu Ylonen <ylo@cs.hut.fi>
 .\" Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
@@ -36,7 +36,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: August 30 2014 $
+.Dd $Mdocdate: April 24 2015 $
 .Dt SSH-AGENT 1
 .Os
 .Sh 名前
@@ -45,8 +45,9 @@
 .Sh 書式
 .Nm ssh-agent
 .Op Fl c | s
-.Op Fl d
+.Op Fl Dd
 .Op Fl a Ar bindするアドレス
+.Op Fl E Ar 鍵の指紋ハッシュ
 .Op Fl t Ar 鍵のデフォルト生存時間
 .Op Ar コマンド Op Ar 引数 ...
 .Pp
@@ -96,11 +97,25 @@ ssh-agent プログラムのクライアントとして起動するようにします。
 .Ev SHELL
 が csh 系のシェルになっているようなら、
 これがデフォルトになります。
+.It Fl D
+フォアグラウンド・モード。
+このオプションが指定された場合、
+Nm
+は fork しません。
 .It Fl d
 デバッグモード。
 このオプションが指定されていると、
 .Nm
-は fork しません。
+は fork せず、デバッグ情報を標準エラー出力に表示します。
+.It Fl E Ar 鍵の指紋ハッシュ
+鍵の指紋を表示するさいに使われるハッシュ関数のアルゴリズムを指定します。
+とりうる値は:
+.Dq md5
+または
+.Dq sha256
+です。デフォルトでは
+.Dq sha256
+になっています。
 .It Fl k
 現在動いている認証エージェント (
 環境変数

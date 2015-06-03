@@ -1,4 +1,4 @@
-.\" $OpenBSD: sftp-server.8,v 1.26 2014/07/28 15:40:08 schwarze Exp $
+.\" $OpenBSD: sftp-server.8,v 1.27 2014/12/11 04:16:14 djm Exp $
 .\"
 .\" Copyright (c) 2000 Markus Friedl.  All rights reserved.
 .\"
@@ -24,7 +24,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: July 28 2014 $
+.Dd $Mdocdate: December 11 2014 $
 .Dt SFTP-SERVER 8
 .Os
 .Sh 名前
@@ -69,7 +69,7 @@
 パス名は以下のトークンを含むことができます。
 これらは、実行時に展開されます。
 %% はリテラル '%' に、
-%h は認証されたユーザのホームディレクトリに、また
+%d は認証されたユーザのホームディレクトリに、また
 %u はそのユーザのユーザ名に置換されます。
 デフォルトでは、そのユーザのホームディレクトリを使用します。
 このオプションは

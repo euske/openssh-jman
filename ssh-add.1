@@ -1,4 +1,4 @@
-.\"	$OpenBSD: ssh-add.1,v 1.60 2014/08/30 15:33:50 sobrado Exp $
+.\"	$OpenBSD: ssh-add.1,v 1.62 2015/03/30 18:28:37 jmc Exp $
 .\"
 .\" Author: Tatu Ylonen <ylo@cs.hut.fi>
 .\" Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
@@ -37,7 +37,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: August 30 2014 $
+.Dd $Mdocdate: March 30 2015 $
 .Dt SSH-ADD 1
 .Os
 .Sh 名前
@@ -46,6 +46,7 @@
 .Sh 書式
 .Nm
 .Op Fl cDdkLlXx
+.Op Fl E Ar 鍵の指紋ハッシュ
 .Op Fl t Ar 鍵の生存時間
 .Op Ar
 .Pp
@@ -90,10 +91,10 @@
 .Bl -tag -width Ds
 .It Fl c
 追加された鍵を、認証に使う前に確認するよう指定します。
-この確認は、以下で説明する
-.Ev SSH_ASKPASS
+この確認は、
+.Xr ssh-askpass 1 
 プログラムによっておこなわれます。確認の成功は、
-.Ev SSH_ASKPASS
+.Xr ssh-askpass 1 
 プログラムに入力された文字列ではなく、
 これが終了状態として 0 を返したかどうかによって決定されます。
 .It Fl D
@@ -109,6 +110,15 @@
 は自動的に文字列
 .Pa .pub
 を追加して検索します。
+.It Fl E Ar 鍵の指紋ハッシュ
+鍵の指紋を表示するさいに使われるハッシュ関数のアルゴリズムを指定します。
+とりうる値は:
+.Dq md5
+または
+.Dq sha256
+です。デフォルトでは
+.Dq sha256
+になっています。
 .It Fl e Ar pkcs11
 PKCS#11共有ライブラリ
 .Ar pkcs11
@@ -151,7 +161,10 @@ PKCS#11共有ライブラリ
 .Nm
 は
 .Ev SSH_ASKPASS
-で指定されたプログラムを立ち上げ、パスフレーズを読むための
+で指定されたプログラム
+(デフォルトでは
+.Dq ssh-askpass )
+を立ち上げ、パスフレーズを読むための
 X11 ウインドウを開きます。これは特に
 .Nm
 を
@@ -195,6 +208,7 @@ RSA 認証用の秘密鍵が入っています。
 .Sh 関連項目
 .Xr ssh 1 ,
 .Xr ssh-agent 1 ,
+.Xr ssh-askpass 1 ,
 .Xr ssh-keygen 1 ,
 .Xr sshd 8
 .Sh 作者

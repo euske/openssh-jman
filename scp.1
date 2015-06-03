@@ -8,11 +8,11 @@
 .\"
 .\" Created: Sun May  7 00:14:37 1995 ylo
 .\"
-.\" $OpenBSD: scp.1,v 1.62 2014/03/19 14:42:44 tedu Exp $
+.\" $OpenBSD: scp.1,v 1.66 2015/01/30 11:43:14 djm Exp $
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: March 19 2014 $
+.Dd $Mdocdate: January 30 2015 $
 .Dt SCP 1
 .Os
 .Sh 名前
@@ -32,14 +32,14 @@
 .Sm off
 .Oo
 .Op Ar ユーザ No @
-.Ar ホスト1 No :
+.Ar ホスト1 :
 .Oc Ar ファイル1
 .Sm on
 .Ar ...
 .Sm off
 .Oo
 .Op Ar ユーザ No @
-.Ar ホスト2 No :
+.Ar ホスト2 :
 .Oc Ar ファイル2
 .Sm on
 .Ek
@@ -147,6 +147,7 @@
 .It HashKnownHosts
 .It Host
 .It HostbasedAuthentication
+.It HostbasedKeyTypes
 .It HostKeyAlgorithms
 .It HostKeyAlias
 .It HostName
@@ -175,6 +176,7 @@
 .It ServerAliveCountMax
 .It StrictHostKeyChecking
 .It TCPKeepAlive
+.It UpdateHostKeys
 .It UsePrivilegedPort
 .It User
 .It UserKnownHostsFile
