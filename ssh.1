@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: ssh.1,v 1.351 2014/10/09 06:21:31 jmc Exp $
-.Dd $Mdocdate: October 9 2014 $
+.\" $OpenBSD: ssh.1,v 1.358 2015/05/22 05:28:45 djm Exp $
+.Dd $Mdocdate: May 22 2015 $
 .Dt SSH 1
 .Os
 .Sh 名前
@@ -60,7 +60,7 @@
 .Op Fl O Ar 制御コマンド
 .Op Fl o Ar オプション
 .Op Fl p Ar ポート
-.Op Fl Q Cm cipher | cipher-auth | mac | kex | key
+.Op Fl Q Cm cipher | cipher-auth | mac | kex | key | protocol-version
 .Op Fl R Oo Ar bindするアドレス : Oc Ns Ar ポート : Ns Ar ホスト : Ns Ar ホスト側ポート
 .Op Fl S Ar 制御用パス名
 .Op Fl W Ar ホスト : Ns Ar ポート
@@ -430,6 +430,7 @@ MAC についての詳しい情報は
 .It DynamicForward
 .It EscapeChar
 .It ExitOnForwardFailure
+.It FingerprintHash
 .It ForwardAgent
 .It ForwardX11
 .It ForwardX11Timeout
@@ -441,6 +442,7 @@ MAC についての詳しい情報は
 .It HashKnownHosts
 .It Host
 .It HostbasedAuthentication
+.It HostbasedKeyTypes
 .It HostKeyAlgorithms
 .It HostKeyAlias
 .It HostName
@@ -480,6 +482,7 @@ MAC についての詳しい情報は
 .It TCPKeepAlive
 .It Tunnel
 .It TunnelDevice
+.It UpdateHostKeys
 .It UsePrivilegedPort
 .It User
 .It UserKnownHostsFile
@@ -490,7 +493,7 @@ MAC についての詳しい情報は
 .It Fl p Ar ポート
 リモートホストに接続するポートを指定します。
 これは設定ファイルによって、ホストごとに指定することもできます。
-.It Fl Q Cm cipher | cipher-auth | mac | kex | key
+.It Fl Q Cm cipher | cipher-auth | mac | kex | key | protocol-version
 .Nm
 がプロトコル バージョン 2 の特定の機能を
 サポートするかどうか問い合わせます。
@@ -505,6 +508,8 @@ MAC についての詳しい情報は
 (鍵交換アルゴリズム)、
 .Ar key
 (鍵の形式)
+.Ar protocol-version
+(サポートされている SSH のプロトコル バージョン)
 です。
 .It Fl q
 静かなモード。ほとんどの警告メッセージや診断メッセージは抑制されます。
@@ -880,14 +885,23 @@ DSA および RSA アルゴリズムについて簡単に説明しています。
 それが変更されていた場合のログインを防ぐために使われます。
 .Pp
 そのユーザが本人であることが確認できると、
-サーバは与えられたコマンドを実行するか、あるいはユーザを
-そのマシンにログインさせてリモートマシンでの
+サーバは非対話型セッションで与えられたコマンドを実行するか、
+あるいは、コマンドが指定されていない場合は
+ユーザをそのマシンにログインさせてリモートマシンでの
 標準的なシェルを与えます。
 リモートのシェルやコマンドにおけるすべての通信は
 自動的に暗号化されます。
 .Pp
-仮想端末が割り当てられている場合 
-(通常のログインセッション時)、ユーザは
+対話型のセッションが要求された場合、
+.Nm
+はデフォルトで、その対話型セッションに使う
+クライアント側の仮想端末 (pty) があれば要求します。
+.Fl T
+および
+.Fl t
+オプションでこのふるまいを変更することができます。
+.Pp
+仮想端末が割り当てられている場合、ユーザは
 以下のエスケープ文字を使うことができます。
 .Pp
 仮想端末が割り当てられていない場合、
@@ -1111,8 +1125,12 @@ and
 .Pp
 もしこの指紋がすでにわかっている場合、
 これが一致するかどうかを見て、その鍵を受け入れるか拒否するかを決めることができます。
-しかし2つのホスト鍵が一致しているかどうかを、
-16進文字列を見比べて判断することは難しいため、
+サーバ上で利用可能な指紋がレガシーなもの (MD5) のみである場合、
+.Xr ssh-keygen 1
+.Fl E
+オプションを使うと指紋のアルゴリズムをマッチするものにダウングレードできる場合があります。
+2つのホスト鍵が一致しているかどうかを、
+指紋の文字列だけを見比べて判断することは難しいため、
 .Em random art 
 技術を使って、これらのホスト鍵を視覚的に比較することができます。
 .Cm VisualHostKey
