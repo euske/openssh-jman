@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: sshd_config.5,v 1.178 2014/09/09 09:45:36 djm Exp $
-.Dd $Mdocdate: September 9 2014 $
+.\" $OpenBSD: sshd_config.5,v 1.203 2015/05/22 03:50:02 djm Exp $
+.Dd $Mdocdate: May 22 2015 $
 .Dt SSHD_CONFIG 5
 .Os
 .Sh 名前
@@ -74,6 +74,10 @@
 .Cm SendEnv
 項目を参照してください。
 環境変数の受け渡しはプロトコル バージョン 2 でのみサポートされています。
+注意:
+.Ev TERM
+環境変数は、プロトコルによる規定で、クライアントが
+仮想端末を必要とする場合にはつねに送信されます。
 環境変数は名前で指定します。名前にはワイルドカード文字
 .Ql *
 または
@@ -223,6 +227,17 @@ allow/deny 関連の項目は以下の順に処理されます:
 .Dq bsdauth
 デバイスからのみに制限します。
 .Pp
+.Dq publickey
+方式が複数回指定された場合、
+.Xr sshd 8
+は一度認証に成功した鍵が、
+それ以降の認証では使用されないことを検証します。
+たとえば
+.Cm AuthenticationMethods
+が
+.Dq publickey,publickey
+の場合、2つの異なる公開鍵による認証に成功する必要があります。
+.Pp
 このオプションは SSH プロトコル バージョン 2 でのみ有効です。
 同時に SSH 1 も許可されている場合に使用すると致命的なエラーが発生します。
 また、ここで使う各認証方式は設定ファイル中でそれぞれ許可されている必要があります。
@@ -232,9 +247,24 @@ allow/deny 関連の項目は以下の順に処理されます:
 ユーザの特定の公開鍵を検索するのに使うコマンドを指定します。
 このコマンドは root が所有しており、
 他のグループやユーザによって書き込み可能であってはいけません。
-このコマンドは認証されるユーザ名を単一の引数として受けとり、
-authorized_keys 形式の鍵を各行ごとに標準出力に表示する必要があります
+またコマンドは絶対パス名で指定する必要があります。
+.Pp
+.Cm AuthorizedKeysCommand
+の引数として、以下のトークンの組み合わせが使え、
+これらは実行時に展開されます:
+%% は「%」1文字に置換されます。
+%u はそのユーザのユーザ名に置換され、
+%h は認証しようとしているユーザのホームディレクトリに置換されます。
+%t はその認証で使おうとしている鍵の形式に置換されます。
+%f はその鍵の指紋に置換され、
+%k は認証で使おうとしている鍵そのものに置換されます。
+引数が指定されない場合、
+認証されるユーザ名が単一の引数として与えられます。
+.Pp
+このコマンドは authorized_keys 形式の鍵を
+各行ごとに標準出力に表示する必要があります
 (詳しくは
+.Xr sshd 8
 の
 「AUTHORIZED_KEYS ファイルの形式」セクションを参照してください)。
 ユーザが AuthorizedKeysCommand から供給された鍵で認証できなかった場合、
@@ -246,6 +276,12 @@ authorized_keys 形式の鍵を各行ごとに標準出力に表示する必要があります
 AuthorizedKeysCommand コマンドを実行するユーザ名を指定します。
 ここでは認証鍵コマンドを走らせる専用のユーザを作成して
 使うことが推奨されます。
+.Cm AuthorizedKeysCommand
+が指定されているが
+.Cm AuthorizedKeysCommandUser
+は指定されていない場合、
+.Xr sshd 8
+は起動しません。
 .It Cm AuthorizedKeysFile (authorized_keys ファイル)
 ユーザ認証の際に使われる公開鍵を格納しているファイル名を
 指定します。
@@ -264,6 +300,40 @@ AuthorizedKeysCommand コマンドを実行するユーザ名を指定します。
 デフォルトの値は
 .Dq .ssh/authorized_keys .ssh/authorized_keys2
 となっています。
+.It Cm AuthorizedPrincipalsCommand (許可されるprincipalコマンド)
+許可された証明書 principal の一覧を、
+.Cm AuthorizedPrincipalsFile
+ごとに生成するためのコマンドを指定します。
+このコマンドは root が所有しており、
+他のグループやユーザによって書き込み可能であってはいけません。
+またコマンドは絶対パス名で指定する必要があります。
+.Pp
+.Cm AuthorizedPrincipalsCommand
+の引数として、以下のトークンの組み合わせが使え、
+これらは実行時に展開されます:
+%% は「%」1文字に置換されます。
+%u はそのユーザのユーザ名に置換され、
+%h は認証しようとしているユーザのホームディレクトリに置換されます。
+.Pp
+このコマンドは各行ごとに
+.Cm AuthorizedPrincipalsFile
+の内容を標準出力に表示する必要があります。
+.Cm AuthorizedPrincipalsCommand
+あるいは
+.Cm AuthorizedPrincipalsFile
+が指定されている場合、クライアントから認証用に提供される証明書は
+この一覧にある principal を含んでいなければなりません。
+デフォルトでは、AuthorizedPrincipalsCommand は実行されません。
+.It Cm AuthorizedPrincipalsCommandUser (許可されるprincipalコマンドのユーザ)
+AuthorizedPrincipalsCommand コマンドを実行するユーザ名を指定します。
+ここでは認証鍵コマンドを走らせる専用のユーザを作成して
+使うことが推奨されます。
+.Cm AuthorizedPrincipalsCommand
+が指定されているが
+.Cm AuthorizedPrincipalsCommandUser
+は指定されていない場合、
+.Xr sshd 8
+は起動しません。
 .It Cm AuthorizedPrincipalsFile (許可されるprincipalファイル)
 証明書による認証で許可されるprincipal名の一覧を記したファイルを指定します。
 .Cm TrustedUserCAKeys 
