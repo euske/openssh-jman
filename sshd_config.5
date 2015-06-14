@@ -395,9 +395,11 @@ AuthorizedPrincipalsCommand コマンドを実行するユーザ名を指定します。
 認証の後に、
 .Xr chroot 2
 をおこなうディレクトリのパス名を指定します。
-ここに到達するまでの上位のディレクトリはすべて
-root が所有していなければならず、他のどのユーザやグループも
-書き込みできるようになっていてはいけません。
+セッション開始時に、
+.Xr sshd 8
+はここに到達するまでの上位ディレクトリがすべて
+root が所有しており、他のどのユーザやグループも
+書き込み不可能になっているかどうかチェックします。
 chroot したあとに、
 .Xr sshd 8
 はワーキングディレクトリをそのユーザのホームディレクトリに変更します。
@@ -421,8 +423,7 @@ chroot したあとに、
 .Xr zero 4 ,
 .Xr stdin 4 ,
 .Xr stdout 4 ,
-.Xr stderr 4 ,
-.Xr arandom 4
+.Xr stderr 4
 および
 .Xr tty 4
 デバイスが含まれます。
@@ -435,6 +436,12 @@ chroot されたディレクトリ内に、ログ出力のための
 を必要とする場合があります (詳しくは
 .Xr sftp-server 8
 を参照してください)。
+.Pp
+安全のため、ディレクトリツリー全体をシステム内の他のプロセス
+(とくに jail の外にあるプロセス) から変更できないようにしておくことが重要です。
+ここでの設定の間違いは
+.Xr sshd 8
+が検出することのできない、安全でない環境をつくりだす場合があります。
 .Pp
 デフォルトでは、
 .Xr chroot 2
@@ -490,7 +497,9 @@ chacha20-poly1305@openssh.com
 .Xr ssh 1
 に対して 
 .Fl Q
-オプションを使用しても見ることができます。
+オプションに引数
+.Dq cipher
+を使用しても見ることができます。
 .It Cm ClientAliveCountMax (クライアントの生存チェック最大カウント数)
 .Xr sshd 8
 が無反応のクライアントに対して
@@ -573,6 +582,15 @@ allow/deny 関連の項目は以下の順に処理されます:
 .Xr ssh_config 5
 の
 「パターン」の項を参照してください。
+.It Cm FingerprintHash (鍵の指紋ハッシュ)
+鍵の指紋をログに出力するさいに使われるハッシュ関数のアルゴリズムを指定します。
+とりうる値は:
+.Dq md5
+または
+.Dq sha256
+です。デフォルトでは
+.Dq sha256
+になっています。
 .It Cm ForceCommand (強制コマンド実行)
 クライアントが指定したコマンドを無視し、
 .Cm ForceCommand 
@@ -627,6 +645,30 @@ GSSAPI ベースのユーザ認証を使用するかどうかを指定します。
 .Dq yes
 です。
 注意: この設定項目はプロトコル バージョン 2 のみに適用されます。
+.It Cm GSSAPIStrictAcceptorCheck (GSSAPIアクセプタの厳密なチェック)
+クライアント側の証明が使っているGSSAPIアクセプタの信憑性について
+より厳密なチェックをおこなうかどうかを指定します。
+.Dq yes
+に設定すると、クライアントは現在のホスト名における
+.Pa host
+サービスに対する証明をおこなわなければなりません。
+.Dq no
+に設定すると、クライアントはそのマシンのデフォルトストアに記録されている
+どのサービスに対しても証明をおこなうことができます。
+この機能は、マルチ・ホームされたマシンの運用を支援するために導入されています。
+デフォルトは
+.Dq yes
+です。
+.It Cm HostbasedAcceptedKeyTypes (ホストベースド認証の鍵の形式)
+ホストベースド認証で受けつける鍵の形式をカンマで区切って指定します。
+デフォルトは
+.Dq *
+で、これはすべての形式を許可します。
+.Xr ssh 1
+の
+.Fl Q
+オプションを使うと、
+サポートされている鍵の形式の一覧を見ることができます。
 .It Cm HostbasedAuthentication (ホストベースド認証の許可)
 公開鍵ホスト認証が成功したときに、
 rhosts あるいは /etc/hosts.equiv 認証を許可するかどうか
@@ -833,6 +875,14 @@ diffie-hellman-group-exchange-sha256,
 diffie-hellman-group14-sha1
 .Ed
 です。
+.Pp
+利用可能な鍵交換アルゴリズムの一覧は、
+.Xr ssh 1
+の
+.Fl Q
+オプションに対して、引数
+.Dq kex
+を与えることによっても見ることができます。
 .It Cm KeyRegenerationInterval (鍵の再生成間隔)
 プロトコル バージョン 1 では、サーバ鍵は (一度でも使われると) ここで
 指定された間隔ごとに自動的に再生成されます。このように鍵を再生成する
@@ -849,33 +899,30 @@ diffie-hellman-group14-sha1
 .It
 .Cm ListenAddress
 .Sm off
-.Ar host No | Ar IPv4_addr No | Ar IPv6_addr
+.Ar host | Ar IPv4_addr | Ar IPv6_addr
 .Sm on
 .It
 .Cm ListenAddress
 .Sm off
-.Ar host No | Ar IPv4_addr No : Ar port
+.Ar host | Ar IPv4_addr : Ar port
 .Sm on
 .It
 .Cm ListenAddress
 .Sm off
 .Oo
-.Ar host No | Ar IPv6_addr Oc : Ar port
+.Ar host | Ar IPv6_addr Oc : Ar port
 .Sm on
 .El
 .Pp
 .Ar port
 が指定されていないときは
-sshd はそのアドレスで、それまでの
+sshd はそのアドレスで、
 .Cm Port
 設定項目で指定されたすべてのポートで接続を受けつけます。
 デフォルトではすべてのローカルアドレスに対して
 接続を受けつけるようになっています。
 .Cm ListenAddress
-項目は複数指定してもかまいません。また
-.Cm Port
-設定項目は、ポートつきでないアドレス指定に対しては
-この設定項目よりも前に指定しておく必要があります。
+項目は複数指定してもかまいません。
 .It Cm LoginGraceTime (ログイン猶予時間)
 ユーザがここで指定された時間内にログインできないと、
 サーバは接続を切ります。この値をゼロにすると、時間制限はなくなります。
@@ -949,6 +996,14 @@ hmac-sha2-256,hmac-sha2-512
 の順になっています。
 .It Cm Match (条件分岐)
 この項目によって、条件的な設定を指定できます。
+.Pp
+利用可能な MAC方式の一覧は、
+.Xr ssh 1
+の
+.Fl Q
+オプションに対して、引数
+.Dq mac
+を与えることによっても見ることができます。
 .Cm Match
 行にあるすべての条件が満たされた場合、これ以降の設定項目は
 次の
@@ -1006,6 +1061,7 @@ hmac-sha2-256,hmac-sha2-512
 .Cm AcceptEnv ,
 .Cm AllowAgentForwarding ,
 .Cm AllowGroups ,
+.Cm AllowStreamLocalForwarding ,
 .Cm AllowTcpForwarding ,
 .Cm AllowUsers ,
 .Cm AuthenticationMethods ,
@@ -1020,8 +1076,10 @@ hmac-sha2-256,hmac-sha2-512
 .Cm ForceCommand ,
 .Cm GatewayPorts ,
 .Cm GSSAPIAuthentication ,
+.Cm HostbasedAcceptedKeyTypes ,
 .Cm HostbasedAuthentication ,
 .Cm HostbasedUsesNameFromPacketOnly ,
+.Cm IPQoS ,
 .Cm KbdInteractiveAuthentication ,
 .Cm KerberosAuthentication ,
 .Cm MaxAuthTries ,
@@ -1033,10 +1091,15 @@ hmac-sha2-256,hmac-sha2-512
 .Cm PermitTTY ,
 .Cm PermitTunnel ,
 .Cm PermitUserRC ,
+.Cm PubkeyAcceptedKeyTypes ,
 .Cm PubkeyAuthentication ,
 .Cm RekeyLimit ,
+.Cm RevokedKeys ,
 .Cm RhostsRSAAuthentication ,
 .Cm RSAAuthentication ,
+.Cm StreamLocalBindMask ,
+.Cm StreamLocalBindUnlink ,
+.Cm TrustedUserCAKeys ,
 .Cm X11DisplayOffset ,
 .Cm X11Forwarding 
 および
@@ -1123,7 +1186,7 @@ SSH デーモンが最大でどれだけ受けつけるかを指定します。
 (強制コマンドのみ)、あるいは
 .Dq no
 のいずれかになります。デフォルトは
-.Dq yes
+.Dq no
 です。この設定項目を
 .Dq without-password
 にすると、root はパスワード認証ではログインできなくなります。
@@ -1197,6 +1260,8 @@ root に対してはこれ以外の認証方法はすべて禁止になります。
 になっています。
 .It Cm PidFile (pid ファイル)
 SSH デーモンのプロセス ID を格納するファイルを指定します。
+.Dq none
+にするとファイルは作成されません。
 デフォルトでは
 .Pa /var/run/sshd.pid
 になっています。
@@ -1239,6 +1304,16 @@ SSH デーモンのプロセス ID を格納するファイルを指定します。
 という指定は、
 .Dq 1,2
 と同じです。
+.It Cm PubkeyAcceptedKeyTypes (公開鍵の形式)
+公開鍵認証のさいに受けつける鍵の形式をカンマで区切って指定します。
+デフォルトは
+.Dq *
+で、これはすべての形式を許可します。
+.Xr ssh 1
+の
+.Fl Q
+オプションを使うと、
+サポートされている鍵の形式の一覧を見ることができます。
 .It Cm PubkeyAuthentication (公開鍵認証)
 公開鍵認証を許可するかどうか指定します。
 デフォルトは
@@ -1274,7 +1349,9 @@ SSH デーモンのプロセス ID を格納するファイルを指定します。
 時間による再生成はおこなわないことを意味します。
 この設定項目はプロトコル バージョン 2 にのみ適用されます。
 .It Cm RevokedKeys (廃止された鍵)
-廃止された公開鍵を指定します。
+廃止された公開鍵を指定します。ない場合は
+.Dq none
+を指定します。
 このファイルに含まれている鍵では、公開鍵認証が拒否されます。
 注意: このファイルが読み込み可能になっていない場合、
 すべてのユーザの公開鍵認証が拒否されます。
@@ -1397,7 +1474,9 @@ TCP Keepalive を禁止するには、この値を
 にする必要があります。
 .It Cm TrustedUserCAKeys (信頼されるユーザCAの鍵)
 認証用のユーザ証明書に署名するときに信頼した認証局(CA)の、
-公開鍵を格納したファイルを指定します。
+公開鍵を格納したファイルを指定します。存在しない場合は
+.Dq none
+を指定します。
 鍵は1行につきひとつずつ指定します。
 空行や
 .Ql #
@@ -1417,7 +1496,7 @@ TCP Keepalive を禁止するには、この値を
 が IP アドレスからリモートホスト名を逆引き検索して得た名前を
 正引きして、同じ IP アドレスになるかどうか確認します。
 デフォルトでは
-.Dq yes
+.Dq no
 になっています。
 .It Cm UseLogin (login の使用)
 対話的ログインセッションの際、
@@ -1551,7 +1630,10 @@ bind されるようにできます。
 になっています。
 .It Cm XAuthLocation (xauth の位置)
 .Xr xauth 1
-プログラムのフルパス名を指定します。デフォルトでは
+プログラムのフルパス名を指定します。使用しない場合は
+.Dq none
+を指定します。
+デフォルトでは
 .Pa /usr/X11R6/bin/xauth
 になっています。
 .El
