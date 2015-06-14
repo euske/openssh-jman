@@ -4,8 +4,8 @@
 # by Yusuke Shinyama <yusuke at cs . nyu . edu>
 
 PACKAGE=openssh-jman
-VERSION=6.7p1
-VERSION2=670p1
+VERSION=6.9p1
+VERSION2=690p1
 
 RM=rm -f
 CP=cp -f
@@ -46,7 +46,7 @@ archive: $(DISTFILE)
 $(DISTFILE): clean
 	$(TAR) zcf $(DISTFILE) $(SRCS) roff2html.py Makefile README.txt
 
-WEBDIR=$$HOME/work/github.io/openssh-jman/
+WEBDIR=../github.io/openssh-jman/
 install: $(DISTFILE) $(HTML)
 	$(CP) $(HTML) $(DISTFILE) $(WEBDIR)
 	$(CP) index.html $(WEBDIR)/index.html
