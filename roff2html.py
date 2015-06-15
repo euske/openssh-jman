@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: euc-jp -*-
+# -*- coding: utf-8 -*-
 
 import re, sys, time
 
@@ -487,7 +487,7 @@ def main(argv):
     elif k == '-c': encin = v
     elif k == '-C': encout = v
   date = time.strftime('%Y/%m/%d')
-  title = u'<a href="http://www.openssh.com/ja/">OpenSSH</a>-%s ÆüËÜ¸ì¥Þ¥Ë¥å¥¢¥ë¥Ú¡¼¥¸ (%s)' % (version, date)
+  title = u'OpenSSH-%s æ—¥æœ¬èªžãƒžãƒ‹ãƒ¥ã‚¢ãƒ«ãƒšãƒ¼ã‚¸ (%s)' % (version, date)
   parser = Roff2HTML(title, sys.stdout, encout)
   for fname in (args or ['-']):
     if fname == '-':

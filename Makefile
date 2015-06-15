@@ -46,7 +46,7 @@ archive: $(DISTFILE)
 $(DISTFILE): clean
 	$(TAR) zcf $(DISTFILE) $(SRCS) roff2html.py Makefile README.txt
 
-WEBDIR=../github.io/openssh-jman/
+WEBDIR=../../github.io/openssh-jman/
 install: $(DISTFILE) $(HTML)
 	$(CP) $(HTML) $(DISTFILE) $(WEBDIR)
 	$(CP) index.html $(WEBDIR)/index.html
