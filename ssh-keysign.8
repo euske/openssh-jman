@@ -27,74 +27,74 @@
 .Dd $Mdocdate: December 7 2013 $
 .Dt SSH-KEYSIGN 8
 .Os
-.Sh ̾��
+.Sh 名前
 .Nm ssh-keysign
-.Nd �ۥ��ȥ١����� (host-based) ǧ�ڤˤ����� ssh ������ץ������
-.Sh ��
+.Nd ホストベースド (host-based) 認証における ssh の補助プログラム
+.Sh 書式
 .Nm
-.Sh ����
+.Sh 説明
 .Nm
-�ϡ�
+は、
 .Xr ssh 1
-����������ۥ��ȸ��˥�����������
-SSH �ץ��ȥ��� �С������ 2 �ǥۥ��ȥ١����� (host-based) ǧ�ڤ򤪤��ʤ��ݤ�
-ɬ�פʥǥ������̾����������Τ˻Ȥ��ޤ���
+がローカルホスト鍵にアクセスし、
+SSH プロトコル バージョン 2 でホストベースド (host-based) 認証をおこなう際に
+必要なデジタル署名を生成するのに使われます。
 .Pp
 .Nm
-�ϥǥե���ȤǤϻ��ѶػߤˤʤäƤ��ꡢ�����ƥ����Τˤ錄��
-���饤����Ȥ�����ե�����
+はデフォルトでは使用禁止になっており、システム全体にわたる
+クライアントの設定ファイル
 .Pa /etc/ssh/ssh_config
-��
+で
 .Cm EnableSSHKeysign
-������ܤ�
+設定項目を
 .Dq yes
-�����ꤷ���Ȥ��������Ѥ���ޤ���
+に設定したときだけ使用されます。
 .Pp
 .Nm
-��
+は
 .Xr ssh 1
-�ˤ�äƸƤӽФ�����Τǡ��桼����ľ�ܼ¹Ԥ����ΤǤϤ���ޤ���
-�ۥ��ȥ١�����ǧ�ڤξܺ٤ˤĤ��Ƥ�
+によって呼び出されるもので、ユーザが直接実行するものではありません。
+ホストベースド認証の詳細については
 .Xr ssh 1
-�����
+および
 .Xr sshd 8
-�򻲾Ȥ��Ƥ���������
-.Sh ��Ϣ�ե�����
+を参照してください。
+.Sh 関連ファイル
 .Bl -tag -width Ds -compact
 .It Pa /etc/ssh/ssh_config
-���Υե�����ˤ�ꡢ
+このファイルにより、
 .Nm
-�����Ѥ���뤫�ɤ��������ꤵ��ޤ���
+が使用されるかどうかが決定されます。
 .Pp
 .It Pa /etc/ssh/ssh_host_dsa_key
 .It Pa /etc/ssh/ssh_host_ecdsa_key
 .It Pa /etc/ssh/ssh_host_ed25519_key
 .It Pa /etc/ssh/ssh_host_rsa_key
-�����Υե�����ˤϥۥ��Ȥ���̩������Ǽ���졢
-�ǥ������̾����������Τ˻Ȥ��ޤ���
-�����Υե������ root ����ͭ����root �������ɤ߹��߲�ǽ�ˤ��٤��Ǥ��ꡢ
-����ʳ���ï�ˤ��ɤޤ��ƤϤ����ޤ���
-������ root �������ɤ߹��߲�ǽ�ʤ��ᡢ
-�ۥ��ȥ١�����ǧ�ڤ�Ȥ��Ȥ��ϡ�
+これらのファイルにはホストの秘密鍵が格納され、
+デジタル署名を生成するのに使われます。
+これらのファイルは root が所有し、root だけが読み込み可能にすべきであり、
+これ以外の誰にも読ませてはいけません。
+これらは root だけが読み込み可能なため、
+ホストベースド認証を使うときは、
 .Nm
-�� setuid root �ˤ��Ƥ���ɬ�פ�����ޤ���
+を setuid root にしておく必要があります。
 .Pp
 .It Pa /etc/ssh/ssh_host_dsa_key-cert.pub
 .It Pa /etc/ssh/ssh_host_ecdsa_key-cert.pub
 .It Pa /etc/ssh/ssh_host_ed25519_key-cert.pub
 .It Pa /etc/ssh/ssh_host_rsa_key-cert.pub
-�����Υե����뤬¸�ߤ����硢�����ˤ���̩�����б����롢
-�����ξ�����˴ؤ�����󤬳�Ǽ����Ƥ���Ȥߤʤ���ޤ���
+これらのファイルが存在する場合、ここには秘密鍵に対応する、
+公開の証明書に関する情報が格納されているとみなされます。
 .El
-.Sh ��Ϣ����
+.Sh 関連項目
 .Xr ssh 1 ,
 .Xr ssh-keygen 1 ,
 .Xr ssh_config 5 ,
 .Xr sshd 8
-.Sh ���
+.Sh 歴史
 .Nm
-��
+は
 .Ox 3.2
-����Ƴ������ޤ�����
-.Sh ���
+から導入されました。
+.Sh 作者
 .An Markus Friedl Aq Mt markus@openbsd.org
