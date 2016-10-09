@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 import re, sys, time
@@ -479,7 +479,7 @@ def main(argv):
     (opts, args) = getopt.getopt(argv[1:], 'ds:c:C:')
   except getopt.GetoptError:
     return usage()
-  encin = 'euc-jp'
+  encin = 'utf-8'
   encout = 'utf-8'
   for (k, v) in opts:
     if k == '-d': debug += 1

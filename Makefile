@@ -10,7 +10,7 @@ VERSION2=690p1
 RM=rm -f
 CP=cp -f
 TAR=tar
-PYTHON=python
+PYTHON=python2
 ROFF2HTML=$(PYTHON) roff2html.py -s $(VERSION)
 
 DISTNAME=$(PACKAGE)-$(VERSION2)
