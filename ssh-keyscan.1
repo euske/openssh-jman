@@ -84,9 +84,9 @@ ssh が走っていなかったり、ホストがダウンしていたりして�
 認識されます。デフォルトでは 5 秒です。
 .It Fl t Ar 鍵の種類
 ホストから取得する鍵の種類を指定します。
-とりうる値は、プロトコル バージョン 1 の
+とりうる値は、プロトコル 1 の
 .Dq rsa1
-と、プロトコル バージョン 2 の
+と、プロトコル 2 の
 .Dq dsa ,
 .Dq ecdsa ,
 .Dq ed25519
@@ -169,7 +169,7 @@ $ ssh-keyscan -t rsa,dsa,ecdsa,ed25519 -f ssh_hosts | \e
 .An David Mazieres Aq Mt dm@lcs.mit.edu
 が最初のバージョンを書き、
 .An Wayne Davison Aq Mt wayned@users.sourceforge.net
-がプロトコル バージョン 2 のサポートを追加しました。
+がプロトコル 2 のサポートを追加しました。
 .Sh バグ
 サーバ側のバージョンが 2.9 より古いと、
 このプログラムはスキャンしたすべてのマシンのコンソール上に
