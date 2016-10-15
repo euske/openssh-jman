@@ -1,4 +1,4 @@
-.\" $OpenBSD: ssh-agent.1,v 1.59 2015/04/24 06:26:49 jmc Exp $
+.\" $OpenBSD: ssh-agent.1,v 1.62 2015/11/15 23:54:15 jmc Exp $
 .\"
 .\" Author: Tatu Ylonen <ylo@cs.hut.fi>
 .\" Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
@@ -36,7 +36,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: April 24 2015 $
+.Dd $Mdocdate: November 15 2015 $
 .Dt SSH-AGENT 1
 .Os
 .Sh 名前
@@ -45,7 +45,7 @@
 .Sh 書式
 .Nm ssh-agent
 .Op Fl c | s
-.Op Fl Dd
+.Op Fl \&Dd
 .Op Fl a Ar bindするアドレス
 .Op Fl E Ar 鍵の指紋ハッシュ
 .Op Fl t Ar 鍵のデフォルト生存時間
@@ -68,6 +68,13 @@ ssh-agent プログラムのクライアントとして起動するようにし�
 .Pp
 認証エージェントには、起動時には何も秘密鍵がありません。
 鍵を追加するには
+.Xr ssh 1
+(詳細は
+.Xr ssh_config 5
+の
+.Cm AddKeysToAgent
+を参照)
+あるいは
 .Xr ssh-add 1 
 を使います。
 .Nm

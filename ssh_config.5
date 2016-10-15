@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: ssh_config.5,v 1.211 2015/06/02 09:10:40 djm Exp $
-.Dd $Mdocdate: June 2 2015 $
+.\" $OpenBSD: ssh_config.5,v 1.236 2016/07/22 07:00:46 djm Exp $
+.Dd $Mdocdate: July 22 2016 $
 .Dt SSH_CONFIG 5
 .Os
 .Sh 名前
@@ -218,6 +218,49 @@ The
 (このキーワードは、システム全体で
 .Nm
 ファイルを使用するときに有用です)
+.It Cm AddKeysToAgent (エージェントに鍵を追加)
+実行中の
++Specifies whether keys should be automatically added to a running
+.Xr ssh-agent 1
+に自動的に鍵を追加するかどうかを指定します。
+この項目が
+.Dq yes
+に設定されている場合、鍵がファイルから読み込まれると
+その鍵およびパスフレースを
+.Xr ssh-add 1 
+に与えるのと同じ方法で認証エージェントに追加されます。
+鍵の有効時間はデフォルトの値が使われます。
+この項目が
+.Dq ask
+に設定されている場合、
+.Nm ssh
+は
+.Ev SSH_ASKPASS
+プログラムを使って鍵を追加してよいかどうか確認します。
+(詳細は
+.Xr ssh-add 1
+を参照)。
+この項目が
+.Dq confirm
+に設定されている場合、
+.Xr ssh-add 1
+に
+.Fl c
+オプションを与えたのと同様に、
+この鍵を使用するたびに確認をとります。
+この項目が
+.Dq no
+に設定されている場合、鍵は認証エージェントに追加されません。
+とりうる値は
+.Dq yes ,
+.Dq confirm ,
+.Dq ask 
+あるいは
+.Dq no
+のいずれかです。
+デフォルトの値は
+.Dq no 
+です。
 .It Cm AddressFamily (アドレスファミリ)
 接続時にどのアドレスファミリを利用するかを指定します。
 指定できる値は
@@ -227,6 +270,9 @@ The
 (IPv4 のみを使用する) または
 .Dq inet6
 (IPv6 のみを使用する) のいずれかになります。
+デフォルトの値は
+.Dq any 
+です。
 .It Cm BatchMode (バッチ処理モード)
 これが
 .Dq yes
@@ -324,6 +370,38 @@ qualifyされていないホスト名で接続しようとします。
 または
 .Dq *.c.example.com
 ドメインの名前に正規化できることを意味します。
+.It Cm CertificateFile (証明書ファイル)
+ユーザの証明書を読み込むファイルを指定します。
+この証明書を使うには、これに対応する秘密鍵を
+.Cm IdentityFile
+設定項目か、
+.Cm PKCS11Provider
+または
+.Xr ssh-agent 1
+を経由した
+.Xr ssh 1 
+の 
+.Fl i
+オプションで別に与える必要があります。
+.Pp
+ファイル名にはユーザのホームディレクトリを表すのに
+チルダ表記を使うことができ、他にも以下のエスケープ文字が使えます:
+.Ql %d
+(ローカルユーザのホームディレクトリ),
+.Ql %u
+(ローカルのユーザ名),
+.Ql %l
+(ローカルのホスト名),
+.Ql %h
+(リモートのホスト名) または
+.Ql %r
+(リモートのユーザ名)。
+.Pp
+設定ファイルの中で複数の証明書ファイルを指定することもできます。
+その場合は、証明書が順に試されます。
+複数の
+.Cm CertificateFile
+設定項目は認証に使う証明書の一覧に追加します。
 .It Cm ChallengeResponseAuthentication (チャレンジ・レスポンス認証)
 チャレンジ・レスポンス認証をおこなうかどうかを指定します。
 この引数がとりうる値は
@@ -373,6 +451,11 @@ qualifyされていないホスト名で接続しようとします。
 .It Cm Ciphers (複数の暗号方式)
 プロトコル バージョン 2 で使う暗号方式の
 優先順位を指定します。複数の暗号方式をカンマで区切って指定します。
+指定された値が
+.Sq +
+文字から始まっている場合、この暗号方式はデフォルトの方式を
+置き換えるのではなく、追加されます。
+.Pp
 現在のところ、サポートされている暗号方式は以下のとおりです:
 .Pp
 .Bl -item -compact -offset indent
@@ -410,12 +493,10 @@ chacha20-poly1305@openssh.com
 .Pp
 デフォルトは:
 .Bd -literal -offset indent
+chacha20-poly1305@openssh.com,
 aes128-ctr,aes192-ctr,aes256-ctr,
 aes128-gcm@openssh.com,aes256-gcm@openssh.com,
-chacha20-poly1305@openssh.com,
-arcfour256,arcfour128,
-aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,
-aes192-cbc,aes256-cbc,arcfour
+aes128-cbc,aes192-cbc,aes256-cbc,3des-cbc
 .Ed
 の順になっています。
 .Pp
@@ -542,9 +623,11 @@ X11 および
 .Ql %r
 はリモート側のログイン名に、
 .Ql %u
-は
+と
+.Ql %i
+はそれぞれ
 .Xr ssh 1
-実行ユーザのログイン名に、
+実行ユーザのログイン名とユーザID (uid) の数値に、
 そして
 .Ql \&%C
 は %l%h%p%r を連結したハッシュ値に変換されます。
@@ -644,9 +727,17 @@ IPv6 アドレスは、ブラケット [ ] で囲むことにより指定しま�
 データに対して透過にすることになります)。
 .It Cm ExitOnForwardFailure (転送できない場合に終了)
 要求された (ローカル、リモート、トンネリング、あるいはダイナミック) 
-ポート転送すべてを設定できない場合に、
+ポート転送すべてを設定できない場合
+(たとえば指定されたポートを bind または listen できない場合など)、
 .Xr ssh 1
-を終了すべきかどうかを指定します。引数は
+を終了すべきかどうかを指定します。
+注意:
+.Cm ExitOnForwardFailure
+はポート転送された接続そのものに対しては適用されません。
+つまり、最終的な転送先への TCP 接続が失敗しても
+.Xr ssh 1
+が終了することはありません。
+引数は
 .Dq yes
 あるいは
 .Dq no
@@ -759,13 +850,11 @@ GSSAPI ベースの認証をおこなうかどうかを指定します。
 デフォルトの値は
 .Dq no
 です。
-注意: この項目はプロトコル バージョン 2 にのみ適用されます。
 .It Cm GSSAPIDelegateCredentials (証明書の転送)
 証明書 (credential) をサーバに転送 (委譲) するかどうかを指定します。
 デフォルトは
 .Dq no
 になっています。
-注意: この項目はプロトコル バージョン 2 にのみ適用されます。
 .It Cm HashKnownHosts (known_hostsをハッシュする)
 .Xr ssh 1
 が新しいホストを
@@ -792,35 +881,47 @@ GSSAPI ベースの認証をおこなうかどうかを指定します。
 で、デフォルトは
 .Dq no (ホストベースド認証を試みない)
 になっています。
-この項目はプロトコル バージョン 2 にのみ適用され、
-.Cm RhostsRSAAuthentication
-と似ています。
 .It Cm HostbasedKeyTypes (ホスト鍵の形式)
 ホストベースド認証に使われる鍵の形式を
 カンマで区切って指定します。
-デフォルト値である
-.Dq *
-は、すべての形式を許可します。
+これ以外にも、指定された値が
+.Sq +
+文字から始まっている場合、指定された鍵の形式はデフォルトを
+置き換えるのではなく、追加されます。
+この項目に対するデフォルトの値は:
+.Bd -literal -offset 3n
+ecdsa-sha2-nistp256-cert-v01@openssh.com,
+ecdsa-sha2-nistp384-cert-v01@openssh.com,
+ecdsa-sha2-nistp521-cert-v01@openssh.com,
+ssh-ed25519-cert-v01@openssh.com,
+ssh-rsa-cert-v01@openssh.com,
+ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,
+ssh-ed25519,ssh-rsa
+.Ed
+です。
+.Pp
 .Xr ssh 1
 で
 .Fl Q
 オプションを使うと、
 サポートされている鍵の形式の一覧を見ることができます。
 .It Cm HostKeyAlgorithms (ホスト間認証の方式)
-プロトコル バージョン 2 において、
 ホスト間認証で使われる方式を指定します。
 クライアントはここで指定された
 優先順位の方式を使って認証を試みます。
+これ以外にも、指定された値が
+.Sq +
+文字から始まっている場合、指定された認証の方式はデフォルトを
+置き換えるのではなく、追加されます。
 この項目のデフォルトは
 .Bd -literal -offset 3n
 ecdsa-sha2-nistp256-cert-v01@openssh.com,
 ecdsa-sha2-nistp384-cert-v01@openssh.com,
 ecdsa-sha2-nistp521-cert-v01@openssh.com,
 ssh-ed25519-cert-v01@openssh.com,
-ssh-rsa-cert-v01@openssh.com,ssh-dss-cert-v01@openssh.com,
-ssh-rsa-cert-v00@openssh.com,ssh-dss-cert-v00@openssh.com,
+ssh-rsa-cert-v01@openssh.com,
 ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,
-ssh-ed25519,ssh-rsa,ssh-dss
+ssh-ed25519,ssh-rsa
 .Ed
 です。
 .Pp
@@ -870,7 +971,10 @@ ssh-ed25519,ssh-rsa,ssh-dss
 .Cm PKCS11Provider
 が複数の秘密鍵を持っていた場合でも、
 .Nm
-ファイルで指定された秘密鍵のみを使用するよう指定します。
+ファイルか
+.Xr ssh 1
+のコマンドラインから明示的に指定された
+秘密鍵および証明書のみを使用するよう指定します。
 この引数のとりうるキーワードは
 .Dq yes
 または
@@ -881,6 +985,36 @@ ssh-ed25519,ssh-rsa,ssh-dss
 デフォルトでは
 .Dq no
 になっています。
+.It Cm IdentityAgent (認証エージェント)
+認証エージェントとの通信に使う
+.Ux Ns -ドメイン
+ソケットを指定します。
+.Pp
+この設定項目は
+.Dq SSH_AUTH_SOCK
+環境変数で指定された値よりも優先され、特定のエージェントを選択するのに
+使うことができます。
+ソケットの名前に
+.Dq none
+を指定すると、認証エージェントの使用は禁止されます。
+文字列
+.Dq SSH_AUTH_SOCK
+を指定すると、ソケットの場所は
+.Ev SSH_AUTH_SOCK
+環境変数で指定された値になります。
+.Pp
+ソケットの名前では、ユーザのホームディレクトリを表すのに
+チルダ表記を使うことができ、他にも以下のエスケープ文字が使えます:
+.Ql %d
+(ローカルユーザのホームディレクトリ),
+.Ql %u
+(ローカルのユーザ名),
+.Ql %l
+(ローカルのホスト名),
+.Ql %h
+(リモートのホスト名) または
+.Ql %r
+(リモートのユーザ名)。
 .It Cm IdentityFile (identity ファイル)
 ユーザの DSA, ECDSA, Ed25519 または RSA 認証用 identity (秘密鍵) を
 読むファイルを指定します。
@@ -897,6 +1031,9 @@ ssh-ed25519,ssh-rsa,ssh-dss
 .Cm IdentitiesOnly
 が設定されていない場合は、
 これに加えて認証エージェントによって現れる identity も使われます。
+証明書が
+.Cm CertificateFile 
+によって明示的に指定されていない場合、
 .Xr ssh 1
 は、
 .Cm IdentityFile
@@ -930,6 +1067,11 @@ ssh-ed25519,ssh-rsa,ssh-dss
 .Cm IdentitiesOnly
 と組み合わせることによって、エージェントが認証時に
 どの identity を提供するかを選択することができます。
+.Cm IdentityFile
+は
+.Cm CertificateFile
+と組み合わせて、その秘密鍵の認証で使われる
+証明書を指定することもできます。
 .It Cm IgnoreUnknown (不明な項目を無視)
 設定ファイルを解析する際に不明な項目がある場合、
 それらを無視するパターンのリストを指定します。
@@ -941,6 +1083,27 @@ ssh-ed25519,ssh-rsa,ssh-dss
 .Cm IgnoreUnknown
 項目は、これ以前に現れた項目には反応しないため、
 この項目は設定ファイルの最初に書いておくことを推奨します。
+.It Cm Include (インクルード)
+指定された設定ファイルをインクルードします。
+複数のパス名を指定することもでき、各パス名に
+.Xr glob 3
+ワイルドカードを使うこともできます。
+ユーザの設定ファイルに対しては、ホームディレクトリを表す文字として
+シェル同様に
+.Dq ~
+が使えます。
+絶対パス名でないファイル名は、ユーザ設定ファイルの場合は
+.Pa ~/.ssh
+以下のパスを指すと解釈され、システム設定ファイルの場合は
+.Pa /etc/ssh
+以下のパスを指すと解釈されます。
+.Cm Include
+指令は
+.Cm Match
+または
+.Cm Host
+指定の中に書くこともでき、
+その場合は条件によってインクルードされるかどうかが決まります。
 .It Cm IPQoS (QoS指定)
 接続における IPv4 type-of-service または DSCP クラスを指定します。
 可能な値は
@@ -1000,14 +1163,17 @@ OpenSSH サーバの場合、これは以下の組み合わせになります:
 .It Cm KexAlgorithms (鍵交換アルゴリズム)
 利用可能な KEX (Key Exchange、鍵交換) アルゴリズムを指定します。
 複数のアルゴリズムはカンマで区切ってください。
+あるいは指定された値が
+.Sq +
+文字から始まっている場合、この鍵交換方式はデフォルトの方式を
+置き換えるのではなく、追加されます。
 デフォルトは:
 .Bd -literal -offset indent
 curve25519-sha256@libssh.org,
 ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,
 diffie-hellman-group-exchange-sha256,
 diffie-hellman-group-exchange-sha1,
-diffie-hellman-group14-sha1,
-diffie-hellman-group1-sha1
+diffie-hellman-group14-sha1
 .Ed
 .Pp
 .Xr ssh 1
@@ -1082,24 +1248,25 @@ QUIET, FATAL, ERROR, INFO, VERBOSE, DEBUG, DEBUG1, DEBUG2
 DEBUG2、DEBUG3 はそれぞれさらに冗長なログになります。
 .It Cm MACs (メッセージ認証コード)
 使用する MAC (メッセージ認証コード) 方式の優先順位を指定します。
-MAC 方式はプロトコル バージョン 2 で使われる、
-データの改竄を防ぐ機構 (data integrity protection) です。
+MAC 方式はデータの改竄を防ぐ機構 (data integrity protection) で、
 複数の方式をカンマで区切って指定します。
+指定された値が
+.Sq +
+文字から始まっている場合、このMAC方式はデフォルトの方式を
+置き換えるのではなく、追加されます。
+.Pp
 名前に
 .Dq -etm
 を含む方式では、MAC 値を暗号化のあとに計算します (encrypt-then-mac)。
 こちらのほうが安全であると考えられており、推奨されています。
+.Pp
 デフォルトは:
 .Bd -literal -offset indent
 umac-64-etm@openssh.com,umac-128-etm@openssh.com,
 hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,
+hmac-sha1-etm@openssh.com,
 umac-64@openssh.com,umac-128@openssh.com,
-hmac-sha2-256,hmac-sha2-512,
-hmac-md5-etm@openssh.com,hmac-sha1-etm@openssh.com,
-hmac-ripemd160-etm@openssh.com,
-hmac-sha1-96-etm@openssh.com,hmac-md5-96-etm@openssh.com,
-hmac-md5,hmac-sha1,hmac-ripemd160,
-hmac-sha1-96,hmac-md5-96
+hmac-sha2-256,hmac-sha2-512,hmac-sha1
 .Ed
 の順になっています。
 .Pp
@@ -1159,7 +1326,7 @@ localhost のときにはホスト間認証を抑制することができます�
 リモートホストに接続するときのポート番号を指定します。
 デフォルトのポートは 22 です。
 .It Cm PreferredAuthentications (認証の優先順位)
-プロトコル 2 で試される認証の優先順位を指定します。
+クライアントが試みる認証の優先順位を指定します。
 これによって、クライアントは特定の認証 (
 .Cm keyboard-interactive 
 など) をそれ以外の認証 (
@@ -1195,6 +1362,9 @@ keyboard-interactive,password
 デフォルトは
 .Sq 2 
 です。
+プロトコル バージョン 1 にはいくつもの暗号上の弱点があり、
+使うべきではありません。
+これはレガシー・デバイスのサポート用のみに提供されています。
 .It Cm ProxyCommand (プロキシ コマンド)
 サーバに接続するのに使用するコマンドを指定します。
 コマンド文字列はこのキーワード以後、行末まで書くことができます。
@@ -1233,6 +1403,32 @@ HostName を使っておこなわれます (デフォルトでは、これはユ
 .Bd -literal -offset 3n
 ProxyCommand /usr/bin/nc -X connect -x 192.0.2.0:8080 %h %p
 .Ed
+.It Cm ProxyJump (プロキシ・ジャンプ)
+ひとつあるいは複数のジャンプ・プロキシを
+.Xo
+.Sm off
+.Op Ar ユーザ No @
+.Ar ホスト
+.Op : Ns Ar ポート
+.Sm on
+.Xc
+の形式で指定します。
+カンマで区切って、複数のプロキシを指定することもできます。
+これらは順に到達されます。
+この設定項目を指定すると、
+.Xr ssh 1
+はまず
+.Cm ProxyJump
+対象ホストに
+.Xr ssh 1
+で接続し、そこから最終的なホストに対して
+ポート転送を確立します。
+.Pp
+注意: この設定項目は
+.Cm ProxyCommand
+と衝突することに注意してください。
+どちらか最初に指定された方が有効になり、
+あとの指定は効果がなくなります。
 .It Cm ProxyUseFdpass (プロキシでファイル記述子を使用)
 接続中のファイル記述子を
 .Cm ProxyCommand
@@ -1242,6 +1438,28 @@ ProxyCommand /usr/bin/nc -X connect -x 192.0.2.0:8080 %h %p
 デフォルトは
 .Dq no 
 になっています。
+.It Cm PubkeyAcceptedKeyTypes (使用する公開鍵の形式)
+公開鍵認証のさいに使用される鍵の形式をカンマで区切って指定します。
+指定された値が
+.Sq +
+文字から始まっている場合、デフォルトの形式を
+置き換えるのではなく、追加されます。
+この項目のデフォルト値は以下のとおりです:
+.Bd -literal -offset 3n
+ecdsa-sha2-nistp256-cert-v01@openssh.com,
+ecdsa-sha2-nistp384-cert-v01@openssh.com,
+ecdsa-sha2-nistp521-cert-v01@openssh.com,
+ssh-ed25519-cert-v01@openssh.com,
+ssh-rsa-cert-v01@openssh.com,
+ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,
+ssh-ed25519,ssh-rsa
+.Ed
+.Pp
+現在サポートされている鍵の形式一覧を見るには、
+.Xr ssh 1
+の
+.Fl Q
+オプションを使います。
 .It Cm PubkeyAuthentication (公開鍵認証)
 公開鍵認証をおこなうかどうかを指定します。
 このキーワードの引数は
@@ -1252,7 +1470,6 @@ ProxyCommand /usr/bin/nc -X connect -x 192.0.2.0:8080 %h %p
 デフォルトでは
 .Dq yes (公開鍵認証をおこなう)
 になっています。
-この設定項目はプロトコル バージョン 2 にのみ適用されます。
 .It Cm RekeyLimit (rekey の制限)
 セッション鍵が再生成される (rekey) までに
 許される最大のデータ量を指定します。
@@ -1279,7 +1496,6 @@ ProxyCommand /usr/bin/nc -X connect -x 192.0.2.0:8080 %h %p
 で、これは鍵の再生成がその暗号アルゴリズムのデフォルト値で
 許されるデータ量だけ送信または受信したときにおこなわれることを示し、
 時間による再生成はおこなわないことを意味します。
-この設定項目はプロトコル バージョン 2 にのみ適用されます。
 .It Cm RemoteForward (リモート→ローカル転送)
 リモートマシン上の TCP ポートを、安全な通信路を経由して
 ローカルマシン上から与えられた host:post に転送するよう指示します
@@ -1382,9 +1598,9 @@ RSA 認証を使うかどうかを指定します。
 (
 .Xr environ 7
 ) のうち、どれをサーバに送信すべきかを設定します。
-注意: 環境変数の受け渡しがサポートされているのは
-プロトコル バージョン 2 のみで、サーバがこれをサポートするように
-なっており、なおかつそれらの環境変数を許可するよう設定されているときだけです。
+注意: 環境変数の受け渡しがサポートされているのは、
+サーバがこれをサポートするようになっており、
+なおかつそれらの環境変数を許可するよう設定されているときだけです。
 注意:
 .Ev TERM
 環境変数は、プロトコルによる規定で、
@@ -1427,7 +1643,6 @@ ssh はサーバ側との接続を切断し、セッションを終了させま�
 .Cm ServerAliveCountMax
 がデフォルトのままだったとしたら、ssh は
 サーバが応答しなくなった後およそ 45 秒後に接続を切断します。
-この設定項目はプロトコル バージョン 2 にのみ適用されます。
 .It Cm ServerAliveInterval (サーバ生存確認の間隔)
 一定期間サーバからデータが送られてこないときに、
 タイムアウトする秒数を設定します。この場合
@@ -1435,7 +1650,6 @@ ssh はサーバ側との接続を切断し、セッションを終了させま�
 は暗号化された通信路を介してサーバ側に
 返答を要求するメッセージを送ります。
 デフォルトは 0 で、これはこのようなメッセージをサーバ側に送らないことを指示しています。
-この設定項目は プロトコル バージョン 2 でのみ有効です。
 .It Cm StreamLocalBindMask (Unixドメインソケット作成時のマスク)
 ローカルまたはリモートのポート転送のさいに、
 Unixドメインソケットファイルを作成する時の
@@ -1653,7 +1867,6 @@ DNS 上の安全な指紋に一致する鍵を信頼するようになります�
 です。デフォルトでは
 .Dq no
 になっています。
-注意: この設定項目はプロトコル バージョン 2 にのみ適用されます。
 .Pp
 .Xr ssh 1
 の

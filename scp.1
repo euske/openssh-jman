@@ -8,11 +8,11 @@
 .\"
 .\" Created: Sun May  7 00:14:37 1995 ylo
 .\"
-.\" $OpenBSD: scp.1,v 1.66 2015/01/30 11:43:14 djm Exp $
+.\" $OpenBSD: scp.1,v 1.71 2016/07/16 06:57:55 jmc Exp $
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: January 30 2015 $
+.Dd $Mdocdate: July 16 2016 $
 .Dt SCP 1
 .Os
 .Sh 名前
@@ -130,6 +130,7 @@
 .It CanonicalizeHostname
 .It CanonicalizeMaxDots
 .It CanonicalizePermittedCNAMEs
+.It CertificateFile
 .It ChallengeResponseAuthentication
 .It CheckHostIP
 .It Cipher
@@ -151,8 +152,9 @@
 .It HostKeyAlgorithms
 .It HostKeyAlias
 .It HostName
-.It IdentityFile
 .It IdentitiesOnly
+.It IdentityAgent
+.It IdentityFile
 .It IPQoS
 .It KbdInteractiveAuthentication
 .It KbdInteractiveDevices
@@ -167,6 +169,8 @@
 .It PreferredAuthentications
 .It Protocol
 .It ProxyCommand
+.It ProxyJump
+.It PubkeyAcceptedKeyTypes
 .It PubkeyAuthentication
 .It RekeyLimit
 .It RhostsRSAAuthentication

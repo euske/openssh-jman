@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: sshd_config.5,v 1.203 2015/05/22 03:50:02 djm Exp $
-.Dd $Mdocdate: May 22 2015 $
+.\" $OpenBSD: sshd_config.5,v 1.227 2016/07/19 12:59:16 jmc Exp $
+.Dd $Mdocdate: July 19 2016 $
 .Dt SSHD_CONFIG 5
 .Os
 .Sh 名前
@@ -57,7 +57,7 @@
 .Ql #
 で始まる行はコメントとみなされます。
 空白を含む引数はダブルクォート
-.Pq \&"
+.Pq \&\"
 で囲んで表現することもできます。
 .Pp
 使用できるキーワードとその説明は以下の通りです
@@ -73,7 +73,6 @@
 の
 .Cm SendEnv
 項目を参照してください。
-環境変数の受け渡しはプロトコル バージョン 2 でのみサポートされています。
 注意:
 .Ev TERM
 環境変数は、プロトコルによる規定で、クライアントが
@@ -187,6 +186,8 @@ StreamLocal 転送を禁止しても、ユーザにシェルのアクセスを�
 もしこのパターンが USER@HOST という形をとっている時は、
 ユーザ名 USER と ホスト名 HOST を別々にチェックでき、
 特定のホストからの特定のユーザのログインを制限することができます。
+HOST 句にはこれに加えて、アドレス/マスク長 という形式の CIDR 表記を
+書くこともできます。
 allow/deny 関連の項目は以下の順に処理されます:
 .Cm DenyUsers 、
 .Cm AllowUsers 、
@@ -201,7 +202,11 @@ allow/deny 関連の項目は以下の順に処理されます:
 .It Cm AuthenticationMethods (認証方式)
 ユーザがアクセスの許可を得るために完了しなければならない認証方式を指定します。
 このオプションはひとつ以上の認証方式名をカンマで区切ったものの
-一覧として与えられます。認証を成功させるためには、
+一覧として与えられます。ここで
+.Dq any
+を指定すると、いずれかの認証方式ひとつを
+受け入れるというデフォルトの動作になります。
+認証を成功させるためには、
 ユーザはこのリスト中に含まれているいずれかの項目に対して、
 指定されているすべての方式を完了する必要があります。
 .Pp
@@ -238,10 +243,11 @@ allow/deny 関連の項目は以下の順に処理されます:
 .Dq publickey,publickey
 の場合、2つの異なる公開鍵による認証に成功する必要があります。
 .Pp
-このオプションは SSH プロトコル バージョン 2 でのみ有効です。
-同時に SSH 1 も許可されている場合に使用すると致命的なエラーが発生します。
+このオプションは SSH 1 も許可されている場合に使用すると致命的なエラーが発生します。
 また、ここで使う各認証方式は設定ファイル中でそれぞれ許可されている必要があります。
-デフォルトでは、複数の認証方式は使用しません。
+デフォルトの値は
+.Dq any
+であり、複数の認証方式は使用しません。
 単一の認証方式で成功すれば、認証は成功したとみなされます。
 .It Cm AuthorizedKeysCommand (認証鍵コマンド)
 ユーザの特定の公開鍵を検索するのに使うコマンドを指定します。
@@ -297,6 +303,9 @@ AuthorizedKeysCommand コマンドを実行するユーザ名を指定します�
 その絶対パスあるいはユーザのホームディレクトリからの相対パスが
 .Cm AuthorizedKeysFile
 に渡されます。複数のファイルは空白で区切ることにより指定できます。
+または、この項目に
+.Dq none
+を指定すると、ファイル中のユーザの鍵の検査はおこなわれません。
 デフォルトの値は
 .Dq .ssh/authorized_keys .ssh/authorized_keys2
 となっています。
@@ -382,7 +391,6 @@ AuthorizedPrincipalsCommand コマンドを実行するユーザ名を指定し�
 引数に
 .Dq none
 を指定した場合、バナーは表示されません。
-この設定項目は プロトコル バージョン 2 でのみサポートされています。
 デフォルトでは、バナーは表示されません。
 .It Cm ChallengeResponseAuthentication (チャレンジ・レスポンス認証)
 チャレンジ・レスポンス認証を許可するかどうか指定します。
@@ -443,13 +451,19 @@ chroot されたディレクトリ内に、ログ出力のための
 .Xr sshd 8
 が検出することのできない、安全でない環境をつくりだす場合があります。
 .Pp
-デフォルトでは、
+デフォルトは、
+.Dq none
+であり、
 .Xr chroot 2
 をおこなわない設定になっています。
-.It Cm Ciphers (SSH2の暗号方式)
-プロトコル バージョン 2 で許可される暗号方式を
-指定します。複数の暗号方式を指定する場合は、
-カンマで区切ってください。
+.It Cm Ciphers (暗号方式)
+許可される暗号方式を指定します。
+複数の暗号方式を指定する場合は、カンマで区切ってください。
+指定された値が
+.Sq +
+文字から始まっている場合、暗号方式はデフォルトの方式を
+上書きするのではなく、追加されます。
+.Pp
 現在サポートされている暗号方式は以下のとおりです:
 .Pp
 .Bl -item -compact -offset indent
@@ -487,9 +501,9 @@ chacha20-poly1305@openssh.com
 .Pp
 デフォルトは、
 .Bd -literal -offset indent
+chacha20-poly1305@openssh.com,
 aes128-ctr,aes192-ctr,aes256-ctr,
-aes128-gcm@openssh.com,aes256-gcm@openssh.com,
-chacha20-poly1305@openssh.com
+aes128-gcm@openssh.com,aes256-gcm@openssh.com
 .Ed
 です。
 .Pp
@@ -523,7 +537,6 @@ client alive message は暗号化された経路を介して送られるので�
 .Cm ClientAliveCountMax
 がデフォルトのままである場合、これに反応できない SSH クライアントは
 およそ 45 秒後に接続が切られます。
-この設定項目は プロトコル バージョン 2 でのみサポートされています。
 .It Cm ClientAliveInterval (クライアントの生存チェック間隔)
 .Xr sshd 8
 は一定時間ごとに、
@@ -532,7 +545,6 @@ client alive message は暗号化された経路を介して送られるので�
 その際、何もデータが送られてこなかったらタイムアウトする
 時間を秒数で指定します。デフォルトの値は 0 で、
 これはメッセージを送らないことを意味します。
-この設定項目は プロトコル バージョン 2 でのみサポートされています。
 .It Cm Compression (圧縮)
 圧縮を許可するかどうか、あるいは遅延圧縮 (そのユーザが認証されてから
 初めて圧縮を許可する) をおこなうかどうかを指定します。
@@ -571,6 +583,8 @@ allow/deny 関連の項目は以下の順に処理されます:
 もしこのパターンが USER@HOST という形をとっている時は、
 ユーザ名 USER と ホスト名 HOST を別々にチェックでき、
 特定のホストからの特定のユーザのログインを制限することができます。
+HOST 句にはこれに加えて、アドレス/マスク長 という形式の CIDR 表記を
+書くこともできます。
 allow/deny 関連の項目は以下の順に処理されます:
 .Cm DenyUsers 、
 .Cm AllowUsers 、
@@ -611,6 +625,9 @@ allow/deny 関連の項目は以下の順に処理されます:
 .Cm ChrootDirectory
 が指定されているときに、
 外部のファイルなしで動作できます。
+デフォルトは
+.Dq none
+です。
 .It Cm GatewayPorts (ポート中継の許可)
 リモートホストがクライアント側に転送されたポートに接続することを
 許可するかどうか指定します。デフォルトでは、
@@ -637,14 +654,12 @@ GSSAPI ベースのユーザ認証を使用するかどうかを指定します�
 これはデフォルトでは
 .Dq no
 になっています。
-注意: この設定項目はプロトコル バージョン 2 のみに適用されます。
 .It Cm GSSAPICleanupCredentials (GSSAPI 証明書の消去)
 ユーザがログアウトするときに、その証明書 (credential) キャッシュを
 自動的に消去するかどうかを指定します。
 デフォルトでは
 .Dq yes
 です。
-注意: この設定項目はプロトコル バージョン 2 のみに適用されます。
 .It Cm GSSAPIStrictAcceptorCheck (GSSAPIアクセプタの厳密なチェック)
 クライアント側の証明が使っているGSSAPIアクセプタの信憑性について
 より厳密なチェックをおこなうかどうかを指定します。
@@ -661,9 +676,21 @@ GSSAPI ベースのユーザ認証を使用するかどうかを指定します�
 です。
 .It Cm HostbasedAcceptedKeyTypes (ホストベースド認証の鍵の形式)
 ホストベースド認証で受けつける鍵の形式をカンマで区切って指定します。
-デフォルトは
-.Dq *
-で、これはすべての形式を許可します。
+指定された値が
+.Sq +
+文字から始まっている場合、ここで指定される鍵の形式はデフォルトの形式を
+上書きするのではなく、追加されます。
+この項目のデフォルトの値は、
+.Bd -literal -offset 3n
+ecdsa-sha2-nistp256-cert-v01@openssh.com,
+ecdsa-sha2-nistp384-cert-v01@openssh.com,
+ecdsa-sha2-nistp521-cert-v01@openssh.com,
+ssh-ed25519-cert-v01@openssh.com,
+ssh-rsa-cert-v01@openssh.com,
+ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,
+ssh-ed25519,ssh-rsa
+.Ed
+.Pp
 .Xr ssh 1
 の
 .Fl Q
@@ -673,9 +700,6 @@ GSSAPI ベースのユーザ認証を使用するかどうかを指定します�
 公開鍵ホスト認証が成功したときに、
 rhosts あるいは /etc/hosts.equiv 認証を許可するかどうか
 指定します (ホストベースド認証)。
-この設定項目は
-.Cm RhostsRSAAuthentication (RhostsRSA 認証の許可)
-に似ており、プロトコル バージョン 2 のみに作用します。
 デフォルトの値は
 .Dq no 
 になっています。
@@ -717,9 +741,16 @@ SSH で使われる、ホスト秘密鍵が格納されているファイルを�
 および
 .Pa /etc/ssh/ssh_host_rsa_key
 です。
-このファイルがグループあるいは他人からアクセス可能になっていると、
+.Pp
+このファイルがグループあるいは他人からアクセス可能になっており、
+実際に使われる
+.Xr sshd 8
+の
+.Cm HostKeyAlgorithms
+設定項目がその使用を制限している場合、
 .Xr sshd 8
 はその使用を拒絶するので注意してください。
+.Pp
 複数のホスト鍵を使うことも可能です。
 .Dq rsa1
 鍵はバージョン 1 に使われ、
@@ -736,10 +767,30 @@ SSH で使われる、ホスト秘密鍵が格納されているファイルを�
 .It Cm HostKeyAgent (ホスト鍵エージェント)
 ホスト秘密鍵にアクセスできる認証エージェントと通信するさいの
 UNIXドメインソケットを指定します。
+文字列
 .Dq SSH_AUTH_SOCK
 が指定されている場合、ソケットの位置は
 .Ev SSH_AUTH_SOCK
 環境変数で指定されます。
+.It Cm HostKeyAlgorithms (ホスト鍵の方式)
+サーバが提供するホスト鍵のアルゴリズムを指定します。
+この項目のデフォルトは、次のとおりです:
+.Bd -literal -offset 3n
+ecdsa-sha2-nistp256-cert-v01@openssh.com,
+ecdsa-sha2-nistp384-cert-v01@openssh.com,
+ecdsa-sha2-nistp521-cert-v01@openssh.com,
+ssh-ed25519-cert-v01@openssh.com,
+ssh-rsa-cert-v01@openssh.com,
+ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,
+ssh-ed25519,ssh-rsa
+.Ed
+.Pp
+.Xr ssh 1
+の
+.Fl Q
+オプションに引数
+.Dq key
+を指定して使うと、サポートされている鍵の形式の一覧を見ることができます。
 .It Cm IgnoreRhosts (rhosts の無視)
 .Cm RhostsRSAAuthentication
 または
@@ -846,6 +897,10 @@ Kerberos 経由のパスワード認証が失敗すると、そのパスワー�
 .It Cm KexAlgorithms (鍵交換アルゴリズム)
 利用可能な KEX (Key Exchange、鍵交換) アルゴリズムを指定します。
 複数のアルゴリズムはカンマで区切ってください。
+指定された値が
+.Sq +
+文字から始まっている場合、ここで指定される方式はデフォルトを
+上書きするのではなく、追加されます。
 サポートされているアルゴリズムは:
 .Pp
 .Bl -item -compact -offset indent
@@ -938,9 +993,13 @@ DEBUG レベル以上のログはユーザのプライバシーを侵害する�
 勧められるものではありません。
 .It Cm MACs (メッセージ認証コード)
 使用する MAC (メッセージ認証コード) 方式の優先順位を指定します。
-MAC 方式はプロトコル バージョン 2 で使われる、
-データの改ざんを防ぐ機構 (data integrity protection) です。
+MAC 方式はデータの改ざんを防ぐ機構 (data integrity protection) です。
 複数の方式をカンマで区切って指定します。
+指定された値が
+.Sq +
+文字から始まっている場合、ここで指定される MAC のアルゴリズムはデフォルトの方式を
+上書きするのではなく、追加されます。
+.Pp
 名前に
 .Dq -etm
 を含む方式では、MAC 値を暗号化のあとに計算します (encrypt-then-mac)。
@@ -990,8 +1049,9 @@ umac-128-etm@openssh.com
 .Bd -literal -offset indent
 umac-64-etm@openssh.com,umac-128-etm@openssh.com,
 hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,
+hmac-sha1-etm@openssh.com,
 umac-64@openssh.com,umac-128@openssh.com,
-hmac-sha2-256,hmac-sha2-512
+hmac-sha2-256,hmac-sha2-512,hmac-sha1
 .Ed
 の順になっています。
 .It Cm Match (条件分岐)
@@ -1068,6 +1128,8 @@ hmac-sha2-256,hmac-sha2-512
 .Cm AuthorizedKeysCommand ,
 .Cm AuthorizedKeysCommandUser ,
 .Cm AuthorizedKeysFile ,
+.Cm AuthorizedPrincipalsCommand ,
+.Cm AuthorizedPrincipalsCommandUser ,
 .Cm AuthorizedPrincipalsFile ,
 .Cm Banner ,
 .Cm ChrootDirectory ,
@@ -1110,8 +1172,14 @@ hmac-sha2-256,hmac-sha2-512
 ここで指定された半数以上の認証が失敗すると、それ以降の失敗はログに記録されます。
 デフォルトの値は 6 です。
 .It Cm MaxSessions (最大セッション数)
-ネットワーク接続 1つあたりに許される最大のセッション数を指定します。
-デフォルトは 10 です。
+ネットワーク接続 1つあたりに許されるシェル、ログインまたはサブシステム利用の
+最大数を指定します。
+複数のセッションは多重接続をサポートするクライアントによって確立することができます。
+.Cm MaxSessions
+の値を 1 に指定すると、事実上、多重接続は禁止されます。
+この値を 0 に指定すると、シェル、ログインまたはサブシステム利用は
+すべて禁止されますが、ポート転送は許可されます。
+デフォルトの値は 10 です。
 .It Cm MaxStartups (最大起動数)
 認証されていない段階の接続を
 SSH デーモンが最大でどれだけ受けつけるかを指定します。
@@ -1174,22 +1242,32 @@ SSH デーモンが最大でどれだけ受けつけるかを指定します。
 引数として
 .Dq none
 を使うと、すべてのポート転送要求を禁止します。
+ワイルドカード
+.Dq *
+はすべてのホストおよびポートを許可するものとして、
+ホストまたはポートの指定に使えます。
 デフォルトでは、すべてのポート転送が許可されています。
 .It Cm PermitRootLogin (root ログイン許可)
 .Xr ssh 1
 を使って、root がログインできるかどうか指定します。この引数の値は
 .Dq yes
 、 
+.Dq prohibit-password
+(パスワード禁止)、
 .Dq without-password
-(パスワード認証なし)、
+(パスワードなし)、
 .Dq forced-commands-only
 (強制コマンドのみ)、あるいは
 .Dq no
 のいずれかになります。デフォルトは
-.Dq no
+.Dq prohibit-password 
 です。この設定項目を
+.Dq prohibit-password
+または
 .Dq without-password
-にすると、root はパスワード認証ではログインできなくなります。
+にすると、
+root はパスワード認証 (password) あるいはキーボード対話的認証 (keyboard-interactive) では
+ログインできなくなります。
 .Pp
 この設定項目を
 .Dq forced-commands-only
@@ -1297,6 +1375,9 @@ SSH デーモンのプロセス ID を格納するファイルを指定します
 デフォルトは
 .Dq 2
 です。
+プロトコル バージョン 1 にはいくつもの暗号上の弱点があり、
+使うべきではありません。
+これはレガシー・デバイスのサポート用のみに提供されています。
 ここでのプロトコルの順番は、優先度を指定するものではないことに
 注意してください。なぜなら複数のプロトコルがサーバで使用可能な場合、
 選択するのはクライアント側だからです。よって
@@ -1306,9 +1387,21 @@ SSH デーモンのプロセス ID を格納するファイルを指定します
 と同じです。
 .It Cm PubkeyAcceptedKeyTypes (公開鍵の形式)
 公開鍵認証のさいに受けつける鍵の形式をカンマで区切って指定します。
-デフォルトは
-.Dq *
-で、これはすべての形式を許可します。
+指定された値が
+.Sq +
+文字から始まっている場合、指定された形式はデフォルトの形式を
+上書きするのではなく、追加されます。
+デフォルトの値は以下のとおりです:
+.Bd -literal -offset 3n
+ecdsa-sha2-nistp256-cert-v01@openssh.com,
+ecdsa-sha2-nistp384-cert-v01@openssh.com,
+ecdsa-sha2-nistp521-cert-v01@openssh.com,
+ssh-ed25519-cert-v01@openssh.com,
+ssh-rsa-cert-v01@openssh.com,
+ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,
+ssh-ed25519,ssh-rsa
+.Ed
+.Pp
 .Xr ssh 1
 の
 .Fl Q
@@ -1319,8 +1412,6 @@ SSH デーモンのプロセス ID を格納するファイルを指定します
 デフォルトは
 .Dq yes
 です。
-この設定項目は プロトコル バージョン 2 にのみ適用されることに
-注意してください。
 .It Cm RekeyLimit (rekey の制限)
 セッション鍵が再生成される (rekey) までに
 許される最大のデータ量を指定します。
@@ -1347,7 +1438,6 @@ SSH デーモンのプロセス ID を格納するファイルを指定します
 で、これは鍵の再生成がその暗号アルゴリズムのデフォルト値で
 許されるデータ量だけ送信または受信したときにおこなわれることを示し、
 時間による再生成はおこなわないことを意味します。
-この設定項目はプロトコル バージョン 2 にのみ適用されます。
 .It Cm RevokedKeys (廃止された鍵)
 廃止された公開鍵を指定します。ない場合は
 .Dq none
@@ -1378,7 +1468,7 @@ RSA ホスト間認証が成功しているとき、rhosts や /etc/hosts.equiv
 .It Cm ServerKeyBits (サーバ鍵のビット数)
 プロトコル バージョン 1 で短期的に使われるサーバ鍵の
 ビット数を指定します。
-最小値は 512 で、デフォルトは 1024 です。
+最小値およびデフォルトの値は 1024 です。
 .It Cm StreamLocalBindMask (Unixドメインソケット作成時のマスク)
 ローカルまたはリモートのポート転送のさいに、
 Unixドメインソケットファイルを作成する時の
@@ -1443,8 +1533,7 @@ Unixドメインソケットファイルを作成する時の
 ルートディレクトリを変更させる状況での設定を簡単にします。
 .Pp
 デフォルトではサブシステムは
-何も定義されていません。この設定項目は
-プロトコル バージョン 2 にのみ適用されることに注意してください。
+何も定義されていません。
 .It Cm SyslogFacility (syslog 分類コード)
 .Xr sshd 8
 が出力するログメッセージで使われるログの分類コード
@@ -1495,9 +1584,18 @@ TCP Keepalive を禁止するには、この値を
 .Xr sshd 8
 が IP アドレスからリモートホスト名を逆引き検索して得た名前を
 正引きして、同じ IP アドレスになるかどうか確認します。
-デフォルトでは
+.Pp
+この項目の値が
 .Dq no
-になっています。
+に設定されている場合 (デフォルト)、
+.Pa ~/.ssh/authorized_keys
+における
+.Cm from
+および
+.Nm
+.Cm Match
+.Cm Host
+句の検査では IPアドレスのみが使われ、ホスト名は使用されません。
 .It Cm UseLogin (login の使用)
 対話的ログインセッションの際、
 .Xr login 1
@@ -1547,14 +1645,21 @@ root 権限を分離するかどうかを指定します。
 別のプロセスが新たに作られます。これの目的は、まずそうな部分を
 root 権限をもたないプロセスのみに限定することによって、
 root 権限による被害の拡大を防ぐためです。
-デフォルトでは
-.Dq yes (root権限を分離する)
-になっています。
+とりうる引数は、
+.Dq yes
+、
+.Dq no
+、または
+.Dq sandbox
+のいずれかです。
 .Cm UsePrivilegeSeparation
 が
 .Dq sandbox
 に指定されている場合、認証前の特権をもたないプロセスは
 さらなる制限の対象となります。
+デフォルトでは
+.Dq sandbox
+になっています。
 .It Cm VersionAddendum (バージョン番号追加文字列)
 接続時にサーバから送られてきた SSH プロトコルバナーに
 追加する文字列を指定します。

@@ -1,4 +1,4 @@
-.\" $OpenBSD: sftp.1,v 1.101 2015/01/30 11:43:14 djm Exp $
+.\" $OpenBSD: sftp.1,v 1.105 2016/07/16 06:57:55 jmc Exp $
 .\"
 .\" Copyright (c) 2001 Damien Miller.  All rights reserved.
 .\"
@@ -24,7 +24,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: January 30 2015 $
+.Dd $Mdocdate: July 16 2016 $
 .Dt SFTP 1
 .Os
 .Sh 名前
@@ -204,6 +204,7 @@ This option is directly passed to
 .It CanonicalizeHostname
 .It CanonicalizeMaxDots
 .It CanonicalizePermittedCNAMEs
+.It CertificateFile
 .It ChallengeResponseAuthentication
 .It CheckHostIP
 .It Cipher
@@ -225,8 +226,9 @@ This option is directly passed to
 .It HostKeyAlgorithms
 .It HostKeyAlias
 .It HostName
-.It IdentityFile
 .It IdentitiesOnly
+.It IdentityAgent
+.It IdentityFile
 .It IPQoS
 .It KbdInteractiveAuthentication
 .It KbdInteractiveDevices
@@ -241,6 +243,7 @@ This option is directly passed to
 .It PreferredAuthentications
 .It Protocol
 .It ProxyCommand
+.It ProxyJump
 .It PubkeyAuthentication
 .It RekeyLimit
 .It RhostsRSAAuthentication
@@ -595,7 +598,7 @@ Megabyte, Gigabyte, Terabyte, Petabyte および Exabyte。
 を実行します。
 .It Ic version
 .Nm
-のプロトコルバージョン番号を表示します。
+のプロトコル バージョン番号を表示します。
 .It Ic \&!
 ローカルマシン上のシェルに入ります。
 .It Ic \&?

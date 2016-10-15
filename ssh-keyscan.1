@@ -1,4 +1,4 @@
-.\"	$OpenBSD: ssh-keyscan.1,v 1.36 2014/08/30 15:33:50 sobrado Exp $
+.\"	$OpenBSD: ssh-keyscan.1,v 1.38 2015/11/08 23:24:03 jmc Exp $
 .\"
 .\" Copyright 1995, 1996 by David Mazieres <dm@lcs.mit.edu>.
 .\"
@@ -8,7 +8,7 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.Dd $Mdocdate: August 30 2014 $
+.Dd $Mdocdate: November 8 2015 $
 .Dt SSH-KEYSCAN 1
 .Os
 .Sh 名前
@@ -17,7 +17,7 @@
 .Sh 書式
 .Nm ssh-keyscan
 .Bk -words
-.Op Fl 46Hv
+.Op Fl 46cHv
 .Op Fl f Ar ファイル名
 .Op Fl p Ar ポート番号
 .Op Fl T Ar タイムアウト秒数
@@ -52,6 +52,8 @@ ssh が走っていなかったり、ホストがダウンしていたりして�
 .It Fl 6
 .Nm
 が IPv6 アドレスのみを使うよう強制します。
+.It Fl c
+当該ホストに対して普通の鍵ではなく証明書を要求します。
 .It Fl f Ar ファイル名
 指定されたファイルから、ホスト名あるいは
 .Dq アドレスリスト ホスト名リスト

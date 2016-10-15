@@ -35,8 +35,8 @@
 .\"
 .\" Japanese translation by Yusuke Shinyama <yusuke at cs . nyu . edu>
 .\"
-.\" $OpenBSD: sshd.8,v 1.279 2015/05/01 07:11:47 djm Exp $
-.Dd $Mdocdate: May 1 2015 $
+.\" $OpenBSD: sshd.8,v 1.284 2016/02/17 07:38:19 jmc Exp $
+.Dd $Mdocdate: February 17 2016 $
 .Dt SSHD 8
 .Os
 .Sh 名前
@@ -188,16 +188,14 @@ fork したデーモンは、鍵の交換、暗号化、認証、コマンド実
 .Nm
 が
 .Xr inetd 8
-から起動されることを指定します。ふつう
+から起動されることを指定します。
+SSH プロトコル バージョン 1 が許可されている場合、
+ふつう
 .Nm
-が inetd から起動されることはありません。
+が inetd から起動すべきではありません。
 なぜなら sshd はクライアントを
-受けつける前にサーバ鍵を生成しておく必要があり、これには
-数十秒かかるためです。鍵が毎回生成しなおされると、クライアントは
-非常に長い間待たされてしまいます。しかし鍵のサイズが
-小さければ (たとえば 512 ビットぐらい)、inetd から
-.Nm
-を使うことも可能でしょう。
+受けつける前にサーバ鍵を生成しておく必要があり、
+これには時間がかかるためです。
 .It Fl k Ar 鍵の生成間隔
 サーバ鍵がどれくらいの間隔で再生成されるかを指定します
 (デフォルトでは 3600 秒、つまり 1 時間ごとになっています)。
@@ -276,19 +274,19 @@ DNS を必要とする設定オプションには、
 .El
 .Sh 認証
 OpenSSH SSH デーモンは、デフォルトでは
-SSH プロトコルバージョン 2 のみをサポートしていますが、
+SSH プロトコル バージョン 2 のみをサポートしていますが、
 サポートするプロトコルは
 .Xr sshd_config 5 
 の
 .Cm Protocol
 オプションで変更できます。
-プロトコルバージョン 2 は DSA, ECDSA, Ed25519 および RSA鍵をサポートしています。
-プロトコルバージョン 1 がサポートするのは RSA 鍵だけです。
-どちらのプロトコルでも、各ホストは識別のためのホストごとの鍵を持っており、
-これは通常 2048ビットからなります。
+プロトコル バージョン 1 は使用すべきではありません。
+これはレガシー・デバイスのサポート用のみに提供されています。
 .Pp
-プロトコルバージョン 1 では、追加のサーバ鍵によって
-forward security
+各ホストは、そのホストを特定するための鍵を保持しています。
+プロトコル バージョン 1 では、サーバ起動時に生成される
+通常 1024 ビットの追加のサーバ鍵によって、
+部分的な forward security
 (訳注: 将来、鍵が破られても現在の通信の秘匿性が保たれる特性) を
 提供しています。サーバ鍵は使われると通常 1 時間おきに
 再生成され、これは決してディスクに保存されません。
@@ -307,7 +305,7 @@ forward security
 暗号方式は、クライアントが
 サーバから提供されたものの中から選択します。
 .Pp
-プロトコルバージョン 2 では、forward security は
+プロトコル バージョン 2 では、forward security は
 Diffie-Hellman 鍵交換によって提供されます。
 この鍵交換プロセスにより、サーバとクライアント間で
 共通のセッション鍵が得られます。これ以降の通信は
@@ -536,6 +534,11 @@ RSA 鍵の長さが少なくとも 768 ビット以上である必要があり�
 以下のオプションがサポートされています 
 (これらのキーワードは大文字小文字を区別しません) :
 .Bl -tag -width Ds
+.It Cm agent-forwarding
+以前
+.Cm restrict
+オプションによって禁止されていた認証エージェントの
+転送を許可します。
 .It Cm cert-authority
 ここで指定されている鍵が、認証局 (CA) のものであることを指定します。
 CA はユーザ認証のための署名された証明書を確認するときに使われます。
@@ -639,6 +642,10 @@ IPv6 アドレスは、ブラケット [ ] で区切って指定できます。
 そのまま書く必要があります。
 .Cm *
 のようなポート指定は、どのポートにもマッチします。
+.It Cm port-forwarding
+以前
+.Cm restrict
+によって禁止されていたポート転送を許可します。
 .It Cm principals="principals"
 .Cm cert-authority
 行で、証明書による認証が許可されている principal の一覧を
@@ -649,12 +656,34 @@ IPv6 アドレスは、ブラケット [ ] で区切って指定できます。
 .Cm cert-authority
 で指定される、
 信頼された証明書の署名者とみなされていない鍵に対しては無視されます。
+.It Cm pty
+以前
+.Cm restrict
+オプションによって禁止されていた端末の割り当てを許可します。
+.It Cm restrict
+すべての制限を有効にします。つまり、ポート転送・認証エージェント転送
+および X11 転送を禁止し、仮想端末の割り当てと
+.Pa ~/.ssh/rc
+の実行も禁止します。
+将来、authorized_keys ファイルにこれ以外の制限機能が加えられた場合、
+それらも有効になります。
 .It Cm tunnel="n"
 サーバ側の
 .Xr tun 4
 デバイスを強制的に指定します。
 このオプションがない場合、クライアントがトンネリングを
 要求すると、現在の次に使用可能なデバイスが使われます。
+.It Cm user-rc
+以前
+.Cm restrict
+オプションで禁止されていた
+.Pa ~/.ssh/rc
+ファイルの実行を許可します。
+.It Cm X11-forwarding
+以前
+.Cm restrict
+オプションで禁止されていた
+X11転送を許可します。
 .El
 .Pp
 authorized_keys ファイルの例:
@@ -669,6 +698,10 @@ permitopen="192.0.2.1:80",permitopen="192.0.2.2:25" ssh-dss
 AAAAB5...21S==
 tunnel="0",command="sh /etc/netstart tun0" ssh-rsa AAAA...==
 jane@example.net
+restrict,command="uptime" ssh-rsa AAAA1C8...32Tv==
+user@example.net
+restrict,pty,command="nethack" ssh-rsa AAAA1f8...IrrC5==
+user@example.net
 .Ed
 .Sh ssh_known_hosts ファイルの形式
 .Pa /etc/ssh/ssh_known_hosts
@@ -907,6 +940,8 @@ Diffie-Hellman 鍵交換 (Diffie-Hellman Group Exchange) で
 このファイルの形式は
 .Xr moduli 5 
 で説明されています。
+このファイル中に利用可能な群がない場合、
+内部の固定値が使われます。
 .Pp
 .It Pa /etc/motd
 .Xr motd 5 
